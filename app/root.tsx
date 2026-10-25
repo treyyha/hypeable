@@ -4,7 +4,7 @@ import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction } from 'react-router';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction, type MetaFunction } from 'react-router';
 import { cssTransition, ToastContainer } from 'react-toastify';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
@@ -38,7 +38,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap',
   },
   {
     rel: 'preconnect',
@@ -147,7 +147,10 @@ import { prebootWebContainer } from './lib/performance/webcontainer-optimizer';
 import { logStore } from './lib/stores/logs';
 import { themeStore } from './lib/stores/theme';
 import globalStyles from './styles/index.scss?url';
+import { brandMeta } from './utils/brand';
 import { stripIndents } from './utils/stripIndent';
+
+export const meta: MetaFunction = () => brandMeta();
 
 export default function App() {
   const theme = useStore(themeStore);
