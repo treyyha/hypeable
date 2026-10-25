@@ -1,0 +1,10 @@
+---
+description: Auto-ship every coherent unit of work
+alwaysApply: true
+---
+- After you finish each coherent unit of work (a feature, fix, or docs change), run: `npm run ship -- "type(scope): summary"` using Conventional Commits (`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `security`), with a body explaining WHY.
+- Update README/docs in the same commit as any behavior change.
+- Never use `--no-verify`. Never force-push. Never commit `.env*`, keys, tokens, or `*.pem`.
+- If the secret scan blocks a commit, fix the cause. Do not bypass it. If a real key was ever exposed, tell the user to rotate it.
+- Never read `.env*` files or print environment variables.
+- Keep commits small: one idea each.
