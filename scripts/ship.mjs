@@ -9,7 +9,11 @@ import { existsSync, readFileSync } from 'node:fs';
 const args = process.argv.slice(2);
 const skipChecks = args.includes('--no-verify-checks');
 const userMsg = args.find((a) => !a.startsWith('--'));
-const run = (cmd, a, opts = {}) => spawnSync(cmd, a, { stdio: 'inherit', shell: process.platform === 'win32', ...opts });
+const NPM_CMDS = new Set(['npm', 'pnpm']);
+// git/node: argv array, no shell, so spaces/quotes/parens in commit messages survive on Windows.
+// npm/pnpm: shell required on Windows because they are .cmd shims, not executables.
+const run = (cmd, a, opts = {}) =>
+  spawnSync(cmd, a, { stdio: 'inherit', ...opts, shell: NPM_CMDS.has(cmd) });
 const out = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
 const die = (m) => { console.error('❌ ' + m); process.exit(1); };
 
