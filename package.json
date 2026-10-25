@@ -22,6 +22,7 @@
     "build": "react-router build",
     "dev": "node pre-start.cjs  && react-router dev --host ::",
     "test": "vitest --run",
+    "test:related": "node scripts/test-related.mjs",
     "test:watch": "vitest",
     "test:unit": "vitest --run tests/unit",
     "test:integration": "vitest --run tests/integration",
@@ -47,7 +48,7 @@
     "dockerrun": "docker run -it -d --name bolt-ai-live -p 5173:5173 --env-file .env.local bolt-ai",
     "dockerbuild:prod": "docker build -t bolt-ai:production -t bolt-ai:latest --target bolt-ai-production .",
     "dockerbuild": "docker build -t bolt-ai:development -t bolt-ai:latest --target development .",
-    "typecheck": "tsc",
+    "typecheck": "node scripts/typecheck.mjs",
     "update:ripgrep-wasm": "node scripts/update-ripgrep-wasm.mjs",
     "typegen": "wrangler types",
     "preview": "pnpm run build && pnpm run start",
@@ -66,6 +67,7 @@
     "electron:build:dist": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl",
     "setup": "node scripts/setup.mjs",
     "ship": "node scripts/ship.mjs",
+    "finish": "node scripts/finish.mjs",
     "secrets": "node scripts/secret-scan.mjs --all"
   },
   "engines": {
@@ -206,6 +208,7 @@
     "fast-glob": "^3.3.2",
     "husky": "9.1.7",
     "jsdom": "^30.1.2",
+    "lint-staged": "15.5.2",
     "node-fetch": "^3.3.2",
     "prettier": "^3.9.9",
     "rimraf": "^6.1.3",
@@ -251,5 +254,8 @@
       }
     }
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@9.15.9",
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs,ts,tsx}": "eslint --cache --cache-location ./node_modules/.cache/eslint"
+  }
 }

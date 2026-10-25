@@ -43,7 +43,7 @@ Early. Built in public. See [docs/ROADMAP.md](docs/ROADMAP.md).
 ## Quick start
 ```bash
 git clone https://github.com/treyyha/hypeable && cd hypeable
-pnpm install         # Husky hooks: secret-scan + conventional commits
+pnpm install         # Husky: secret-scan + lint-staged on commit, typecheck on push
 npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
@@ -61,7 +61,7 @@ pnpm dev
 Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the only network call with the key is from your local process to the model provider you chose.
 
 ## Testing
-Unit tests are `pnpm test`. To prove the workerd dev server without a real provider key, run `pnpm exec playwright install chromium` then `pnpm e2e` (starts a local OpenAI-compatible mock). Details: [docs/TESTING.md](docs/TESTING.md).
+Related unit tests: `npm run test:related`. Full suite: `pnpm test` (CI). To prove the workerd dev server without a real provider key, run `pnpm exec playwright install chromium` then `pnpm e2e` (starts a local OpenAI-compatible mock). Commit locally with `npm run ship -- "type(scope): summary"`; push and watch CI once with `npm run finish`. Details: [docs/TESTING.md](docs/TESTING.md).
 
 ## Contributing
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org).

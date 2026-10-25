@@ -5,10 +5,13 @@ How to prove the LLM chain without a real provider key, and what the automated s
 ## Unit / integration (Node)
 
 ```bash
-pnpm test
-pnpm run typecheck
-pnpm run lint
+npm run test:related   # changed files only — default local loop
+pnpm test              # full unit suite (CI)
+pnpm run typecheck     # incremental; also the pre-push hook
+pnpm run lint          # eslint --cache on app/
 ```
+
+Locally run related tests. The full suite and e2e run in CI. Run e2e locally only when touching `app/routes`, the chat flow, or the shell UI.
 
 Vitest runs in Node (or jsdom for UI tests). Those paths construct `Request` with undici `Headers`. They do **not** load workerd. A green unit suite is not proof that `pnpm dev` can talk to a model.
 
@@ -67,7 +70,9 @@ That builds, then serves `vite preview` on 5173 plus the mock. `?debugLoop=1` is
 
 ## CI
 
-`.github/workflows/ci.yml` has an `e2e` job that installs Chromium (cached under `~/.cache/ms-playwright`) and runs `pnpm e2e`. It is `continue-on-error: true` until the smoke is proven stable.
+`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, unit tests, build, and e2e run in parallel jobs unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
+
+The `e2e` job is `continue-on-error: true` until the smoke is proven stable. Unit tests stay `continue-on-error` until `docs/KNOWN-ISSUES.md` is empty.
 
 Local `@cloudflare/vite-plugin` (`pnpm dev` and `vite preview`) lets workerd fetch `127.0.0.1`. A Worker on Cloudflare's edge cannot; the loopback mock only proves the local workerd path.
 
