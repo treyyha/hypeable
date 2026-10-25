@@ -23,6 +23,10 @@ These assert a 16.67ms (60fps) wall-clock budget against `render()` in jsdom. Th
 
 6. `app/lib/stores/workbench-lifecycle.spec.ts` — `keeps Preview selected while incoming file actions stream`. The `FilesStore` mock does not implement `getFile`, so `_runAction` throws `TypeError: this[#filesStore].getFile is not a function` (`app/lib/stores/workbench.ts` around the imported-project file registration).
 
+### Shiki timing flake
+
+`tests/performance/syntax-highlighting.perf.test.ts` asserts wall-clock budgets (`< 600ms` small, `< 1000ms` large, `< 200ms` for 10 incremental highlights). Under CI load `createHighlighter()` / `codeToHtml()` can exceed those budgets even when highlighting is correct. `tests/unit/syntax-highlighter-client.test.ts` can also flake if the worker is slow to start. Do not treat a timing miss as a highlighter regression.
+
 ## Production `pnpm audit --prod` leftovers
 
 Only critical/high issues with a patch or minor fix were applied; no major bumps. After those batches, **0 critical / 0 high** remain in production.
@@ -32,7 +36,7 @@ Patched (pnpm overrides, patch-level):
 - `dompurify` `3.4.16` → `^3.4.17` (critical + high)
 - `zod` `4.6.5` → `^4.6.6` (high; lockfile resolved `4.6.7`)
 - `body-parser` `2.3.0` → `^2.4.0` (high)
-- `undici` `7.30.0` → `^7.30.1` (high)
+- `undici` `7.30.0` → `^7.30.1` (high). The override pins every `undici` to `^7.30.1`. Two **dev-only** dependents want a different major (`jsdom` wants `^8`, `node-gyp` wants `^6`); they stay on the overridden 7.x until a non-breaking path exists. Production code does not use those packages.
 
 Left unpatched on purpose (moderate/low, or no non-major fix):
 
