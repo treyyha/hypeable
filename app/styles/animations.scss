@@ -76,3 +76,25 @@
     animation: none;
   }
 }
+
+.cost-meter-tick {
+  animation: costMeterTick 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes costMeterTick {
+  0% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cost-meter-tick {
+    animation: none;
+  }
+}

@@ -1,6 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
+import { CostMeter } from '~/components/cost/CostMeter';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
@@ -27,20 +28,23 @@ export function Header() {
           </span>
         </a>
       </div>
-      {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
-        <>
-          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
-            <ClientOnly>{() => <ChatDescription />}</ClientOnly>
-          </span>
+      {chat.started && (
+        <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+          <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+        </span>
+      )}
+      <div className="ml-auto flex items-center gap-2">
+        <ClientOnly>{() => <CostMeter />}</ClientOnly>
+        {chat.started && (
           <ClientOnly>
             {() => (
-              <div className="">
+              <div>
                 <HeaderActionButtons chatStarted={chat.started} />
               </div>
             )}
           </ClientOnly>
-        </>
-      )}
+        )}
+      </div>
     </header>
   );
 }

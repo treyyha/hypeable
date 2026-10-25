@@ -324,8 +324,18 @@ export const Menu = () => {
 
     document.addEventListener('open-github-settings', handleOpenGitHubSettings);
 
+    const handleOpenHypeableSettings = (event: Event) => {
+      const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab;
+      setSettingsInitialTab(tab);
+      setIsSettingsOpen(true);
+      setOpen(false);
+    };
+
+    document.addEventListener('open-hypeable-settings', handleOpenHypeableSettings);
+
     return () => {
       document.removeEventListener('open-github-settings', handleOpenGitHubSettings);
+      document.removeEventListener('open-hypeable-settings', handleOpenHypeableSettings);
     };
   }, []);
 

@@ -3,6 +3,7 @@ import { memo, Fragment } from 'react';
 import { Markdown } from './Markdown';
 import { ThinkingDetails } from './Thinking';
 import { ToolInvocations } from './ToolInvocations';
+import { MessageCost } from '~/components/cost/MessageCost';
 import Popover from '~/components/ui/Popover';
 import WithTooltip from '~/components/ui/Tooltip';
 import {
@@ -170,10 +171,8 @@ export const AssistantMessage = memo(
               </Popover>
             )}
             <div className="flex w-full items-center justify-between">
-              {usage && (
-                <div>
-                  Tokens: {usage.totalTokens} (prompt: {usage.promptTokens}, completion: {usage.completionTokens})
-                </div>
+              {(usage || messageId) && (
+                <MessageCost messageId={messageId} model={model} provider={provider?.name} usage={usageData ?? usage} />
               )}
               {(onRewind || onFork) && messageId && (
                 <div className="flex gap-2 flex-col lg:flex-row ml-auto">

@@ -12,7 +12,7 @@ import { getLlmRequestHeaders, readStoredApiKeys } from '~/lib/api/api-key-stora
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
 import { isServerAgentTool } from '~/lib/common/agentLoop';
 import { STARTER_BUILD_FLAG } from '~/lib/common/starterBuild';
-import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
+import { useCostGuard, useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { description, useChatHistory } from '~/lib/persistence';
 import {
@@ -184,6 +184,9 @@ export const ChatImpl = memo(
       () => undefined,
     );
 
+    const costUsageRef = useRef<(data: unknown) => void>(() => undefined);
+    const costBypassRef = useRef(false);
+
     const bodyRef = useRef({
       files,
       promptId,
@@ -272,6 +275,10 @@ export const ChatImpl = memo(
        * instead, and ProgressCompilation renders whatever this holds.
        */
       onData: (part) => {
+        if (part.type === 'data-usage') {
+          costUsageRef.current(part.data);
+        }
+
         const data = part.data as Partial<ProgressAnnotation> | undefined;
 
         if (data?.type === 'progress' && typeof data.label === 'string') {
@@ -766,6 +773,25 @@ export const ChatImpl = memo(
       });
     };
 
+    const { beforeSend, onUsage, onStreamEnd } = useCostGuard({
+      model,
+      provider: provider.name,
+      messages,
+      isStreaming: isLoading,
+      abort,
+    });
+    costUsageRef.current = onUsage;
+
+    const wasStreamingRef = useRef(false);
+
+    useEffect(() => {
+      if (wasStreamingRef.current && !isLoading) {
+        onStreamEnd();
+      }
+
+      wasStreamingRef.current = isLoading;
+    }, [isLoading, onStreamEnd]);
+
     const handleError = useCallback(
       (error: any, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
         logger.error(`${context} request failed`, error);
@@ -937,6 +963,19 @@ export const ChatImpl = memo(
         abort();
         return;
       }
+
+      if (!costBypassRef.current) {
+        const gate = beforeSend(messageContent, () => {
+          costBypassRef.current = true;
+          void sendMessage(_event, messageInput);
+        });
+
+        if (gate !== 'send') {
+          return;
+        }
+      }
+
+      costBypassRef.current = false;
 
       let finalMessageContent = messageContent;
 
