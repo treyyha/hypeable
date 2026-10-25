@@ -52,8 +52,25 @@ function nestedCacheRead(value: unknown): number | undefined {
   return (
     asFiniteNumber(record.cacheRead) ??
     asFiniteNumber(record.cacheReadTokens) ??
+    asFiniteNumber(record.cache_read) ??
     asFiniteNumber(record.cached) ??
     asFiniteNumber(record.cachedTokens)
+  );
+}
+
+function nestedCacheWrite(value: unknown): number | undefined {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return (
+    asFiniteNumber(record.cacheWrite) ??
+    asFiniteNumber(record.cacheWriteTokens) ??
+    asFiniteNumber(record.cache_write) ??
+    asFiniteNumber(record.cacheCreation) ??
+    asFiniteNumber(record.cacheCreationTokens)
   );
 }
 
@@ -116,7 +133,7 @@ export function extractTokenUsage(usage: unknown): TokenUsage | undefined {
 
   const record = usage as Record<string, unknown>;
 
-  const prompt =
+  const promptRaw =
     nestedTotal(record.promptTokens) ??
     nestedTotal(record.inputTokens) ??
     asFiniteNumber(record.prompt_tokens) ??
@@ -132,10 +149,34 @@ export function extractTokenUsage(usage: unknown): TokenUsage | undefined {
     asFiniteNumber(record.cachedTokens) ??
     asFiniteNumber(record.cachedInputTokens) ??
     asFiniteNumber(record.cacheReadInputTokens) ??
+    asFiniteNumber(record.cache_read_input_tokens) ??
     nestedCacheRead(record.inputTokens) ??
     nestedCacheRead(record.inputTokenDetails) ??
     nestedCacheRead(record.promptTokensDetails) ??
+    nestedCacheRead(record.prompt_tokens_details) ??
     0;
+  const cacheWrite =
+    asFiniteNumber(record.cacheWriteTokens) ??
+    asFiniteNumber(record.cacheCreationInputTokens) ??
+    asFiniteNumber(record.cache_creation_input_tokens) ??
+    asFiniteNumber(record.cache_write_input_tokens) ??
+    nestedCacheWrite(record.inputTokens) ??
+    nestedCacheWrite(record.inputTokenDetails) ??
+    nestedCacheWrite(record.promptTokensDetails) ??
+    0;
+
+  /*
+   * Anthropic reports uncached input_tokens plus sibling cache_* fields.
+   * OpenAI-style blobs already include cache-read inside prompt_tokens.
+   */
+  const separateCacheFields =
+    asFiniteNumber(record.cache_read_input_tokens) !== undefined ||
+    asFiniteNumber(record.cache_creation_input_tokens) !== undefined ||
+    asFiniteNumber(record.cache_write_input_tokens) !== undefined ||
+    asFiniteNumber(record.cacheReadInputTokens) !== undefined ||
+    asFiniteNumber(record.cacheCreationInputTokens) !== undefined;
+
+  const prompt = separateCacheFields ? promptRaw + cached + cacheWrite : promptRaw;
 
   const total = asFiniteNumber(record.totalTokens) ?? asFiniteNumber(record.total_tokens) ?? prompt + completion;
   const cost = readProviderCost(record);

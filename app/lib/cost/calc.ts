@@ -47,6 +47,10 @@ export type KnownCost = {
   cachedTokens: number;
   price: PriceRow | CustomModelPrice;
   source: 'table' | 'custom' | 'provider' | 'local';
+  verified: boolean;
+
+  /** True when cache tokens were present but the row has no cachedInput rate. */
+  cachedBilledAsInput: boolean;
 };
 
 export type UnknownCost = {
@@ -113,6 +117,30 @@ export function formatDollars(value: number, digits = 3): string {
   const abs = Math.abs(rounded);
 
   return `${sign}$${abs.toFixed(digits)}`;
+}
+
+/** Unverified list prices are estimates; the ≈ prefix is the visual cue. */
+export function formatSpend(value: number, options: { verified?: boolean; digits?: number } = {}): string {
+  const amount = formatDollars(value, options.digits ?? 3);
+
+  return options.verified === false ? `≈${amount}` : amount;
+}
+
+export function formatPricesCheckedAt(isoDate: string): string {
+  const parsed = Date.parse(`${isoDate}T00:00:00Z`);
+
+  if (!Number.isFinite(parsed)) {
+    return `prices checked ${isoDate}`;
+  }
+
+  const formatted = new Date(parsed).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+
+  return `prices checked ${formatted}`;
 }
 
 export function formatTokenCount(tokens: number): string {
@@ -234,6 +262,8 @@ export function cost(
       cachedTokens: cached,
       price: { pattern: model, input: 0, output: 0, verified: true },
       source: 'provider',
+      verified: true,
+      cachedBilledAsInput: false,
     };
   }
 
@@ -250,6 +280,8 @@ export function cost(
     };
   }
 
+  const hasCachedRate = typeof lookedUp.price.cachedInput === 'number';
+
   return {
     unknown: false,
     dollars: dollarsFromPrice(lookedUp.price, prompt, completion, cached),
@@ -259,5 +291,7 @@ export function cost(
     cachedTokens: cached,
     price: lookedUp.price,
     source: lookedUp.source,
+    verified: lookedUp.verified,
+    cachedBilledAsInput: cached > 0 && !hasCachedRate,
   };
 }

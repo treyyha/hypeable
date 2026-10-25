@@ -27,6 +27,7 @@ function toRecord(entry: UsageEntry, result: CostResult): MessageCostRecord {
     completionTokens: result.completionTokens,
     cachedTokens: result.cachedTokens,
     pending: entry.pending,
+    verified: result.unknown ? undefined : result.verified,
   };
 }
 
@@ -37,6 +38,7 @@ function addBreakdown(snapshot: CostSnapshot, record: MessageCostRecord, sign: 1
   const promptTokens = current.promptTokens + sign * record.promptTokens;
   const completionTokens = current.completionTokens + sign * record.completionTokens;
   const unknown = record.unknown || Boolean(current.unknown);
+  const unverified = record.verified === false || Boolean(current.unverified);
 
   if (promptTokens <= 0 && completionTokens <= 0 && Math.abs(dollars) < 1e-9) {
     delete snapshot.byModel[key];
@@ -48,6 +50,7 @@ function addBreakdown(snapshot: CostSnapshot, record: MessageCostRecord, sign: 1
     promptTokens: Math.max(0, promptTokens),
     completionTokens: Math.max(0, completionTokens),
     unknown: unknown || undefined,
+    unverified: unverified || undefined,
   };
 }
 

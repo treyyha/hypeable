@@ -1,8 +1,8 @@
 import { useStore } from '@nanostores/react';
-import { cost, formatDollars, formatTokenCount } from '~/lib/cost/calc';
+import { CostAmount } from './CostAmount';
+import { cost, formatTokenCount } from '~/lib/cost/calc';
 import { extractTokenUsage } from '~/lib/cost/usage';
 import { costStore } from '~/lib/stores/cost';
-import { classNames } from '~/utils/classNames';
 
 function openCostSettings() {
   document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
@@ -40,15 +40,18 @@ export function MessageCost({
 
   const unknown = result ? result.unknown : true;
   const dollars = result && !result.unknown ? result.dollars : 0;
+  const verified = result && !result.unknown ? result.verified !== false : true;
   const prompt = stored?.promptTokens ?? tokens?.promptTokens ?? 0;
   const completion = stored?.completionTokens ?? tokens?.completionTokens ?? 0;
   const total = prompt + completion;
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-bolt-elements-textTertiary">
-      <span className={classNames('tabular-nums', unknown ? '' : 'text-accent-400/90')}>
-        {unknown ? 'price unknown' : formatDollars(dollars, 3)}
-      </span>
+      {unknown ? (
+        <span className="tabular-nums">price unknown</span>
+      ) : (
+        <CostAmount dollars={dollars} verified={verified} digits={3} className="text-accent-400/90" />
+      )}
       <span className="tabular-nums">
         {formatTokenCount(total)} tok
         <span className="text-bolt-elements-textTertiary/80">

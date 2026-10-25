@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { cost, estimateTokensFromText, formatDollars, formatTokenCount, lookupPrice, roundDollars } from './calc';
+import {
+  cost,
+  estimateTokensFromText,
+  formatDollars,
+  formatPricesCheckedAt,
+  formatSpend,
+  formatTokenCount,
+  lookupPrice,
+  roundDollars,
+} from './calc';
 
 describe('cost calculator', () => {
   it('prices Anthropic Sonnet 4.6 from the official table', () => {
@@ -78,6 +87,31 @@ describe('cost calculator', () => {
     }
 
     expect(result.dollars).toBe(0.3);
+    expect(result.cachedBilledAsInput).toBe(false);
+  });
+
+  it('bills cache tokens at the input rate when the row has no cachedInput', () => {
+    const result = cost('gpt-5.5-pro', 1_000_000, 0, { cachedTokens: 1_000_000 });
+    expect(result.unknown).toBe(false);
+
+    if (result.unknown) {
+      return;
+    }
+
+    expect(result.dollars).toBe(30);
+    expect(result.cachedBilledAsInput).toBe(true);
+  });
+
+  it('marks unverified list prices so the meter can show an estimate', () => {
+    const result = cost('claude-3-haiku-20240307', 1_000_000, 0);
+    expect(result.unknown).toBe(false);
+
+    if (result.unknown) {
+      return;
+    }
+
+    expect(result.verified).toBe(false);
+    expect(result.dollars).toBe(0.25);
   });
 
   it('prefers OpenRouter billed cost over the list-price estimate', () => {
@@ -137,6 +171,9 @@ describe('cost calculator', () => {
   it('formats the header pill and compact token counts', () => {
     expect(formatDollars(0.043)).toBe('$0.043');
     expect(formatDollars(0.42, 2)).toBe('$0.42');
+    expect(formatSpend(0.043)).toBe('$0.043');
+    expect(formatSpend(0.043, { verified: false })).toBe('≈$0.043');
+    expect(formatPricesCheckedAt('2026-10-25')).toBe('prices checked 25 Oct 2026');
     expect(formatTokenCount(38_000)).toBe('38k');
     expect(formatTokenCount(250)).toBe('250');
   });

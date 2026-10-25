@@ -16,6 +16,9 @@ export type MessageCostRecord = {
   completionTokens: number;
   cachedTokens: number;
   pending?: boolean;
+
+  /** False when the list price was tagged unverified. Missing on older snapshots. */
+  verified?: boolean;
 };
 
 export type ModelBreakdown = {
@@ -23,6 +26,7 @@ export type ModelBreakdown = {
   promptTokens: number;
   completionTokens: number;
   unknown?: boolean;
+  unverified?: boolean;
 };
 
 export type CustomModelPriceRecord = {
@@ -159,6 +163,7 @@ function sanitizeMessages(value: unknown): Record<string, MessageCostRecord> {
       completionTokens: asNumber(row.completionTokens),
       cachedTokens: asNumber(row.cachedTokens),
       pending: Boolean(row.pending),
+      verified: row.verified === false ? false : row.verified === true ? true : undefined,
     };
   }
 
@@ -179,6 +184,7 @@ function sanitizeBreakdown(value: unknown): Record<string, ModelBreakdown> {
       promptTokens: asNumber(row.promptTokens),
       completionTokens: asNumber(row.completionTokens),
       unknown: Boolean(row.unknown) || undefined,
+      unverified: Boolean(row.unverified) || undefined,
     };
   }
 

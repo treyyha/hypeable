@@ -15,6 +15,17 @@ describe('cost state transitions', () => {
     expect(snapshot.dailyTotal).toBe(0.15);
     expect(snapshot.byModel['gpt-4o-mini']?.dollars).toBe(0.15);
     expect(snapshot.messages.m1.dollars).toBe(0.15);
+    expect(snapshot.messages.m1.verified).toBe(true);
+  });
+
+  it('flags unverified list prices on the per-model breakdown', () => {
+    const { snapshot } = applyUsage(
+      emptySnapshot(now),
+      { id: 'm1', model: 'claude-3-haiku-20240307', promptTokens: 1_000_000, completionTokens: 0 },
+      now,
+    );
+    expect(snapshot.messages.m1.verified).toBe(false);
+    expect(snapshot.byModel['claude-3-haiku-20240307']?.unverified).toBe(true);
   });
 
   it('is idempotent for the same message id', () => {

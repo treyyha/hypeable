@@ -3,7 +3,8 @@ import * as Popover from '@radix-ui/react-popover';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { CapReachedModal } from './CapReachedModal';
-import { formatDollars, formatTokenCount } from '~/lib/cost/calc';
+import { CostAmount } from './CostAmount';
+import { formatDollars, formatPricesCheckedAt, formatTokenCount, getPricesCatalog } from '~/lib/cost/calc';
 import { capLevel } from '~/lib/cost/caps';
 import { formatReceipt } from '~/lib/cost/receipt';
 import { costStore, costToastStore, startNewSession } from '~/lib/stores/cost';
@@ -101,6 +102,8 @@ export function CostMeter() {
   const tone = pillTone(snapshot.sessionTotal, snapshot.dailyTotal, snapshot.caps.session, snapshot.caps.daily);
   const models = Object.entries(snapshot.byModel).sort((a, b) => b[1].dollars - a[1].dollars);
   const unknownModels = models.filter(([, row]) => row.unknown);
+  const unverifiedSpend = models.some(([, row]) => row.unverified);
+  const pricesChecked = formatPricesCheckedAt(getPricesCatalog().checkedAt);
 
   useEffect(() => {
     const next =
@@ -143,10 +146,10 @@ export function CostMeter() {
                 'cost-meter-tick': ticking,
               },
             )}
-            aria-label={`Session spend ${formatDollars(snapshot.sessionTotal, 3)}`}
+            aria-label={`Session spend ${unverifiedSpend ? 'about ' : ''}${formatDollars(snapshot.sessionTotal, 3)}${unverifiedSpend ? ', price unverified' : ''}`}
           >
             <span className="i-ph:coins text-[14px] opacity-80" />
-            <span>{formatDollars(snapshot.sessionTotal, 3)}</span>
+            <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={3} />
           </button>
         </Popover.Trigger>
         <Popover.Portal>
@@ -158,9 +161,10 @@ export function CostMeter() {
             <div className="mb-3 flex items-start justify-between gap-2">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.14em] text-bolt-elements-textTertiary">Spend</p>
-                <p className="mt-0.5 text-lg font-semibold tabular-nums text-bolt-elements-textPrimary">
-                  {formatDollars(snapshot.sessionTotal, 3)}
+                <p className="mt-0.5 text-lg font-semibold text-bolt-elements-textPrimary">
+                  <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={3} />
                 </p>
+                <p className="mt-1 text-[11px] text-bolt-elements-textTertiary">{pricesChecked}</p>
               </div>
               <button
                 type="button"
@@ -189,9 +193,13 @@ export function CostMeter() {
                       <span className="truncate text-bolt-elements-textSecondary" title={model}>
                         {model}
                       </span>
-                      <span className="shrink-0 tabular-nums text-bolt-elements-textPrimary">
-                        {row.unknown ? 'price unknown' : formatDollars(row.dollars, 3)}
-                        <span className="ml-1 text-bolt-elements-textTertiary">
+                      <span className="shrink-0 text-bolt-elements-textPrimary">
+                        {row.unknown ? (
+                          'price unknown'
+                        ) : (
+                          <CostAmount dollars={row.dollars} verified={!row.unverified} digits={3} />
+                        )}
+                        <span className="ml-1 tabular-nums text-bolt-elements-textTertiary">
                           {formatTokenCount(row.promptTokens + row.completionTokens)}
                         </span>
                       </span>

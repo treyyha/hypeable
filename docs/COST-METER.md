@@ -54,6 +54,16 @@ Defaults: **$2 session**, **$10 daily**. `0` turns a cap off.
 
 ## Prices
 
-`prices.json` is tagged with `checkedAt` and a `source` URL per provider. Rows with `verified: false` are best-effort and should be treated as estimates.
+`prices.json` is tagged with `checkedAt` and a `source` URL per provider. The meter popover shows `prices checked <date>`. Rows with `verified: false` are best-effort estimates: the UI prefixes the amount with **≈** and a "price unverified" tooltip.
 
 OpenRouter's billed usage cost, when present, wins over the table.
+
+## Cached tokens
+
+Provider usage sometimes includes cache-read (`cachedTokens`, `cacheRead`, `cache_read_input_tokens`) and cache-write (`cacheWrite`, `cache_creation_input_tokens`) counts.
+
+- **Cache-read** is billed at `cachedInput` when that rate exists on the row.
+- **Cache-write** has no dedicated rate in `prices.json`, so it is billed as normal input.
+- If cache tokens are present but the row has no `cachedInput`, they are also billed as normal input.
+
+Anthropic-style blobs report uncached `input_tokens` plus sibling cache fields; those cache tokens are added into the prompt total. OpenAI-style blobs already include cache-read inside `prompt_tokens`.

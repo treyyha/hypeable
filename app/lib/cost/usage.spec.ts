@@ -33,6 +33,22 @@ describe('usage extraction', () => {
     });
   });
 
+  it('adds Anthropic sibling cache-read and cache-write tokens into prompt', () => {
+    expect(
+      extractTokenUsage({
+        input_tokens: 100,
+        cache_read_input_tokens: 40,
+        cache_creation_input_tokens: 20,
+        output_tokens: 10,
+      }),
+    ).toEqual({
+      promptTokens: 160,
+      completionTokens: 10,
+      totalTokens: 170,
+      cachedTokens: 40,
+    });
+  });
+
   it('round-trips a usage marker without leaking into prompt text', () => {
     const marker = encodeUsageMarker({
       model: 'gpt-4o',
