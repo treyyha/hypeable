@@ -109,10 +109,7 @@ class PerformanceMonitor {
       console.log(`[PERF] ${name}: ${duration.toFixed(2)}ms`, metadata || '');
     }
 
-    // Send to analytics in production
-    if (import.meta.env.PROD) {
-      this._sendToAnalytics(metric);
-    }
+    // Hypeable never phones home. Keep metrics in-memory only.
   }
 
   /**
@@ -150,19 +147,6 @@ class PerformanceMonitor {
   private _percentile(sorted: number[], p: number): number {
     const index = Math.ceil((sorted.length * p) / 100) - 1;
     return sorted[Math.max(0, index)];
-  }
-
-  /**
-   * Send metrics to analytics service
-   */
-  private _sendToAnalytics(metric: PerformanceMetric) {
-    /*
-     * Integration point for analytics services
-     * Could be sent to: Datadog, New Relic, custom backend, etc.
-     */
-    if (typeof window !== 'undefined' && (window as any).__PERFORMANCE_ANALYTICS__) {
-      (window as any).__PERFORMANCE_ANALYTICS__(metric);
-    }
   }
 
   /**

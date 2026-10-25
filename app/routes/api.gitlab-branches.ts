@@ -39,7 +39,7 @@ async function gitlabBranchesLoader({ request }: { request: Request }) {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
-        'User-Agent': 'bolt.diy-app',
+        'User-Agent': 'hypeable-app',
       },
     });
 
@@ -72,7 +72,7 @@ async function gitlabBranchesLoader({ request }: { request: Request }) {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
-        'User-Agent': 'bolt.diy-app',
+        'User-Agent': 'hypeable-app',
       },
     });
 

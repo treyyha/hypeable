@@ -1,4 +1,4 @@
-appId: com.stackblitz.bolt.diy
+appId: com.hypeable.app
 productName: Hypeable
 directories:
   buildResources: build
@@ -55,9 +55,9 @@ npmRebuild: false
 
 publish:
   provider: github
-  owner: Derek-X-Wang
-  repo: bolt.local
-  private: true
+  owner: treyyha
+  repo: hypeable
+  private: false
   releaseType: release
 
 electronDownload:

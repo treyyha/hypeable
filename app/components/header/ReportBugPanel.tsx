@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Bug, ExternalLink, X } from 'lucide-react';
 
-const BUG_REPORT_URL = 'https://github.com/stackblitz-labs/bolt.diy/issues/new?template=bug_report.yml';
+const BUG_REPORT_URL = 'https://github.com/treyyha/hypeable/issues/new';
 
 interface ReportBugPanelProps {
   open: boolean;

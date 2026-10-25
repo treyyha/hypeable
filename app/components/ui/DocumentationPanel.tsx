@@ -6,7 +6,7 @@ import { getThemeMode } from '~/types/theme';
 
 const credentiallessIframeAttributes = { credentialless: 'true' };
 
-const DOCUMENTATION_URL = 'https://stackblitz-labs.github.io/bolt.diy/';
+const DOCUMENTATION_URL = 'https://github.com/treyyha/hypeable';
 
 interface DocumentationPanelProps {
   open: boolean;
