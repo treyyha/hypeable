@@ -28,3 +28,6 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 
 ## Where things are
 See `docs/ARCHITECTURE.md` and `docs/SECURITY.md`. Security snippets to copy from: `templates/security/`.
+
+## Git hooks
+Husky (`.husky/`) is the only hook system. `pnpm install` sets `core.hooksPath` to `.husky/_`. Do not set `core.hooksPath` yourself. `.husky/pre-commit` runs `node scripts/secret-scan.mjs` first. `.husky/commit-msg` enforces Conventional Commits (`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `security`; Merge/Revert/fixup/squash allowed).

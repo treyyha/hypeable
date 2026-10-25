@@ -9,7 +9,7 @@ Please do **not** open a public issue. Use GitHub's private reporting: **Securit
 - API keys stay in your browser and go only to the model provider you chose.
 - Hypeable servers never store, log, or proxy-persist keys.
 - Apps you generate are published to **your** Vercel/GitHub, not ours.
-- Secrets are blocked from commits by a local hook, CI scan (gitleaks), and GitHub push protection.
+- Secrets are blocked from commits by `.husky/pre-commit` (`node scripts/secret-scan.mjs`), CI gitleaks, and GitHub push protection.
 
 Full details: [docs/SECURITY.md](docs/SECURITY.md).
 

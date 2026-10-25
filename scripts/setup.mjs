@@ -1,11 +1,16 @@
 #!/usr/bin/env node
-// One-time repo setup: hooks, env file, sanity scan.
+// One-time repo setup: env file + sanity scan. Git hooks live in .husky/ (installed by pnpm install / husky prepare).
 import { spawnSync } from 'node:child_process';
-import { existsSync, copyFileSync, chmodSync } from 'node:fs';
-const sh = (c, a) => spawnSync(c, a, { stdio: 'inherit', shell: process.platform === 'win32' });
-sh('git', ['config', 'core.hooksPath', '.githooks']);
-for (const h of ['pre-commit', 'commit-msg']) { try { chmodSync(`.githooks/${h}`, 0o755); } catch {} }
-if (!existsSync('.env.local') && existsSync('.env.example')) { copyFileSync('.env.example', '.env.local'); console.log('created .env.local (git-ignored). Fill in YOUR local keys there.'); }
-sh('git', ['update-index', '--chmod=+x', '.githooks/pre-commit']);
-sh('node', ['scripts/secret-scan.mjs', '--all']);
-console.log('\n✅ setup done: hooks active (secret scan + conventional commits).');
+import { existsSync, copyFileSync } from 'node:fs';
+
+if (!existsSync('.env.local') && existsSync('.env.example')) {
+  copyFileSync('.env.example', '.env.local');
+  console.log('created .env.local (git-ignored). Fill in YOUR local keys there.');
+}
+
+const scan = spawnSync('node', ['scripts/secret-scan.mjs', '--all'], { stdio: 'inherit' });
+if (scan.status !== 0) {
+  process.exit(scan.status ?? 1);
+}
+
+console.log('\n✅ setup done: .env.local ready, secret-scan clean. Hooks are Husky (.husky/).');

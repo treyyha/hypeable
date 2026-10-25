@@ -1,6 +1,6 @@
 # Contributing
 
-1. Fork, then `pnpm install && npm run setup` (activates the secret-scan and commit-message hooks).
+1. Fork, then `pnpm install` (Husky activates `.husky/` secret-scan and commit-message hooks) and `npm run setup` (creates `.env.local` if missing and runs a full secret scan). Do not set `core.hooksPath`; Husky owns it.
 2. Branch: `feat/<thing>` or `fix/<thing>`.
 3. Commit with Conventional Commits, e.g. `feat(meter): add daily cap`.
 4. `npm run typecheck && npm run lint && npm test` must pass.

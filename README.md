@@ -19,8 +19,8 @@ Early. Built in public. See [docs/ROADMAP.md](docs/ROADMAP.md).
 ## Quick start
 ```bash
 git clone https://github.com/<you>/hypeable && cd hypeable
-pnpm install
-npm run setup        # installs git hooks, creates .env.local
+pnpm install         # Husky hooks: secret-scan + conventional commits
+npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
 Add your own model key in the app's settings. It stays in your browser.

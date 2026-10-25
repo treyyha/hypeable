@@ -3,7 +3,7 @@
 ## Threat model (short)
 | Threat | Mitigation |
 |---|---|
-| Key leaks to GitHub | `.gitignore`, pre-commit scan, CI gitleaks, GitHub push protection |
+| Key leaks to GitHub | `.gitignore`, `.husky/pre-commit` secret-scan, CI gitleaks, GitHub push protection |
 | Key leaks via our server | BYO key, never stored/logged; log redaction |
 | Abuse of any server route | rate limit + bot protection + origin check |
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
