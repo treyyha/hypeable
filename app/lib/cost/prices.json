@@ -1,0 +1,134 @@
+{
+  "checkedAt": "2026-10-25",
+  "providers": [
+    {
+      "id": "anthropic",
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "models": [
+        { "pattern": "claude-fable-5*", "input": 10, "output": 50, "cachedInput": 1, "verified": true },
+        { "pattern": "claude-opus-4-1*", "input": 15, "output": 75, "cachedInput": 1.5, "verified": true },
+        { "pattern": "claude-opus-4*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true },
+        { "pattern": "claude-sonnet-4*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": true },
+        { "pattern": "claude-haiku-4-5*", "input": 1, "output": 5, "cachedInput": 0.1, "verified": true },
+        { "pattern": "claude-3-5-sonnet*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": false },
+        { "pattern": "claude-3-haiku*", "input": 0.25, "output": 1.25, "cachedInput": 0.03, "verified": false }
+      ]
+    },
+    {
+      "id": "openai",
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "models": [
+        { "pattern": "gpt-5.5-pro*", "input": 30, "output": 180, "verified": true },
+        { "pattern": "gpt-5.5*", "input": 5, "output": 30, "cachedInput": 0.5, "verified": true },
+        { "pattern": "gpt-5.4-pro*", "input": 30, "output": 180, "verified": true },
+        { "pattern": "gpt-5.4-mini*", "input": 0.75, "output": 4.5, "cachedInput": 0.075, "verified": true },
+        { "pattern": "gpt-5.4-nano*", "input": 0.2, "output": 1.25, "cachedInput": 0.02, "verified": true },
+        { "pattern": "gpt-5.4*", "input": 2.5, "output": 15, "cachedInput": 0.25, "verified": true },
+        { "pattern": "gpt-5.3-codex*", "input": 2.5, "output": 15, "cachedInput": 0.25, "verified": false },
+        { "pattern": "gpt-5.2-pro*", "input": 21, "output": 168, "verified": true },
+        { "pattern": "gpt-5.2*", "input": 1.75, "output": 14, "cachedInput": 0.175, "verified": true },
+        { "pattern": "gpt-5.1*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true },
+        { "pattern": "gpt-5-pro*", "input": 15, "output": 120, "verified": true },
+        { "pattern": "gpt-5-mini*", "input": 0.25, "output": 2, "cachedInput": 0.025, "verified": true },
+        { "pattern": "gpt-5-nano*", "input": 0.05, "output": 0.4, "cachedInput": 0.005, "verified": true },
+        { "pattern": "gpt-5*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true },
+        { "pattern": "gpt-4.1-mini*", "input": 0.4, "output": 1.6, "cachedInput": 0.1, "verified": true },
+        { "pattern": "gpt-4.1-nano*", "input": 0.1, "output": 0.4, "cachedInput": 0.025, "verified": true },
+        { "pattern": "gpt-4.1*", "input": 2, "output": 8, "cachedInput": 0.5, "verified": true },
+        { "pattern": "gpt-4o-mini*", "input": 0.15, "output": 0.6, "cachedInput": 0.075, "verified": true },
+        { "pattern": "gpt-4o*", "input": 2.5, "output": 10, "cachedInput": 1.25, "verified": true },
+        { "pattern": "o1-pro*", "input": 150, "output": 600, "verified": true },
+        { "pattern": "o1-mini*", "input": 1.1, "output": 4.4, "cachedInput": 0.55, "verified": false },
+        { "pattern": "o1*", "input": 15, "output": 60, "cachedInput": 7.5, "verified": true },
+        { "pattern": "o3-pro*", "input": 20, "output": 80, "verified": true },
+        { "pattern": "o3-mini*", "input": 1.1, "output": 4.4, "cachedInput": 0.55, "verified": true },
+        { "pattern": "o3*", "input": 2, "output": 8, "cachedInput": 0.5, "verified": true },
+        { "pattern": "o4-mini*", "input": 1.1, "output": 4.4, "cachedInput": 0.275, "verified": true },
+        { "pattern": "gpt-4-turbo*", "input": 10, "output": 30, "verified": true },
+        { "pattern": "gpt-3.5-turbo*", "input": 0.5, "output": 1.5, "verified": true }
+      ]
+    },
+    {
+      "id": "google",
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "models": [
+        { "pattern": "gemini-3.5-flash*", "input": 1.5, "output": 9, "cachedInput": 0.15, "verified": true },
+        { "pattern": "gemini-3.1-pro*", "input": 2, "output": 12, "cachedInput": 0.2, "verified": true },
+        { "pattern": "gemini-3.1-flash-lite*", "input": 0.25, "output": 1.5, "cachedInput": 0.025, "verified": true },
+        { "pattern": "gemini-3-flash*", "input": 0.5, "output": 3, "cachedInput": 0.05, "verified": true },
+        { "pattern": "gemini-2.5-pro*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true },
+        { "pattern": "gemini-2.5-flash-lite*", "input": 0.1, "output": 0.4, "cachedInput": 0.01, "verified": true },
+        { "pattern": "gemini-2.5-flash*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": true },
+        { "pattern": "gemini-1.5-pro*", "input": 1.25, "output": 5, "cachedInput": 0.3125, "verified": false },
+        { "pattern": "gemini-1.5-flash*", "input": 0.075, "output": 0.3, "cachedInput": 0.01875, "verified": false }
+      ]
+    },
+    {
+      "id": "deepseek",
+      "source": "https://www.deepseek.com/en/platform/",
+      "models": [
+        { "pattern": "deepseek-v4-pro*", "input": 0.435, "output": 0.87, "cachedInput": 0.003625, "verified": true },
+        { "pattern": "deepseek-v4-flash*", "input": 0.14, "output": 0.28, "cachedInput": 0.0028, "verified": true },
+        { "pattern": "deepseek-flash*", "input": 0.14, "output": 0.28, "cachedInput": 0.0028, "verified": true },
+        { "pattern": "deepseek-reasoner*", "input": 0.14, "output": 0.28, "cachedInput": 0.0028, "verified": false },
+        { "pattern": "deepseek-chat*", "input": 0.14, "output": 0.28, "cachedInput": 0.0028, "verified": false },
+        { "pattern": "deepseek-coder*", "input": 0.14, "output": 0.28, "cachedInput": 0.0028, "verified": false }
+      ]
+    },
+    {
+      "id": "openrouter",
+      "source": "https://openrouter.ai/models",
+      "models": [
+        { "pattern": "anthropic/claude-fable-5*", "input": 10, "output": 50, "cachedInput": 1, "verified": false },
+        { "pattern": "anthropic/claude-opus-4*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": false },
+        { "pattern": "anthropic/claude-sonnet-4*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": false },
+        { "pattern": "anthropic/claude-3.5-sonnet*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": false },
+        { "pattern": "openai/gpt-4o-mini*", "input": 0.15, "output": 0.6, "cachedInput": 0.075, "verified": false },
+        { "pattern": "openai/gpt-4o*", "input": 2.5, "output": 10, "cachedInput": 1.25, "verified": false },
+        { "pattern": "google/gemini-2.5-flash*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": false },
+        { "pattern": "z-ai/glm-5*", "input": 0.3, "output": 1.2, "verified": false }
+      ]
+    },
+    {
+      "id": "groq",
+      "source": "https://groq.com/pricing",
+      "models": [
+        { "pattern": "llama-3.3-70b*", "input": 0.59, "output": 0.79, "verified": false },
+        { "pattern": "llama-3.1-8b*", "input": 0.05, "output": 0.08, "verified": false },
+        { "pattern": "openai/gpt-oss-120b*", "input": 0.15, "output": 0.6, "verified": false },
+        { "pattern": "openai/gpt-oss-20b*", "input": 0.075, "output": 0.3, "verified": false }
+      ]
+    },
+    {
+      "id": "xai",
+      "source": "https://docs.x.ai/docs/models",
+      "models": [
+        { "pattern": "grok-4.3*", "input": 3, "output": 15, "verified": false },
+        { "pattern": "grok-4*", "input": 3, "output": 15, "verified": false },
+        { "pattern": "grok-code-fast*", "input": 0.2, "output": 1.5, "verified": false },
+        { "pattern": "grok-build*", "input": 0.2, "output": 1.5, "verified": false },
+        { "pattern": "grok-3-mini*", "input": 0.3, "output": 0.5, "verified": false }
+      ]
+    },
+    {
+      "id": "mistral",
+      "source": "https://mistral.ai/products/la-plateforme#pricing",
+      "models": [
+        { "pattern": "mistral-large*", "input": 2, "output": 6, "verified": false },
+        { "pattern": "mistral-medium*", "input": 0.4, "output": 2, "verified": false },
+        { "pattern": "mistral-small*", "input": 0.1, "output": 0.3, "verified": false },
+        { "pattern": "codestral*", "input": 0.3, "output": 0.9, "verified": false }
+      ]
+    },
+    {
+      "id": "ollama",
+      "source": "https://ollama.com",
+      "models": [{ "pattern": "*", "input": 0, "output": 0, "verified": true }]
+    },
+    {
+      "id": "lmstudio",
+      "source": "https://lmstudio.ai",
+      "models": [{ "pattern": "*", "input": 0, "output": 0, "verified": true }]
+    }
+  ]
+}
