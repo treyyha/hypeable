@@ -66,7 +66,7 @@
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "5.0.106",
     "@ai-sdk/anthropic": "4.0.72",
-    "@ai-sdk/cerebras": "3.0.63",
+    "@ai-sdk/cerebras": "3.0.75",
     "@ai-sdk/cohere": "4.0.55",
     "@ai-sdk/deepseek": "3.0.59",
     "@ai-sdk/fireworks": "3.0.66",
