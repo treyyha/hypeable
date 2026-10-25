@@ -22,13 +22,16 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run typecheck --if-present
-      - run: pnpm run lint --if-present
+      # `--if-present` is a pnpm/npm flag, not a tsc flag. Putting it after
+      # the script name forwarded it into `tsc --if-present` (TS5023) and
+      # skipped lint/test/build whenever typecheck aborted.
+      - run: pnpm run --if-present typecheck
+      - run: pnpm run --if-present lint
       # TODO: make this blocking again once the 6 upstream failures in docs/KNOWN-ISSUES.md are fixed or deleted.
       - name: Tests
         continue-on-error: true
-        run: pnpm test --if-present
-      - run: pnpm run build --if-present
+        run: pnpm --if-present test
+      - run: pnpm run --if-present build
       - run: pnpm audit --audit-level=high || true
   commits:
     if: github.event_name == 'pull_request'
