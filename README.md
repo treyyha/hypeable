@@ -14,6 +14,12 @@ Unknown models show tokens plus a prompt to set a price in Settings. Copy receip
 
 Details: [docs/COST-METER.md](docs/COST-METER.md).
 
+## Loop breaker
+
+If the same error (or the same file rewrite) repeats 3 times, Hypeable stops the run — same as hitting Stop — and shows a panel: the error, how many times it failed, and what the loop cost. Replan, revert to before the loop, switch to a stronger model you already have a key for, or keep going. Off by a setting; threshold 2–5. Local only.
+
+Details: [docs/LOOP-BREAKER.md](docs/LOOP-BREAKER.md).
+
 ## Why Hypeable
 | Problem with typical AI builders | What Hypeable does |
 |---|---|

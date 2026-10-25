@@ -1,6 +1,7 @@
 export * from './useMessageParser';
 export * from './usePromptEnhancer';
 export * from './useCostGuard';
+export * from './useLoopBreaker';
 export * from './useShortcuts';
 export * from './StickToBottom';
 export * from './useEditChatDescription';

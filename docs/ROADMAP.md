@@ -2,7 +2,7 @@
 - [ ] Day 1: fork bolt.diy, rebrand, hooks/CI
 - [ ] Day 2: live cost meter
 - [ ] Day 3: caps + hard stop
-- [ ] Day 4: loop breaker
+- [x] Day 4: loop breaker
 - [ ] Day 5: plan-first mode
 - [ ] Day 6: pre-deploy security check
 - [ ] Day 7: publish to own Vercel/GitHub

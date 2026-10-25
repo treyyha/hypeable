@@ -13,3 +13,4 @@ Publish: browser -> user's GitHub / Vercel via their own OAuth token
 Key modules (added over the 10-day build): `cost-meter`, `loop-breaker`, `plan-mode`, `predeploy-check`.
 
 - **Cost meter** — live dollar total in the header, session/daily caps, hard stop. See [COST-METER.md](COST-METER.md).
+- **Loop breaker** — stop after the same error repeats, then replan / revert / switch model. See [LOOP-BREAKER.md](LOOP-BREAKER.md).

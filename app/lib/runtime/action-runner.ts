@@ -1,6 +1,7 @@
 import type { WebContainer } from '@webcontainer/api';
 import { atom, map, type MapStore } from 'nanostores';
 import type { ActionCallbackData } from './message-parser';
+import { emitLoopSuccess, emitLoopWrite } from '~/lib/loop/signals';
 import type { ActionAlert, BoltAction, DeployAlert, FileHistory, SupabaseAction, SupabaseAlert } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { path as nodePath } from '~/utils/path';
@@ -208,6 +209,7 @@ export class ActionRunner {
             .then(() => {
               if (!action.abortSignal.aborted) {
                 this.#updateAction(actionId, { status: 'complete' });
+                emitLoopSuccess();
               }
             })
             .catch((err: Error) => {
@@ -243,6 +245,10 @@ export class ActionRunner {
       this.#updateAction(actionId, {
         status: isStreaming ? 'running' : action.abortSignal.aborted ? 'aborted' : 'complete',
       });
+
+      if (!isStreaming && !action.abortSignal.aborted && action.type === 'build') {
+        emitLoopSuccess();
+      }
     } catch (error) {
       if (action.abortSignal.aborted) {
         return;
@@ -394,6 +400,7 @@ export class ActionRunner {
     try {
       await webcontainer.fs.writeFile(relativePath, action.content);
       logger.debug(`File written ${relativePath}`);
+      emitLoopWrite(relativePath, action.content);
     } catch (error) {
       logger.error('Failed to write file\n\n', error);
       throw error;

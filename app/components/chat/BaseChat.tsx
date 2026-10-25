@@ -16,6 +16,7 @@ import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 import { ImportZipButton } from '~/components/chat/ImportZipButton';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
+import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
@@ -28,6 +29,7 @@ const LazyWorkbench = lazy(() =>
 );
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import type { ModelInfo } from '~/lib/modules/llm/types';
+import { OPEN_MODEL_PICKER_EVENT } from '~/lib/stores/loop';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { workbenchStore } from '~/lib/stores/workbench';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
@@ -154,6 +156,29 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         setQrModalOpen(true);
       }
     }, [expoUrl]);
+
+    useEffect(() => {
+      const onOpenPicker = (event: Event) => {
+        const detail = (event as CustomEvent<{ model?: string; provider?: string }>).detail ?? {};
+        setIsModelSettingsCollapsed(false);
+
+        if (detail.model) {
+          setModel?.(detail.model);
+        }
+
+        if (detail.provider) {
+          const match = (providerList || []).find((entry) => entry.name === detail.provider);
+
+          if (match) {
+            setProvider?.(match);
+          }
+        }
+      };
+
+      window.addEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
+
+      return () => window.removeEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
+    }, [providerList, setModel, setProvider]);
 
     useEffect(() => {
       console.log(transcript);
@@ -431,6 +456,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 })}
               >
                 <div className="flex flex-col gap-2">
+                  <LoopBreakerHost
+                    sendMessage={(text) => sendMessage?.({} as never, text)}
+                    currentModel={model}
+                    currentProvider={provider?.name}
+                    models={modelList}
+                    apiKeys={apiKeys}
+                  />
                   {deployAlert && (
                     <DeployChatAlert
                       alert={deployAlert}

@@ -12,7 +12,7 @@ import { getLlmRequestHeaders, readStoredApiKeys } from '~/lib/api/api-key-stora
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
 import { isServerAgentTool } from '~/lib/common/agentLoop';
 import { STARTER_BUILD_FLAG } from '~/lib/common/starterBuild';
-import { useCostGuard, useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
+import { useCostGuard, useLoopBreaker, useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { description, useChatHistory } from '~/lib/persistence';
 import {
@@ -132,6 +132,7 @@ export const ChatImpl = memo(
     const [designScheme, setDesignScheme] = useState<DesignScheme>(defaultDesignScheme);
     const actionAlert = useStore(workbenchStore.alert);
     const deployAlert = useStore(workbenchStore.deployAlert);
+    const currentChatId = useStore(chatId);
     const supabaseConn = useStore(supabaseConnection);
 
     const selectedProject = supabaseConn.stats?.projects?.find(
@@ -782,6 +783,14 @@ export const ChatImpl = memo(
     });
     costUsageRef.current = onUsage;
 
+    const { noteUserMessage } = useLoopBreaker({
+      abort,
+      chatId: currentChatId,
+      messages,
+      actionAlert,
+      deployAlert,
+    });
+
     const wasStreamingRef = useRef(false);
 
     useEffect(() => {
@@ -976,6 +985,7 @@ export const ChatImpl = memo(
       }
 
       costBypassRef.current = false;
+      noteUserMessage(messageContent, messages.at(-1)?.id);
 
       let finalMessageContent = messageContent;
 

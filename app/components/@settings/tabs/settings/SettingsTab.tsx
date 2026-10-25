@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import type { UserProfile } from '~/components/@settings/core/types';
 import { CostSettings } from '~/components/cost/CostSettings';
+import { LoopSettings } from '~/components/loop/LoopSettings';
 import { Card, CardContent } from '~/components/ui/Card';
 import { Switch } from '~/components/ui/Switch';
 import { getAllChats } from '~/lib/persistence/chats';
@@ -141,6 +142,18 @@ export default function SettingsTab() {
           <span className="text-sm font-medium text-bolt-elements-textPrimary">Live cost meter</span>
         </div>
         <CostSettings />
+      </motion.div>
+
+      <motion.div
+        className="rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="mb-4 flex items-center gap-2">
+          <div className="i-ph:repeat-once w-4 h-4 text-lime-400" />
+          <span className="text-sm font-medium text-bolt-elements-textPrimary">Loop breaker</span>
+        </div>
+        <LoopSettings />
       </motion.div>
 
       {/* Chat usage summary */}
