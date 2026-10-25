@@ -78,10 +78,12 @@ export const checkForUpdates = async (): Promise<UpdateCheckResult> => {
       releaseNotes: hasUpdate ? 'Update available. Check GitHub for release notes.' : undefined,
     };
   } catch (error) {
-    console.error('Error checking for updates:', error);
-
-    // Determine error type
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const missingRelease = /404|not found|no published versions|releases/i.test(errorMessage);
+
+    if (!missingRelease) {
+      console.error('Error checking for updates:', error);
+    }
 
     const isNetworkError =
       errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('fetch');
@@ -89,10 +91,12 @@ export const checkForUpdates = async (): Promise<UpdateCheckResult> => {
     return {
       available: false,
       version: 'unknown',
-      error: {
-        type: isNetworkError ? 'network' : 'unknown',
-        message: `Failed to check for updates: ${errorMessage}`,
-      },
+      error: missingRelease
+        ? undefined
+        : {
+            type: isNetworkError ? 'network' : 'unknown',
+            message: `Failed to check for updates: ${errorMessage}`,
+          },
     };
   }
 };

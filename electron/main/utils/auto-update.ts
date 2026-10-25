@@ -10,6 +10,8 @@ import { isDev } from './constants';
 
 const autoUpdater: AppUpdater = (electronUpdater as any).default.autoUpdater;
 
+let skipUpdateChecks = false;
+
 export async function setupAutoUpdater() {
   // Configure logger
   logger.transports.file.level = 'debug';
@@ -52,13 +54,18 @@ export async function setupAutoUpdater() {
     logger.info('Update not available.');
   });
 
-  /*
-   * Uncomment this before we have any published updates on github releases.
-   * autoUpdater.on('error', (err) => {
-   *   logger.error('Error in auto-updater:', err);
-   *   dialog.showErrorBox('Error: ', err.message);
-   * });
-   */
+  autoUpdater.on('error', (err) => {
+    if (isMissingGitHubRelease(err)) {
+      if (!skipUpdateChecks) {
+        logger.info('No GitHub releases yet; skipping update checks until a release is published.');
+      }
+
+      skipUpdateChecks = true;
+      return;
+    }
+
+    logger.error('Error in auto-updater:', err);
+  });
 
   autoUpdater.on('download-progress', (progressObj) => {
     logger.info('Download progress:', progressObj);
@@ -82,23 +89,45 @@ export async function setupAutoUpdater() {
     }
   });
 
-  // Check for updates
-  try {
-    logger.info('Checking for updates. Current version:', app.getVersion());
-    await autoUpdater.checkForUpdates();
-  } catch (err) {
-    logger.error('Failed to check for updates:', err);
+  const hasReleases = await checkForUpdatesQuietly();
+
+  if (!hasReleases) {
+    return;
   }
 
-  // Set up periodic update checks (every 4 hours)
   setInterval(
     () => {
-      autoUpdater.checkForUpdates().catch((err) => {
-        logger.error('Periodic update check failed:', err);
-      });
+      void checkForUpdatesQuietly();
     },
     4 * 60 * 60 * 1000,
   );
+}
+
+function isMissingGitHubRelease(error: unknown): boolean {
+  const message = error instanceof Error ? `${error.message} ${error.stack ?? ''}` : String(error);
+
+  return /404|ENOTFOUND|not found|no published versions|latest\.yml|There are no published versions/i.test(message);
+}
+
+async function checkForUpdatesQuietly(): Promise<boolean> {
+  if (skipUpdateChecks) {
+    return false;
+  }
+
+  try {
+    logger.info('Checking for updates. Current version:', app.getVersion());
+    await autoUpdater.checkForUpdates();
+    return !skipUpdateChecks;
+  } catch (err) {
+    if (isMissingGitHubRelease(err)) {
+      skipUpdateChecks = true;
+      logger.info('No GitHub releases yet; skipping update checks until a release is published.');
+      return false;
+    }
+
+    logger.error('Failed to check for updates:', err);
+    return true;
+  }
 }
 
 function formatUpdateDownloadedEvent(event: UpdateDownloadedEvent): string {
