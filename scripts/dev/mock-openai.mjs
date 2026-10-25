@@ -11,14 +11,26 @@ import http from 'node:http';
 const PORT = Number(process.env.MOCK_OPENAI_PORT || 8787);
 const HOST = process.env.MOCK_OPENAI_HOST || '127.0.0.1';
 
-function sendChatChunks(res) {
+export const MOCK_PLAN = {
+  title: 'Notes app',
+  summary: 'A small notes app with tags.',
+  pages: [{ name: 'Home', purpose: 'List and open notes' }],
+  data: [{ entity: 'Note', storage: 'localStorage' }],
+  features: [
+    { id: 'list', text: 'List notes' },
+    { id: 'tags', text: 'Tag a note', optional: true },
+  ],
+  stack: ['Vite', 'React'],
+  assumptions: ['Single browser user'],
+  risks: ['localStorage quota'],
+};
+
+function sendSseChat(res, chunks, usage = { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 }) {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream; charset=utf-8',
     'Cache-Control': 'no-store',
     Connection: 'keep-alive',
   });
-
-  const chunks = ['Hello', ' from', ' mock'];
 
   for (const content of chunks) {
     res.write(
@@ -48,11 +60,45 @@ function sendChatChunks(res) {
       created: 1,
       model: 'mock-model',
       choices: [],
-      usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 },
+      usage,
     })}\n\n`,
   );
   res.write('data: [DONE]\n\n');
   res.end();
+}
+
+function readBody(req) {
+  return new Promise((resolve) => {
+    const chunks = [];
+    let settled = false;
+    const finish = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      resolve(Buffer.concat(chunks).toString('utf8'));
+    };
+
+    const expected = Number(req.headers['content-length'] || 0);
+    let received = 0;
+
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+      received += chunk.length;
+
+      if (expected > 0 && received >= expected) {
+        finish();
+      }
+    });
+    req.on('end', finish);
+    req.on('error', finish);
+    setTimeout(finish, 2000);
+  });
+}
+
+function isPlanningRequest(body) {
+  return body.includes('hypeable-plan') && body.includes('Do NOT output any boltArtifact');
 }
 
 export function createMockOpenAIServer() {
@@ -66,7 +112,15 @@ export function createMockOpenAIServer() {
     }
 
     if (req.method === 'POST' && (url === '/v1/chat/completions' || url === '/chat/completions')) {
-      sendChatChunks(res);
+      void readBody(req).then((body) => {
+        if (isPlanningRequest(body)) {
+          const fence = `Here is a short plan.\n\n\`\`\`hypeable-plan\n${JSON.stringify(MOCK_PLAN, null, 2)}\n\`\`\``;
+          sendSseChat(res, [fence], { prompt_tokens: 40, completion_tokens: 80, total_tokens: 120 });
+          return;
+        }
+
+        sendSseChat(res, ['Hello', ' from', ' mock']);
+      });
       return;
     }
 

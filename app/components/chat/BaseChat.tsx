@@ -17,6 +17,7 @@ import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 import { ImportZipButton } from '~/components/chat/ImportZipButton';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
 import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
+import { PlanHost } from '~/components/plan/PlanHost';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
@@ -462,6 +463,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     currentProvider={provider?.name}
                     models={modelList}
                     apiKeys={apiKeys}
+                  />
+                  <PlanHost
+                    sendMessage={(text) => sendMessage?.({} as never, text)}
+                    model={model ?? ''}
+                    provider={provider?.name}
                   />
                   {deployAlert && (
                     <DeployChatAlert

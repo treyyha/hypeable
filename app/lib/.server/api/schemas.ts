@@ -153,6 +153,7 @@ export const chatRequestSchema = z
     contextOptimization: z.boolean().optional(),
     chatMode: z.enum(['discuss', 'build']).optional(),
     agentMode: z.boolean().optional(),
+    planMode: z.boolean().optional(),
     designScheme: designSchemeSchema.optional(),
     supabase: supabaseSchema.optional(),
     maxLLMSteps: z.number().int().min(1).max(REQUEST_LIMITS.MAX_LLM_STEPS).optional(),

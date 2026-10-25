@@ -21,6 +21,7 @@ import { isGitHubConnected } from '~/lib/stores/githubConnection';
 import { isGitLabConnected } from '~/lib/stores/gitlabConnection';
 import { useMCPStore, type ConnectorId } from '~/lib/stores/mcp';
 import { netlifyConnection } from '~/lib/stores/netlify';
+import { planSettingsStore, planStore, skipPlanThisTurn } from '~/lib/stores/plan';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { vercelConnection } from '~/lib/stores/vercel';
@@ -78,6 +79,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   const [isMcpToolsOpen, setIsMcpToolsOpen] = React.useState(false);
   const mcpToolsInitialized = useMCPStore((state) => state.isInitialized);
   const mcpSettings = useMCPStore((state) => state.settings);
+  const planSettings = useStore(planSettingsStore);
+  const planUi = useStore(planStore);
   const setWebSearchEnabled = useMCPStore((state) => state.setWebSearchEnabled);
   const setConnectorEnabled = useMCPStore((state) => state.setConnectorEnabled);
   const serverTools = useMCPStore((state) => state.serverTools);
@@ -469,6 +472,20 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
+            {planSettings.enabled && props.chatMode === 'build' && !planUi.pending ? (
+              <button
+                type="button"
+                onClick={() => skipPlanThisTurn()}
+                className={classNames(
+                  'rounded-md px-1.5 py-1 text-xs transition-all',
+                  planUi.skipNextTurn
+                    ? 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent'
+                    : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault hover:bg-bolt-elements-item-backgroundActive',
+                )}
+              >
+                Skip plan
+              </button>
+            ) : null}
             <SpeechRecognitionButton
               isListening={props.isListening}
               onStart={props.startListening}

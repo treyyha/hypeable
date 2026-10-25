@@ -2,6 +2,7 @@ import { useStore } from '@nanostores/react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { CostMeter } from '~/components/cost/CostMeter';
+import { PlanPanel } from '~/components/plan/PlanPanel';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
@@ -33,6 +34,7 @@ export function Header() {
           <ClientOnly>{() => <ChatDescription />}</ClientOnly>
         </span>
       )}
+      <ClientOnly>{() => <PlanPanel />}</ClientOnly>
       <div className="ml-auto flex items-center gap-2">
         <ClientOnly>{() => <CostMeter />}</ClientOnly>
         {chat.started && (

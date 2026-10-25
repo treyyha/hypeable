@@ -35,6 +35,7 @@ import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
 import { getStarterBuildProgress } from '~/lib/common/starterBuild';
 import { extractTokenUsage } from '~/lib/cost/usage';
 import { createMessage, getMessageText } from '~/lib/persistence/messageMigration';
+import { PLAN_INSTRUCTION } from '~/lib/plan';
 import { getPluginToolDescriptions, getPluginTools } from '~/lib/plugins/adapters';
 import { getProjectToolNames, projectToolDefinitions } from '~/lib/runtime/projectMcp.shared';
 import { withSecurity } from '~/lib/security';
@@ -74,14 +75,18 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     supabase,
     chatMode,
     agentMode,
+    planMode = false,
     maxLLMSteps,
     webSearchEnabled = true,
     connectorEnabled,
   } = body;
 
   const messages = asMessages(body.messages);
-  const starterBuild = chatMode === 'build' ? getStarterBuildProgress(messages) : getStarterBuildProgress([]);
-  const agentLoopEnabled = chatMode === 'build' && (agentMode || starterBuild.status !== 'inactive');
+
+  const starterBuild =
+    chatMode === 'build' && !planMode ? getStarterBuildProgress(messages) : getStarterBuildProgress([]);
+
+  const agentLoopEnabled = chatMode === 'build' && !planMode && (agentMode || starterBuild.status !== 'inactive');
   const agentProgress = getAgentLoopProgress(messages, agentLoopEnabled);
   const files = asFileMap(body.files);
   const designScheme = asDesignScheme(body.designScheme);
@@ -316,7 +321,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         );
 
         const projectTools =
-          chatMode === 'build'
+          chatMode === 'build' && !planMode
             ? Object.fromEntries(
                 getProjectToolNames(webSearchEnabled).map((name) => [
                   name,
@@ -387,6 +392,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               ),
             }),
             getAgentLoopInstructions(agentProgress),
+            planMode ? PLAN_INSTRUCTION : '',
           ]
             .filter(Boolean)
             .join('\n\n'),

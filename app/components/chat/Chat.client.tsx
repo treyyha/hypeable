@@ -26,6 +26,7 @@ import {
   type AnyPart,
 } from '~/lib/persistence/messageMigration';
 import { chatId } from '~/lib/persistence/useChatHistory';
+import { isFirstBuildRequest, isWorkspaceEmpty, shouldPlanThisTurn } from '~/lib/plan';
 import { executeTextUtility, getPluginToolName, isSupportedAdapter } from '~/lib/plugins/adapters';
 import { pluginDatabase } from '~/lib/plugins/database';
 import type { PluginManifest } from '~/lib/plugins/schema';
@@ -34,6 +35,7 @@ import { callProjectMcpTool, PROJECT_TOOL_NAMES } from '~/lib/runtime/projectMcp
 import { chatStore } from '~/lib/stores/chat';
 import { logStore } from '~/lib/stores/logs';
 import { useMCPStore } from '~/lib/stores/mcp';
+import { consumePlanTurnFlags, ingestPlanReply, planSettingsStore, rememberPlanningPrompt } from '~/lib/stores/plan';
 import { usePluginStore } from '~/lib/stores/plugins';
 import { streamingState } from '~/lib/stores/streaming';
 import { supabaseConnection } from '~/lib/stores/supabase';
@@ -187,6 +189,7 @@ export const ChatImpl = memo(
 
     const costUsageRef = useRef<(data: unknown) => void>(() => undefined);
     const costBypassRef = useRef(false);
+    const planModeRef = useRef(false);
 
     const bodyRef = useRef({
       files,
@@ -204,6 +207,7 @@ export const ChatImpl = memo(
         },
       },
       maxLLMSteps: mcpSettings.maxLLMSteps,
+      planMode: false,
       webSearchEnabled: mcpSettings.webSearchEnabled,
       connectorEnabled: mcpSettings.connectorEnabled,
       toolEnabled: mcpSettings.toolEnabled,
@@ -234,6 +238,7 @@ export const ChatImpl = memo(
         },
       },
       maxLLMSteps: mcpSettings.maxLLMSteps,
+      planMode: false,
       webSearchEnabled: mcpSettings.webSearchEnabled,
       connectorEnabled: mcpSettings.connectorEnabled,
       toolEnabled: mcpSettings.toolEnabled,
@@ -268,7 +273,7 @@ export const ChatImpl = memo(
          * Keys go in `x-hypeable-key`, not the cookie and not the JSON body.
          */
         headers: () => getLlmRequestHeaders(),
-        body: () => bodyRef.current,
+        body: () => ({ ...bodyRef.current, planMode: planModeRef.current }),
       }),
 
       /*
@@ -302,6 +307,12 @@ export const ChatImpl = memo(
       },
       onFinish: ({ message }) => {
         setProgressAnnotations([]);
+
+        if (planModeRef.current) {
+          planModeRef.current = false;
+          ingestPlanReply(getMessageText(message));
+          setFakeLoading(false);
+        }
 
         const userMessages = messagesRef.current.filter((item) => item.role === 'user');
 
@@ -987,6 +998,26 @@ export const ChatImpl = memo(
       costBypassRef.current = false;
       noteUserMessage(messageContent, messages.at(-1)?.id);
 
+      const { skipThisTurn, forcePlan } = consumePlanTurnFlags();
+      const planSettings = planSettingsStore.get();
+
+      const gated = shouldPlanThisTurn({
+        planModeEnabled: planSettings.enabled,
+        planEveryRequest: planSettings.everyRequest,
+        skipThisTurn,
+        forcePlan,
+        isFirstBuildRequest: isFirstBuildRequest(messages.filter((item) => item.role === 'user').length),
+        workspaceEmpty: isWorkspaceEmpty(workbenchStore.filesCount),
+        chatMode,
+      });
+
+      planModeRef.current = gated;
+      bodyRef.current = { ...bodyRef.current, planMode: gated };
+
+      if (gated) {
+        rememberPlanningPrompt(messageContent);
+      }
+
       let finalMessageContent = messageContent;
 
       if (selectedElement) {
@@ -1006,7 +1037,7 @@ export const ChatImpl = memo(
       if (!chatStarted) {
         setFakeLoading(true);
 
-        if (autoSelectTemplate) {
+        if (autoSelectTemplate && !gated) {
           const { template, title } = await selectStarterTemplate({
             message: finalMessageContent,
             model,

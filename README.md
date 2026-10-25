@@ -20,6 +20,12 @@ If the same error (or the same file rewrite) repeats 3 times, Hypeable stops the
 
 Details: [docs/LOOP-BREAKER.md](docs/LOOP-BREAKER.md).
 
+## Plan-first mode
+
+On by default. The first build in an empty workspace (or every request, if you turn that on) returns a plan card — pages, data, features you can tick, and a dollar **estimate** range — before any code is written. Approve, ask for changes, or skip. Loop-breaker **Replan** uses the same flow.
+
+Details: [docs/PLAN-MODE.md](docs/PLAN-MODE.md).
+
 ## Why Hypeable
 | Problem with typical AI builders | What Hypeable does |
 |---|---|

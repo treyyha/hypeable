@@ -1,7 +1,8 @@
 import { useStore } from '@nanostores/react';
 import { LoopBreakerPanel } from './LoopBreakerPanel';
-import { buildReplanPrompt, pickStrongerModel, type PickerModel } from '~/lib/loop';
+import { pickStrongerModel, type PickerModel } from '~/lib/loop';
 import { dismissLoop, loopSettingsStore, loopStore, openModelPicker, rewindToMessage } from '~/lib/stores/loop';
+import { requestForcedPlan } from '~/lib/stores/plan';
 
 export function LoopBreakerHost({
   sendMessage,
@@ -25,7 +26,7 @@ export function LoopBreakerHost({
 
   const handleReplan = () => {
     sendMessage(
-      buildReplanPrompt({
+      requestForcedPlan({
         error: loop.displayError,
         count: loop.count,
         tried: loop.tried,
