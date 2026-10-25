@@ -1,32 +1,12 @@
 import type { WebContainer } from '@webcontainer/api';
-import git, { type GitAuth, type PromiseFsClient } from 'isomorphic-git';
+import git, { type PromiseFsClient } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
-import Cookies from 'js-cookie';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { toast } from 'react-toastify';
+import { lookupGitAuth, saveGitAuth } from '~/lib/api/git-auth-storage';
 import { webcontainer as webcontainerPromise } from '~/lib/webcontainer';
 
-const lookupSavedPassword = (url: string) => {
-  const domain = url.split('/')[2];
-  const gitCreds = Cookies.get(`git:${domain}`);
-
-  if (!gitCreds) {
-    return null;
-  }
-
-  try {
-    const { username, password } = JSON.parse(gitCreds || '{}');
-    return { username, password };
-  } catch (error) {
-    console.log(`Failed to parse Git Cookie ${error}`);
-    return null;
-  }
-};
-
-const saveGitAuth = (url: string, auth: GitAuth) => {
-  const domain = url.split('/')[2];
-  Cookies.set(`git:${domain}`, JSON.stringify(auth));
-};
+const lookupSavedPassword = (url: string) => lookupGitAuth(url);
 
 export function useGit() {
   const [ready, setReady] = useState(false);
@@ -125,7 +105,10 @@ export function useGit() {
           },
           onAuthSuccess: (baseUrl, auth) => {
             console.log(`Authentication successful for ${baseUrl}`);
-            saveGitAuth(baseUrl, auth);
+
+            if (auth.username && auth.password) {
+              saveGitAuth(baseUrl, { username: auth.username, password: auth.password });
+            }
           },
         });
 

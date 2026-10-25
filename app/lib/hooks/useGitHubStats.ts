@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
+import { authorizationHeaders } from '~/lib/api/git-auth-storage';
 import { gitHubApiService } from '~/lib/services/githubApiService';
 import type { GitHubStats, GitHubConnection } from '~/types/GitHub';
 
@@ -170,7 +171,9 @@ export function useGitHubStats(
 
       if (isServerSide || !connection.token) {
         // Use server-side API for stats
-        const response = await fetch('/api/github-stats');
+        const response = await fetch('/api/github-stats', {
+          headers: authorizationHeaders(connection.token),
+        });
 
         if (!response.ok) {
           if (response.status === 401) {

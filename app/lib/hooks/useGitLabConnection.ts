@@ -1,8 +1,8 @@
 import { useStore } from '@nanostores/react';
-import Cookies from 'js-cookie';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useGitLabAPI } from './useGitLabAPI';
+import { clearGitAuth, deleteLegacyTokenCookies } from '~/lib/api/git-auth-storage';
 import { gitlabConnectionStore, gitlabConnection, isGitLabConnected } from '~/lib/stores/gitlabConnection';
 import type { GitLabConnection } from '~/types/GitLab';
 
@@ -179,10 +179,8 @@ export function useGitLabConnection(options: { fetchStatsOnConnect?: boolean } =
     // Clear localStorage
     localStorage.removeItem(STORAGE_KEY);
 
-    // Clear all GitLab-related cookies
-    Cookies.remove('gitlabToken');
-    Cookies.remove('gitlabUsername');
-    Cookies.remove('gitlabUrl');
+    deleteLegacyTokenCookies();
+    clearGitAuth('gitlab.com');
 
     // Reset store
     gitlabConnectionStore.disconnect();

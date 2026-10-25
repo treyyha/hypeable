@@ -6,6 +6,8 @@ import {
   LEGACY_API_KEYS_COOKIE,
   clearStoredApiKeys,
   getForgetKeysOnTabClose,
+  getLlmRequestHeaders,
+  HYPEABLE_KEY_HEADER,
   migrateApiKeysFromCookie,
   readStoredApiKeys,
   setForgetKeysOnTabClose,
@@ -57,5 +59,14 @@ describe('api-key-storage', () => {
     expect(migrated).toEqual({ OpenAI: FAKE_KEY });
     expect(readStoredApiKeys()).toEqual({ OpenAI: FAKE_KEY });
     expect(Cookies.get(LEGACY_API_KEYS_COOKIE)).toBeUndefined();
+  });
+
+  it('puts stored keys in x-hypeable-key for /api/chat', () => {
+    writeStoredApiKeys({ OpenAI: FAKE_KEY });
+
+    const headers = getLlmRequestHeaders();
+
+    expect(headers[HYPEABLE_KEY_HEADER]).toBe(encodeURIComponent(JSON.stringify({ OpenAI: FAKE_KEY })));
+    expect(JSON.stringify(headers)).not.toContain('apiKeys');
   });
 });

@@ -1,8 +1,8 @@
 import { useStore } from '@nanostores/react';
-import Cookies from 'js-cookie';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useGitHubAPI } from './useGitHubAPI';
+import { authorizationHeaders, clearGitAuth, deleteLegacyTokenCookies, saveGitAuth } from '~/lib/api/git-auth-storage';
 import { githubConnection, isConnecting, updateGitHubConnection } from '~/lib/stores/github';
 import type { GitHubUserResponse, GitHubConnection } from '~/types/GitHub';
 
@@ -138,16 +138,8 @@ export function useGitHubConnection(): UseGitHubConnectionReturn {
         tokenType,
       };
 
-      // Set cookies for API requests
-      Cookies.set('githubToken', token);
-      Cookies.set('githubUsername', userData.login);
-      Cookies.set(
-        'git:github.com',
-        JSON.stringify({
-          username: token,
-          password: 'x-oauth-basic',
-        }),
-      );
+      saveGitAuth('https://github.com', { username: token, password: 'x-oauth-basic' });
+      deleteLegacyTokenCookies();
 
       // Update the store
       updateGitHubConnection(connectionData);
@@ -170,10 +162,8 @@ export function useGitHubConnection(): UseGitHubConnectionReturn {
     // Clear localStorage
     localStorage.removeItem(STORAGE_KEY);
 
-    // Clear all GitHub-related cookies
-    Cookies.remove('githubToken');
-    Cookies.remove('githubUsername');
-    Cookies.remove('git:github.com');
+    deleteLegacyTokenCookies();
+    clearGitAuth('github.com');
 
     // Reset store
     updateGitHubConnection({
@@ -215,7 +205,9 @@ export function useGitHubConnection(): UseGitHubConnectionReturn {
       const isServerSide = !connection.token;
 
       if (isServerSide) {
-        const response = await fetch('/api/github-user');
+        const response = await fetch('/api/github-user', {
+          headers: authorizationHeaders(connection.token),
+        });
         return response.ok;
       }
 

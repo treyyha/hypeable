@@ -1,6 +1,5 @@
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import fileSaver from 'file-saver';
-import Cookies from 'js-cookie';
 import JSZip from 'jszip';
 import { atom, map, type MapStore, type ReadableAtom, type WritableAtom } from 'nanostores';
 import { EditorStore } from './editor';
@@ -8,6 +7,7 @@ import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
+import { readStoredConnection } from '~/lib/api/git-auth-storage';
 import { description } from '~/lib/persistence';
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
@@ -988,11 +988,12 @@ export class WorkbenchStore {
       const isGitHub = provider === 'github';
       const isGitLab = provider === 'gitlab';
 
-      const authToken = token || Cookies.get(isGitHub ? 'githubToken' : 'gitlabToken');
-      const owner = username || Cookies.get(isGitHub ? 'githubUsername' : 'gitlabUsername');
+      const stored = readStoredConnection(isGitHub ? 'github' : 'gitlab');
+      const authToken = token || stored.token;
+      const owner = username || stored.username;
 
       if (!authToken || !owner) {
-        throw new Error(`${provider} token or username is not set in cookies or provided.`);
+        throw new Error(`${provider} token or username is not set in storage or provided.`);
       }
 
       const files = this.files.get();

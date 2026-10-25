@@ -1,7 +1,24 @@
 import { type UIMessage } from 'ai';
 import Cookies from 'js-cookie';
 import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
+import { deleteLegacyTokenCookies } from '~/lib/api/git-auth-storage';
 import { getAllChats, deleteChat } from '~/lib/persistence/chats';
+
+const TOKEN_COOKIE_NAMES = new Set([
+  'apiKeys',
+  'githubToken',
+  'gitlabToken',
+  'netlifyToken',
+  'VITE_VERCEL_ACCESS_TOKEN',
+]);
+
+function isTokenCookie(name: string): boolean {
+  return TOKEN_COOKIE_NAMES.has(name) || name.startsWith('git:');
+}
+
+function cookiesWithoutTokens(cookies: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(cookies).filter(([name]) => !isTokenCookie(name)));
+}
 
 interface ExtendedMessage extends UIMessage {
   name?: string;
@@ -158,7 +175,7 @@ export class ImportExportService {
         // Raw data (for debugging and complete backup)
         _raw: {
           localStorage: this._getAllLocalStorage(),
-          cookies: allCookies,
+          cookies: cookiesWithoutTokens(allCookies),
         },
 
         // Export metadata
@@ -697,6 +714,11 @@ export class ImportExportService {
    * @param value The value to set
    */
   private static _safeSetCookie(key: string, value: any): void {
+    if (isTokenCookie(key)) {
+      deleteLegacyTokenCookies();
+      return;
+    }
+
     try {
       Cookies.set(key, typeof value === 'string' ? value : JSON.stringify(value), { expires: 365 });
     } catch (err) {

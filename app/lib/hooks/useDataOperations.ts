@@ -754,7 +754,7 @@ export function useDataOperations({
 
         toast.success(
           `${keyCount} API keys imported successfully (${newKeyCount} new/updated)\n` +
-            'Note: Keys are stored in browser cookies. For server-side usage, add them to your .env.local file.',
+            'Note: Keys are stored in this browser. For server-side usage, add them to your .env.local file.',
           { position: 'bottom-right', autoClose: 5000 },
         );
 

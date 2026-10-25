@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react';
 import { motion } from 'framer-motion';
-import Cookies from 'js-cookie';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import {
@@ -10,6 +9,7 @@ import {
 import { ServiceHeader, ConnectionTestIndicator } from '~/components/@settings/shared/service-integration';
 import { Button } from '~/components/ui/Button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '~/components/ui/Collapsible';
+import { deleteLegacyTokenCookies } from '~/lib/api/git-auth-storage';
 import { useConnectionTest } from '~/lib/hooks';
 import { logStore } from '~/lib/stores/logs';
 import { useMCPStore } from '~/lib/stores/mcp';
@@ -252,8 +252,7 @@ export default function VercelTab() {
 
       const userData = (await testResponse.json()) as VercelUserResponse;
 
-      // Set cookies for server-side API access
-      Cookies.set('VITE_VERCEL_ACCESS_TOKEN', token, { expires: 365 });
+      deleteLegacyTokenCookies();
 
       // Normalize the user data structure
       const normalizedUser = userData.user || {
@@ -284,8 +283,7 @@ export default function VercelTab() {
   };
 
   const handleDisconnect = () => {
-    // Clear Vercel-related cookies
-    Cookies.remove('VITE_VERCEL_ACCESS_TOKEN');
+    deleteLegacyTokenCookies();
 
     updateVercelConnection({ user: null, token: '' });
     toast.success('Disconnected from Vercel');

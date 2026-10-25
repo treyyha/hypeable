@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie';
 import { atom, computed } from 'nanostores';
+import { clearGitAuth, deleteLegacyTokenCookies, saveGitAuth } from '~/lib/api/git-auth-storage';
 import { GitLabApiService } from '~/lib/services/gitlabApiService';
 import { logStore } from '~/lib/stores/logs';
 import type { GitLabConnection, GitLabStats } from '~/types/GitLab';
@@ -76,11 +76,8 @@ class GitLabConnectionStore {
         gitlabUrl,
       });
 
-      // Set cookies for client-side access
-      Cookies.set('gitlabUsername', user.username);
-      Cookies.set('gitlabToken', token);
-      Cookies.set('git:gitlab.com', JSON.stringify({ username: user.username, password: token }));
-      Cookies.set('gitlabUrl', gitlabUrl);
+      saveGitAuth(gitlabUrl, { username: user.username, password: token });
+      deleteLegacyTokenCookies();
 
       // Store connection details in localStorage
       localStorage.setItem(
@@ -163,11 +160,8 @@ class GitLabConnectionStore {
   }
 
   disconnect() {
-    // Remove cookies
-    Cookies.remove('gitlabToken');
-    Cookies.remove('gitlabUsername');
-    Cookies.remove('git:gitlab.com');
-    Cookies.remove('gitlabUrl');
+    deleteLegacyTokenCookies();
+    clearGitAuth('gitlab.com');
 
     // Clear localStorage
     localStorage.removeItem('gitlab_connection');
@@ -241,11 +235,8 @@ class GitLabConnectionStore {
         gitlabUrl: 'https://gitlab.com',
       });
 
-      // Set cookies for client-side access
-      Cookies.set('gitlabUsername', user.username);
-      Cookies.set('gitlabToken', envToken);
-      Cookies.set('git:gitlab.com', JSON.stringify({ username: user.username, password: envToken }));
-      Cookies.set('gitlabUrl', 'https://gitlab.com');
+      saveGitAuth('https://gitlab.com', { username: user.username, password: envToken });
+      deleteLegacyTokenCookies();
 
       // Store connection details in localStorage
       localStorage.setItem(
