@@ -19,6 +19,7 @@ import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 import { ImportZipButton } from '~/components/chat/ImportZipButton';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
 import { Menu } from '~/components/sidebar/Menu.client';
+import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
@@ -388,6 +389,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
                   Where ideas begin
                 </h1>
+                <p
+                  className="mb-3 text-lg font-semibold text-accent-500 animate-fade-in animation-delay-200"
+                  style={{ fontFamily: 'Outfit, Arial Black, Helvetica, sans-serif' }}
+                >
+                  worth the hype
+                </p>
                 <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
                   Bring ideas to life in seconds or get help on existing projects.
                 </p>
@@ -534,6 +541,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     handleSendMessage?.(event, messageInput);
                   })}
                 {!chatStarted && <StarterTemplates />}
+                {!chatStarted && <BrandFooter className="mt-8 mb-4" />}
               </div>
             </div>
           </div>

@@ -5,18 +5,14 @@ import { Chat } from '~/components/chat/Chat.client';
 import { Header } from '~/components/header/Header';
 import { FirstRunOnboarding } from '~/components/onboarding/FirstRunOnboarding';
 import BackgroundRays from '~/components/ui/BackgroundRays';
+import { brandMeta } from '~/utils/brand';
 
-export const meta: MetaFunction = () => {
-  return [{ title: 'Bolt' }, { name: 'description', content: 'Talk with Bolt, an AI assistant from StackBlitz' }];
-};
+export const meta: MetaFunction = () => brandMeta();
 
 export const loader = () => Response.json({});
 
 /**
- * Landing page component for Bolt
- * Note: Settings functionality should ONLY be accessed through the sidebar menu.
- * Do not add settings button/panel to this landing page as it was intentionally removed
- * to keep the UI clean and consistent with the design system.
+ * Landing page. Settings stay in the sidebar so this screen stays a clean prompt.
  */
 export default function Index() {
   return (

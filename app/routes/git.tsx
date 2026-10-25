@@ -5,10 +5,9 @@ import { BaseChat } from '~/components/chat/BaseChat';
 import { GitUrlImport } from '~/components/git/GitUrlImport.client';
 import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
+import { brandMeta } from '~/utils/brand';
 
-export const meta: MetaFunction = () => {
-  return [{ title: 'Bolt' }, { name: 'description', content: 'Talk with Bolt, an AI assistant from StackBlitz' }];
-};
+export const meta: MetaFunction = () => brandMeta();
 
 export async function loader(args: LoaderFunctionArgs) {
   return Response.json({ url: args.params.url });

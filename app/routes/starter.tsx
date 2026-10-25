@@ -4,8 +4,9 @@ import { StarterTemplateImport } from '~/components/chat/StarterTemplateImport.c
 import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 import { LoadingOverlay } from '~/components/ui/LoadingOverlay';
+import { brandMeta } from '~/utils/brand';
 
-export const meta: MetaFunction = () => [{ title: 'Start a blank app | Bolt' }];
+export const meta: MetaFunction = () => brandMeta('Start a blank app | Hypeable');
 
 export default function Starter() {
   return (

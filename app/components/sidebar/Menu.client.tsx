@@ -13,6 +13,7 @@ import { binDates } from './date-binning';
 const LazyControlPanel = lazy(() =>
   import('~/components/@settings/core/ControlPanel').then((m) => ({ default: m.ControlPanel })),
 );
+import { BrandFooter } from '~/components/ui/BrandFooter';
 import { Button } from '~/components/ui/Button';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
@@ -547,11 +548,14 @@ export const Menu = () => {
               </Dialog>
             </DialogRoot>
           </div>
-          <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-4 py-3">
-            <div className="flex items-center gap-3">
-              <SettingsButton onClick={handleSettingsClick} />
+          <div className="border-t border-gray-200 dark:border-gray-800">
+            <BrandFooter className="px-4 pt-3 pb-1 text-left" />
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <SettingsButton onClick={handleSettingsClick} />
+              </div>
+              <ThemeSwitch />
             </div>
-            <ThemeSwitch />
           </div>
         </div>
       </motion.div>

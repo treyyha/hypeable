@@ -22,7 +22,7 @@ export function ReportBugPanel({ open, onClose }: ReportBugPanelProps) {
               <div className="min-w-0">
                 <Dialog.Title className="truncate text-sm font-semibold">Report a bug</Dialog.Title>
                 <Dialog.Description className="truncate text-xs text-bolt-elements-textSecondary">
-                  Help us improve bolt.diy
+                  Help us improve Hypeable
                 </Dialog.Description>
               </div>
             </div>
@@ -42,7 +42,7 @@ export function ReportBugPanel({ open, onClose }: ReportBugPanelProps) {
             <p className="mb-2 text-lg font-semibold">Found something that isn’t working?</p>
             <p className="mb-6 max-w-lg text-sm leading-6 text-bolt-elements-textSecondary">
               Bug reports are submitted through GitHub. Continue there to describe the problem and send it to the
-              bolt.diy team.
+              Hypeable team.
             </p>
             <a
               href={BUG_REPORT_URL}

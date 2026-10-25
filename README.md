@@ -18,7 +18,7 @@ Early. Built in public. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quick start
 ```bash
-git clone https://github.com/<you>/hypeable && cd hypeable
+git clone https://github.com/treyyha/hypeable && cd hypeable
 pnpm install         # Husky hooks: secret-scan + conventional commits
 npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev

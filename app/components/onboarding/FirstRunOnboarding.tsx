@@ -192,7 +192,7 @@ export function FirstRunOnboarding() {
       }}
     >
       <Dialog
-        backdropClassName="!bg-[#09080f]/80 !backdrop-blur-md bg-[radial-gradient(ellipse_at_top,_rgba(91,33,182,0.18),_transparent_55%)]"
+        backdropClassName="!bg-[#09080f]/80 !backdrop-blur-md bg-[radial-gradient(ellipse_at_top,_rgba(200,255,61,0.10),_transparent_55%)]"
         className="w-[min(560px,calc(100vw-2rem))] max-h-[90vh] overflow-y-auto !rounded-xl !border-[#302e39] !bg-[#1b1a22] p-6 !text-[#f4f1fa]"
         showCloseButton={false}
       >
@@ -204,13 +204,14 @@ export function FirstRunOnboarding() {
             {stepTitles.map((title, index) => (
               <span
                 key={title}
-                className={`h-1 flex-1 rounded-full ${index <= step ? 'bg-[#8b5cf6]' : 'bg-[#393641]'}`}
+                className={`h-1 flex-1 rounded-full ${index <= step ? 'bg-[#C8FF3D]' : 'bg-[#393641]'}`}
               />
             ))}
           </div>
-          <DialogTitle className="text-xl font-semibold">Welcome to Bolt</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Welcome to Hypeable</DialogTitle>
           <DialogDescription className="mt-1 text-sm !text-[#a09baa]">
-            Let’s get your workspace ready. Optional details can be left blank and changed later in Settings.
+            worth the hype. Let’s get your workspace ready. Optional details can be left blank and changed later in
+            Settings.
           </DialogDescription>
         </div>
 
@@ -225,7 +226,7 @@ export function FirstRunOnboarding() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Your name"
-              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#8b5cf6]"
+              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
             />
             <div>
               <span className="mb-2 block text-sm font-medium">Choose an avatar</span>
@@ -237,7 +238,7 @@ export function FirstRunOnboarding() {
                     aria-label={`Use ${preset.name} avatar`}
                     aria-pressed={avatar === preset.src}
                     onClick={() => setAvatar(preset.src)}
-                    className={`h-14 w-14 overflow-hidden rounded-full border-2 ${avatar === preset.src ? 'border-[#8b5cf6] ring-2 ring-[#8b5cf6]/40' : 'border-[#393641]'}`}
+                    className={`h-14 w-14 overflow-hidden rounded-full border-2 ${avatar === preset.src ? 'border-[#C8FF3D] ring-2 ring-[#C8FF3D]/40' : 'border-[#393641]'}`}
                   >
                     <img src={preset.src} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -329,7 +330,7 @@ export function FirstRunOnboarding() {
               value={apiKey}
               onChange={(event) => setApiKey(event.target.value)}
               placeholder="Paste your API key"
-              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#8b5cf6]"
+              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
             />
           </div>
         )}
@@ -348,7 +349,7 @@ export function FirstRunOnboarding() {
               value={mcpText}
               onChange={(event) => setMcpText(event.target.value)}
               rows={9}
-              className="w-full resize-y rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 font-mono text-xs text-[#f4f1fa] outline-none focus:border-[#8b5cf6]"
+              className="w-full resize-y rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 font-mono text-xs text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
             />
             {error && (
               <p role="alert" className="text-sm text-red-500">
@@ -396,7 +397,7 @@ export function FirstRunOnboarding() {
                   onChange={(event) =>
                     setInterfaceOptions({ ...interfaceOptions, accentIntensity: Number(event.target.value) })
                   }
-                  className="w-1/2 accent-[#8b5cf6]"
+                  className="w-1/2 accent-[#C8FF3D]"
                 />
               </label>
             </div>
@@ -410,7 +411,7 @@ export function FirstRunOnboarding() {
                     type="button"
                     aria-pressed={interfaceOptions.cornerRadius === radius}
                     onClick={() => setInterfaceOptions({ ...interfaceOptions, cornerRadius: radius })}
-                    className={`appearance-none rounded-md px-2 py-1 text-xs capitalize ${interfaceOptions.cornerRadius === radius ? 'bg-[#8b5cf6] text-white' : 'bg-[#302e39] text-[#b8b3c2]'}`}
+                    className={`appearance-none rounded-md px-2 py-1 text-xs capitalize ${interfaceOptions.cornerRadius === radius ? 'bg-[#C8FF3D] text-[#0B0B0F]' : 'bg-[#302e39] text-[#b8b3c2]'}`}
                   >
                     {radius}
                   </button>
@@ -436,7 +437,7 @@ export function FirstRunOnboarding() {
                   type="checkbox"
                   checked={interfaceOptions[key]}
                   onChange={(event) => setInterfaceOptions({ ...interfaceOptions, [key]: event.target.checked })}
-                  className="h-4 w-4 accent-[#8b5cf6]"
+                  className="h-4 w-4 accent-[#C8FF3D]"
                 />
               </label>
             ))}
@@ -449,7 +450,7 @@ export function FirstRunOnboarding() {
               <button
                 type="button"
                 onClick={() => setStep((current) => current - 1)}
-                className="appearance-none rounded-md border border-[#393641] bg-[#302e39] px-4 py-2 text-sm text-[#eeeaf5] hover:bg-[#3b3846] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5cf6]"
+                className="appearance-none rounded-md border border-[#393641] bg-[#302e39] px-4 py-2 text-sm text-[#eeeaf5] hover:bg-[#3b3846] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8FF3D]"
               >
                 Back
               </button>
@@ -458,7 +459,7 @@ export function FirstRunOnboarding() {
               type="button"
               disabled={saving}
               onClick={() => void next()}
-              className="rounded-md bg-[#8b5cf6] px-4 py-2 text-sm font-medium text-white hover:bg-[#9a6bff] disabled:opacity-60"
+              className="rounded-md bg-[#C8FF3D] px-4 py-2 text-sm font-medium text-[#0B0B0F] hover:bg-[#D1FF5C] disabled:opacity-60"
             >
               {saving ? 'Saving…' : step === 3 ? 'Finish setup' : 'Continue'}
             </button>

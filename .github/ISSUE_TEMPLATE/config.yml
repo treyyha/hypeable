@@ -1,8 +1,5 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: Bolt.new related issues
-    url: https://github.com/stackblitz/bolt.new/issues/new/choose
-    about: Report issues related to Bolt.new (not Bolt.diy)
-  - name: Chat
-    url: https://thinktank.ottomator.ai
-    about: Ask questions and discuss with other Bolt.diy users.
+  - name: Hypeable repository
+    url: https://github.com/treyyha/hypeable
+    about: Source, docs, and discussion for Hypeable.

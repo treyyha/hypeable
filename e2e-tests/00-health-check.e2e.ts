@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Health Check', () => {
   test('app loads successfully', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Bolt/i);
+    await expect(page).toHaveTitle(/Hypeable/i);
   });
 
   test('no console errors on load', async ({ page }) => {
