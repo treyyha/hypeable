@@ -80,7 +80,7 @@ describe('connector activation', () => {
     }
 
     for (const update of [mocks.vercelUpdate, mocks.netlifyUpdate, mocks.supabaseUpdate]) {
-      expect(update).toHaveBeenCalledWith(expect.objectContaining({ token: 'validated-test-token' }));
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({ token: 'validated-test-token' })); // secret-scan:allow
     }
   });
 

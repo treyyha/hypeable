@@ -61,3 +61,47 @@ playwright-report
 test-results
 test-results.json
 test-results-summary.txt
+
+# --- Hypeable additions ---
+# secrets, never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+.dev.vars
+.vercel
+.wrangler
+secrets/
+*.secret
+credentials*.json
+service-account*.json
+
+# deps / build
+node_modules/
+dist/
+build/
+.next/
+.remix/
+.cache/
+coverage/
+
+# editor / os
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Track Hypeable docs (upstream ignores *.md and .cursorrules)
+!.cursorrules
+!*.md
+!docs/**/*.md

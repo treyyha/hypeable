@@ -1,0 +1,12 @@
+#!/bin/sh
+# Enforce conventional commits so history reads like a changelog.
+msg=$(head -n1 "$1")
+case "$msg" in
+  Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
+esac
+echo "$msg" | grep -Eq '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security)(\([a-z0-9._/-]+\))?!?: .{3,}' || {
+  echo "Commit message must look like: type(scope): summary"
+  echo "types: feat fix docs style refactor perf test build ci chore security"
+  echo "got:   $msg"
+  exit 1
+}

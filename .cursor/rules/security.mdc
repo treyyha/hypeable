@@ -1,0 +1,11 @@
+---
+description: Security rules for all code in Hypeable
+alwaysApply: true
+---
+- Never hardcode secrets. Read from `process.env`. Never log keys.
+- All server inputs go through a zod `.strict()` schema (see templates/security/validate.ts).
+- Derive identity from the session on the server. Never accept userId/role/price from the client.
+- Cookies: HttpOnly, Secure, SameSite=Lax (or Strict), Path=/, short Max-Age.
+- Every state-changing route needs auth check + rate limit + CSRF/origin check.
+- Encrypt sensitive data at rest with AES-256-GCM (templates/security/crypto.ts).
+- Before commit run `node scripts/secret-scan.mjs`.

@@ -1,0 +1,30 @@
+# AGENTS.md: rules for AI coding agents (Cursor, Claude Code, Codex)
+
+Hypeable is a free, open-source AI app builder. Tagline: **worth the hype.**
+Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts nothing.
+
+## Non-negotiables
+1. **Never write a real secret into any file.** Keys, tokens, passwords go in `.env.local` (git-ignored) and are read via `process.env`. Use `.env.example` for names only.
+2. **BYO key never leaves the user's browser** except in the single request to their chosen model provider. No server stores it. No logs print it. Redact `Authorization`, `x-api-key`, and anything matching `sk-`.
+3. **Validate every server input with zod `.strict()`.** Never trust client-sent fields like `userId`, `role`, `price`, `plan`. Derive them server-side from the session.
+4. **Auth is enforced on the server**, in the route/loader/action. UI hiding is not security.
+5. **Conventional commits**: `type(scope): summary`. Types: feat fix docs style refactor perf test build ci chore security.
+6. Small commits, one idea each. Explain the *why* in the body.
+7. Run `npm run typecheck && npm run lint` before finishing a task.
+8. Do not add telemetry, trackers, or any network call to a domain we do not own, besides the user's chosen model provider and their own Vercel/GitHub.
+
+## Product pillars (build in this order)
+1. Live cost meter: tokens x model price, session and daily caps, hard stop.
+2. Loop breaker: stop after 3 repeated identical errors, offer replan / revert / switch model.
+3. Plan-first mode: show a plan, user approves, then build.
+4. Pre-deploy security check: exposed keys, missing DB access rules, open CORS, debug flags.
+5. One-click publish to the user's own Vercel/GitHub.
+
+## Style
+- TypeScript strict. No `any` without a comment explaining why.
+- Comments explain *why*, not *what*. Public modules get a short header comment.
+- Prefer small pure functions with tests (vitest).
+- Brand: do not imitate any other product's logo, colours, or copy. Footer: "Not affiliated with Lovable, Bolt, or StackBlitz."
+
+## Where things are
+See `docs/ARCHITECTURE.md` and `docs/SECURITY.md`. Security snippets to copy from: `templates/security/`.

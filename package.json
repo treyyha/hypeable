@@ -54,7 +54,10 @@
     "electron:build:mac": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mac",
     "electron:build:win": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --win",
     "electron:build:linux": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --linux",
-    "electron:build:dist": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl"
+    "electron:build:dist": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl",
+    "setup": "node scripts/setup.mjs",
+    "ship": "node scripts/ship.mjs",
+    "secrets": "node scripts/secret-scan.mjs --all"
   },
   "engines": {
     "node": ">=22.12.0",
