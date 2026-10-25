@@ -1,14 +1,21 @@
 {
-  "name": "bolt",
-  "description": "An AI Agent",
+  "name": "hypeable",
+  "description": "worth the hype. A free, open-source AI app builder.",
+  "homepage": "https://github.com/treyyha/hypeable",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treyyha/hypeable.git"
+  },
+  "bugs": {
+    "url": "https://github.com/treyyha/hypeable/issues"
+  },
   "private": true,
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
   "version": "1.0.0",
   "author": {
-    "name": "bolt.diy team",
-    "email": "maintainers@bolt.diy"
+    "name": "Hypeable"
   },
   "scripts": {
     "deploy": "pnpm run build && wrangler deploy",
