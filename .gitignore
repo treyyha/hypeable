@@ -65,6 +65,7 @@ test-results-summary.txt
 # --- Hypeable additions ---
 # secrets, never commit
 .env
+.env.production
 .env.*
 !.env.example
 *.pem
