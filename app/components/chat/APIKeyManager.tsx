@@ -1,6 +1,11 @@
-import Cookies from 'js-cookie';
 import React, { useState, useEffect, useCallback } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
+import {
+  getForgetKeysOnTabClose,
+  readStoredApiKeys,
+  setForgetKeysOnTabClose,
+  writeStoredApiKeys,
+} from '~/lib/api/api-key-storage';
 import type { ProviderInfo } from '~/types/model';
 
 interface APIKeyManagerProps {
@@ -11,25 +16,10 @@ interface APIKeyManagerProps {
   labelForGetApiKey?: string;
 }
 
-// cache which stores whether the provider's API key is set via environment variable
 const providerEnvKeyStatusCache: Record<string, boolean> = {};
 
-const apiKeyMemoizeCache: { [k: string]: Record<string, string> } = {};
-
 export function getApiKeysFromCookies() {
-  const storedApiKeys = Cookies.get('apiKeys');
-
-  let parsedKeys: Record<string, string> = {};
-
-  if (storedApiKeys) {
-    parsedKeys = apiKeyMemoizeCache[storedApiKeys];
-
-    if (!parsedKeys) {
-      parsedKeys = apiKeyMemoizeCache[storedApiKeys] = JSON.parse(storedApiKeys);
-    }
-  }
-
-  return parsedKeys;
+  return readStoredApiKeys();
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -37,20 +27,19 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
   const [isEditing, setIsEditing] = useState(false);
   const [tempKey, setTempKey] = useState(apiKey);
   const [isEnvKeySet, setIsEnvKeySet] = useState(false);
+  const [forgetOnClose, setForgetOnClose] = useState(false);
 
-  // Reset states and load saved key when provider changes
   useEffect(() => {
-    // Load saved API key from cookies for this provider
-    const savedKeys = getApiKeysFromCookies();
+    const savedKeys = readStoredApiKeys();
     const savedKey = savedKeys[provider.name] || '';
 
     setTempKey(savedKey);
     setApiKey(savedKey);
     setIsEditing(false);
-  }, [provider.name]);
+    setForgetOnClose(getForgetKeysOnTabClose());
+  }, [provider.name, setApiKey]);
 
   const checkEnvApiKey = useCallback(async () => {
-    // Check cache first
     if (providerEnvKeyStatusCache[provider.name] !== undefined) {
       setIsEnvKeySet(providerEnvKeyStatusCache[provider.name]);
       return;
@@ -61,7 +50,6 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
       const data = await response.json();
       const isSet = (data as { isSet: boolean }).isSet;
 
-      // Cache the result
       providerEnvKeyStatusCache[provider.name] = isSet;
       setIsEnvKeySet(isSet);
     } catch (error) {
@@ -75,75 +63,77 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
   }, [checkEnvApiKey]);
 
   const handleSave = () => {
-    // Save to parent state
     setApiKey(tempKey);
 
-    // Save to cookies
-    const currentKeys = getApiKeysFromCookies();
-    const newKeys = { ...currentKeys, [provider.name]: tempKey };
-    Cookies.set('apiKeys', JSON.stringify(newKeys));
+    const currentKeys = readStoredApiKeys();
+    writeStoredApiKeys({ ...currentKeys, [provider.name]: tempKey }, provider.name);
 
     setIsEditing(false);
   };
 
-  return (
-    <div className="flex items-center justify-between py-3 px-1">
-      <div className="flex items-center gap-2 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-bolt-elements-textSecondary">{provider?.name} API Key:</span>
-          {!isEditing && (
-            <div className="flex items-center gap-2">
-              {apiKey ? (
-                <>
-                  <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
-                  <span className="text-xs text-green-500">Set via UI</span>
-                </>
-              ) : isEnvKeySet ? (
-                <>
-                  <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
-                  <span className="text-xs text-green-500">Set via environment variable</span>
-                </>
-              ) : (
-                <>
-                  <div className="i-ph:x-circle-fill text-red-500 w-4 h-4" />
-                  <span className="text-xs text-red-500">Not Set (Please set via UI or ENV_VAR)</span>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+  const handleForgetToggle = (checked: boolean) => {
+    setForgetKeysOnTabClose(checked);
+    setForgetOnClose(checked);
+  };
 
-      <div className="flex items-center gap-2 shrink-0">
-        {isEditing ? (
+  return (
+    <div className="py-3 px-1 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 flex-1">
           <div className="flex items-center gap-2">
-            <input
-              type="password"
-              value={tempKey}
-              placeholder="Enter API Key"
-              onChange={(e) => setTempKey(e.target.value)}
-              className="w-[300px] px-3 py-1.5 text-sm rounded border border-bolt-elements-borderColor 
+            <span className="text-sm font-medium text-bolt-elements-textSecondary">{provider?.name} API Key:</span>
+            {!isEditing && (
+              <div className="flex items-center gap-2">
+                {apiKey ? (
+                  <>
+                    <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
+                    <span className="text-xs text-green-500">Set via UI</span>
+                  </>
+                ) : isEnvKeySet ? (
+                  <>
+                    <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
+                    <span className="text-xs text-green-500">Set via environment variable</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="i-ph:x-circle-fill text-red-500 w-4 h-4" />
+                    <span className="text-xs text-red-500">Not Set (Please set via UI or ENV_VAR)</span>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {isEditing ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                value={tempKey}
+                placeholder="Enter API Key"
+                onChange={(e) => setTempKey(e.target.value)}
+                className="w-[300px] px-3 py-1.5 text-sm rounded border border-bolt-elements-borderColor 
                         bg-bolt-elements-prompt-background text-bolt-elements-textPrimary 
                         focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus"
-            />
-            <IconButton
-              onClick={handleSave}
-              title="Save API Key"
-              className="bg-green-500/10 hover:bg-green-500/20 text-green-500"
-            >
-              <div className="i-ph:check w-4 h-4" />
-            </IconButton>
-            <IconButton
-              onClick={() => setIsEditing(false)}
-              title="Cancel"
-              className="bg-red-500/10 hover:bg-red-500/20 text-red-500"
-            >
-              <div className="i-ph:x w-4 h-4" />
-            </IconButton>
-          </div>
-        ) : (
-          <>
-            {
+              />
+              <IconButton
+                onClick={handleSave}
+                title="Save API Key"
+                className="bg-green-500/10 hover:bg-green-500/20 text-green-500"
+              >
+                <div className="i-ph:check w-4 h-4" />
+              </IconButton>
+              <IconButton
+                onClick={() => setIsEditing(false)}
+                title="Cancel"
+                className="bg-red-500/10 hover:bg-red-500/20 text-red-500"
+              >
+                <div className="i-ph:x w-4 h-4" />
+              </IconButton>
+            </div>
+          ) : (
+            <>
               <IconButton
                 onClick={() => setIsEditing(true)}
                 title="Edit API Key"
@@ -151,20 +141,32 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
               >
                 <div className="i-ph:pencil-simple w-4 h-4" />
               </IconButton>
-            }
-            {provider?.getApiKeyLink && !apiKey && (
-              <IconButton
-                onClick={() => window.open(provider?.getApiKeyLink)}
-                title="Get API Key"
-                className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 flex items-center gap-2"
-              >
-                <span className="text-xs whitespace-nowrap">{provider?.labelForGetApiKey || 'Get API Key'}</span>
-                <div className={`${provider?.icon || 'i-ph:key'} w-4 h-4`} />
-              </IconButton>
-            )}
-          </>
-        )}
+              {provider?.getApiKeyLink && !apiKey && (
+                <IconButton
+                  onClick={() => window.open(provider?.getApiKeyLink)}
+                  title="Get API Key"
+                  className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 flex items-center gap-2"
+                >
+                  <span className="text-xs whitespace-nowrap">{provider?.labelForGetApiKey || 'Get API Key'}</span>
+                  <div className={`${provider?.icon || 'i-ph:key'} w-4 h-4`} />
+                </IconButton>
+              )}
+            </>
+          )}
+        </div>
       </div>
+      <p className="text-xs text-bolt-elements-textSecondary max-w-3xl">
+        Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request to
+        your provider, never stored or logged. Verify it in{' '}
+        <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
+          app/routes/api.chat.ts
+        </a>
+        . Want zero trust? Run Hypeable locally: pnpm dev.
+      </p>
+      <label className="flex items-center gap-2 text-xs text-bolt-elements-textSecondary cursor-pointer">
+        <input type="checkbox" checked={forgetOnClose} onChange={(event) => handleForgetToggle(event.target.checked)} />
+        Forget keys when I close the tab
+      </label>
     </div>
   );
 };

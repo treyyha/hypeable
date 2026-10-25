@@ -1,4 +1,5 @@
 import { InvalidToolInputError, NoSuchToolError, ToolChoiceViolationError } from 'ai';
+import { LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('api.errors');
@@ -279,7 +280,7 @@ export function toApiErrorResponse(error: unknown, fallbackProvider = 'unknown')
         isRetryable: error.isRetryable,
         provider: error.provider ?? fallbackProvider,
       } satisfies ApiErrorBody,
-      { status: error.status, headers: { 'Content-Type': 'application/json' } },
+      { status: error.status, headers: { 'Content-Type': 'application/json', ...LLM_NO_STORE_HEADERS } },
     );
   }
 
@@ -297,7 +298,7 @@ export function toApiErrorResponse(error: unknown, fallbackProvider = 'unknown')
         isRetryable: false,
         provider: fallbackProvider,
       } satisfies ApiErrorBody,
-      { status: 499, headers: { 'Content-Type': 'application/json' } },
+      { status: 499, headers: { 'Content-Type': 'application/json', ...LLM_NO_STORE_HEADERS } },
     );
   }
 
@@ -311,7 +312,7 @@ export function toApiErrorResponse(error: unknown, fallbackProvider = 'unknown')
       isRetryable: true,
       provider: fallbackProvider,
     } satisfies ApiErrorBody,
-    { status: 500, headers: { 'Content-Type': 'application/json' } },
+    { status: 500, headers: { 'Content-Type': 'application/json', ...LLM_NO_STORE_HEADERS } },
   );
 }
 

@@ -1,5 +1,6 @@
 import { type UIMessage } from 'ai';
 import Cookies from 'js-cookie';
+import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { getAllChats, deleteChat } from '~/lib/persistence/chats';
 
 interface ExtendedMessage extends UIMessage {
@@ -77,8 +78,7 @@ export class ImportExportService {
           // Provider configurations from localStorage
           provider_settings: this._safeGetItem('provider_settings'),
 
-          // API keys from cookies
-          apiKeys: allCookies.apiKeys,
+          apiKeys: readStoredApiKeys(),
 
           // Selected provider and model
           selectedModel: allCookies.selectedModel,
@@ -196,11 +196,7 @@ export class ImportExportService {
    * @param keys The API keys to import
    */
   static importAPIKeys(keys: Record<string, any>): Record<string, string> {
-    // Get existing keys from cookies
-    const existingKeys = (() => {
-      const storedApiKeys = Cookies.get('apiKeys');
-      return storedApiKeys ? JSON.parse(storedApiKeys) : {};
-    })();
+    const existingKeys = readStoredApiKeys();
 
     // Validate and save each key
     const newKeys = { ...existingKeys };
@@ -238,6 +234,8 @@ export class ImportExportService {
       }
     });
 
+    writeStoredApiKeys(newKeys);
+
     return newKeys;
   }
 
@@ -248,7 +246,7 @@ export class ImportExportService {
   static createAPIKeysTemplate(): Record<string, any> {
     /*
      * Create a template with provider names as keys
-     * This matches how the application stores API keys in cookies
+     * This matches how the application stores API keys in the browser
      */
     const template = {
       Anthropic: '',
@@ -388,7 +386,17 @@ export class ImportExportService {
       }
 
       // Import API keys and other provider cookies
-      const providerCookies = ['apiKeys', 'selectedModel', 'selectedProvider', 'providers'];
+      if (data.providers.apiKeys) {
+        try {
+          const imported =
+            typeof data.providers.apiKeys === 'string' ? JSON.parse(data.providers.apiKeys) : data.providers.apiKeys;
+          writeStoredApiKeys(imported as Record<string, string>);
+        } catch (err) {
+          console.error('Error importing API keys:', err);
+        }
+      }
+
+      const providerCookies = ['selectedModel', 'selectedProvider', 'providers'];
       providerCookies.forEach((key) => {
         if (data.providers[key]) {
           try {
@@ -554,8 +562,14 @@ export class ImportExportService {
 
         try {
           // Try to determine if this should be a cookie or localStorage item
+          if (key === 'apiKeys') {
+            const imported = typeof value === 'string' ? JSON.parse(value) : value;
+            writeStoredApiKeys(imported as Record<string, string>);
+
+            return;
+          }
+
           const isCookie = [
-            'apiKeys',
             'selectedModel',
             'selectedProvider',
             'providers',

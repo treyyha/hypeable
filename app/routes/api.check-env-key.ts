@@ -1,5 +1,4 @@
 import type { LoaderFunction } from 'react-router';
-import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { LLMManager } from '~/lib/modules/llm/manager';
 
 export const loader: LoaderFunction = async ({ context, request }) => {
@@ -10,7 +9,8 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     return Response.json({ isSet: false });
   }
 
-  const llmManager = LLMManager.getInstance(context?.cloudflare?.env as any);
+  const cloudflareEnv = context?.cloudflare?.env as unknown as Record<string, string> | undefined;
+  const llmManager = LLMManager.getInstance(cloudflareEnv);
   const providerInstance = llmManager.getProvider(provider);
 
   if (!providerInstance || !providerInstance.config.apiTokenKey) {
@@ -19,23 +19,12 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 
   const envVarName = providerInstance.config.apiTokenKey;
 
-  // Get API keys from cookie
-  const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = getApiKeysFromCookie(cookieHeader);
-
   /*
-   * Check API key in order of precedence:
-   * 1. Client-side API keys (from cookies)
-   * 2. Server environment variables (from Cloudflare env)
-   * 3. Process environment variables (from .env.local)
-   * 4. LLMManager environment variables
+   * Only report *server* env keys. Client keys live in web storage and the
+   * browser already knows whether they are set; they must not be inferred
+   * from a cookie on this request.
    */
-  const isSet = !!(
-    apiKeys?.[provider] ||
-    (context?.cloudflare?.env as Record<string, any>)?.[envVarName] ||
-    process.env[envVarName] ||
-    llmManager.env[envVarName]
-  );
+  const isSet = !!(cloudflareEnv?.[envVarName] || process.env[envVarName] || llmManager.env[envVarName]);
 
-  return Response.json({ isSet });
+  return Response.json({ isSet }, { headers: { 'Cache-Control': 'no-store' } });
 };

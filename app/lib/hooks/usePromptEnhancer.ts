@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { llmFetch } from '~/lib/api/api-key-storage';
 import type { ProviderInfo } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -23,20 +24,21 @@ export function usePromptEnhancer() {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
 
-    const requestBody: any = {
+    const requestBody = {
       message: input,
       model,
       provider,
     };
 
-    if (apiKeys) {
-      requestBody.apiKeys = apiKeys;
-    }
-
-    const response = await fetch('/api/enhancer', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-    });
+    const response = await llmFetch(
+      '/api/enhancer',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      },
+      apiKeys,
+    );
 
     const reader = response.body?.getReader();
 

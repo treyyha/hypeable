@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { BaseChat } from './BaseChat';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+import { getLlmRequestHeaders, readStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
 import { isServerAgentTool } from '~/lib/common/agentLoop';
 import { STARTER_BUILD_FLAG } from '~/lib/common/starterBuild';
@@ -184,7 +185,6 @@ export const ChatImpl = memo(
     );
 
     const bodyRef = useRef({
-      apiKeys,
       files,
       promptId,
       contextOptimization: contextOptimizationEnabled,
@@ -215,7 +215,6 @@ export const ChatImpl = memo(
     });
 
     bodyRef.current = {
-      apiKeys,
       files,
       promptId,
       contextOptimization: contextOptimizationEnabled,
@@ -258,12 +257,13 @@ export const ChatImpl = memo(
         api: '/api/chat',
 
         /*
-         * body is resolved per request, but only if it is a function. Passing a
-         * plain object froze every value here at first render, which silently
-         * staled the API keys, chat mode and step limit. Without this the
-         * server received no chatMode at all and answered with discussPrompt()
-         * instead of the build prompt, so no artifacts were ever produced.
+         * body and headers are resolved per request, but only if they are
+         * functions. Passing a plain object froze every value here at first
+         * render, which silently staled chat mode and step limit.
+         *
+         * Keys go in `x-hypeable-key`, not the cookie and not the JSON body.
          */
+        headers: () => getLlmRequestHeaders(),
         body: () => bodyRef.current,
       }),
 
@@ -1106,11 +1106,7 @@ export const ChatImpl = memo(
     );
 
     useEffect(() => {
-      const storedApiKeys = Cookies.get('apiKeys');
-
-      if (storedApiKeys) {
-        setApiKeys(JSON.parse(storedApiKeys));
-      }
+      setApiKeys(readStoredApiKeys());
 
       const handleApiKeysUpdated = (event: Event) => {
         const { apiKeys } = (event as CustomEvent<ApiKeysUpdatedDetail>).detail;

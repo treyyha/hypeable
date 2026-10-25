@@ -1,9 +1,11 @@
 import { streamText as _streamText, type ModelMessage, type UIMessage } from 'ai';
 import { withAgentStreamDeadlines, withAgentToolCallRecovery } from './agent-stream';
 import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel, type FileMap } from './constants';
+import { providerHasCredential } from './credentials';
 import { prepareModelMessages } from './model-messages';
 import { withDevelopmentCommentaryWorkstyle } from './prompt-workstyle';
 import { createFilesContext, extractPropertiesFromMessage } from './utils';
+import { toMissingCredentialError } from '~/lib/.server/api/errors';
 import { PromptLibrary } from '~/lib/common/prompt-library';
 import { discussPrompt } from '~/lib/common/prompts/discuss-prompt';
 import { getSystemPrompt } from '~/lib/common/prompts/prompts';
@@ -170,6 +172,11 @@ export async function streamText(props: {
   });
 
   const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
+
+  if (!providerHasCredential(provider.name, apiKeys, serverEnv)) {
+    throw toMissingCredentialError(provider.name);
+  }
+
   const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
 
   let modelDetails = staticModels.find((m) => m.name === currentModel);

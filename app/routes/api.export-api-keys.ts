@@ -1,15 +1,12 @@
 import type { LoaderFunction } from 'react-router';
-import { getApiKeysFromCookie } from '~/lib/api/cookies';
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   /*
-   * Export only keys supplied by this browser session. Server environment keys
-   * belong to the deployment owner and must never be exposed to anonymous users.
+   * Keys are stored in the browser (localStorage / sessionStorage) and are
+   * never sent to this route. Export is a client-side read of that storage.
    */
-  const cookieHeader = request.headers.get('Cookie');
-  const apiKeysFromCookie = getApiKeysFromCookie(cookieHeader);
-
-  return Response.json(apiKeysFromCookie, {
-    headers: { 'Cache-Control': 'no-store' },
-  });
+  return Response.json(
+    { error: 'API keys are stored in the browser and cannot be exported from the server.' },
+    { status: 410, headers: { 'Cache-Control': 'no-store' } },
+  );
 };

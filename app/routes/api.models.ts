@@ -1,4 +1,5 @@
-import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { ProviderInfo } from '~/types/model';
@@ -46,9 +47,8 @@ export async function loader({
 }): Promise<Response> {
   const llmManager = LLMManager.getInstance(context.cloudflare?.env);
 
-  // Get client side maintained API keys and provider settings from cookies
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = getApiKeysFromCookie(cookieHeader);
+  const apiKeys = getApiKeysFromRequest(request);
   const providerSettings = getProviderSettingsFromCookie(cookieHeader);
   const enabledProviderNames = new URL(request.url).searchParams.get('providers')?.split(',').filter(Boolean);
 
@@ -77,9 +77,12 @@ export async function loader({
     });
   }
 
-  return Response.json({
-    modelList,
-    providers,
-    defaultProvider,
-  });
+  return Response.json(
+    {
+      modelList,
+      providers,
+      defaultProvider,
+    },
+    { headers: { ...LLM_NO_STORE_HEADERS } },
+  );
 }

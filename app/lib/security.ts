@@ -1,4 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
+import { isLlmRoute, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
+import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
+
+installSafeConsole();
 
 // Rate limiting store (in-memory for serverless environments)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -211,8 +215,8 @@ export function validateApiKeyFormat(apiKey: string, provider: string): boolean 
  */
 export function sanitizeErrorMessage(error: unknown, isDevelopment = false): string {
   if (isDevelopment) {
-    // In development, show full error details
-    return error instanceof Error ? error.message : String(error);
+    // Still redact: a provider SDK error can embed the key in a URL or header dump.
+    return redactUnknown(error instanceof Error ? error.message : String(error));
   }
 
   // In production, show generic messages to prevent information leakage
@@ -277,15 +281,22 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
       }
     }
 
+    const attachSecurityHeaders = (headers: Headers) => {
+      Object.entries(createSecurityHeaders()).forEach(([key, value]) => {
+        headers.set(key, value);
+      });
+
+      if (isLlmRoute(endpoint)) {
+        headers.set('Cache-Control', LLM_NO_STORE_HEADERS['Cache-Control']);
+      }
+    };
+
     try {
       // Execute the handler
       const response = await handler(args);
 
-      // Add security headers to response
       const responseHeaders = new Headers(response.headers);
-      Object.entries(createSecurityHeaders()).forEach(([key, value]) => {
-        responseHeaders.set(key, value);
-      });
+      attachSecurityHeaders(responseHeaders);
 
       return new Response(response.body, {
         status: response.status,
@@ -305,10 +316,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
        */
       if (error instanceof Response) {
         const responseHeaders = new Headers(error.headers);
-
-        Object.entries(createSecurityHeaders()).forEach(([key, value]) => {
-          responseHeaders.set(key, value);
-        });
+        attachSecurityHeaders(responseHeaders);
 
         return new Response(error.body, {
           status: error.status,
@@ -327,16 +335,19 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
        * stays dependency-free for the routes that use it as a rate limiter.
        */
       if (isTypedApiError(error)) {
+        const responseHeaders = new Headers({
+          ...createSecurityHeaders(),
+          'Content-Type': 'application/json',
+        });
+        attachSecurityHeaders(responseHeaders);
+
         return new Response(JSON.stringify(error.body), {
           status: error.status,
-          headers: {
-            ...createSecurityHeaders(),
-            'Content-Type': 'application/json',
-          },
+          headers: responseHeaders,
         });
       }
 
-      console.error('Security-wrapped handler error:', error);
+      console.error('Security-wrapped handler error:', redactUnknown(error));
 
       const errorMessage = sanitizeErrorMessage(error, process.env.NODE_ENV === 'development');
 
@@ -349,6 +360,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
           status: 500,
           headers: {
             ...createSecurityHeaders(),
+            ...(isLlmRoute(endpoint) ? LLM_NO_STORE_HEADERS : {}),
             'Content-Type': 'application/json',
           },
         },

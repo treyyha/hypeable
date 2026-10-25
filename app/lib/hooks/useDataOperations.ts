@@ -1,6 +1,7 @@
 import { generateId } from 'ai';
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { useIndexedDB } from '~/lib/hooks/useIndexedDB';
 import { ImportExportService } from '~/lib/services/importExportService';
 
@@ -730,17 +731,13 @@ export function useDataOperations({
         // Step 3: Validate data
         showProgress('Validating API keys data', 60);
 
-        // Get current API keys from cookies for potential undo
-        const apiKeysStr = document.cookie.split(';').find((row) => row.trim().startsWith('apiKeys='));
-        const currentApiKeys = apiKeysStr ? JSON.parse(decodeURIComponent(apiKeysStr.split('=')[1])) : {};
+        const currentApiKeys = readStoredApiKeys();
         setLastOperation({ type: 'import-api-keys', data: { previous: currentApiKeys } });
 
         // Step 4: Import API keys
         showProgress('Applying API keys', 80);
 
         const newKeys = ImportExportService.importAPIKeys(importedData);
-        const apiKeysJson = JSON.stringify(newKeys);
-        document.cookie = `apiKeys=${apiKeysJson}; path=/; max-age=31536000`;
 
         // Step 5: Complete
         showProgress('Completing import', 100);
@@ -1002,14 +999,7 @@ export function useDataOperations({
       // Step 1: Get API keys from all sources
       showProgress('Retrieving API keys', 25);
 
-      // Create a fetch request to get API keys from server
-      const response = await fetch('/api/export-api-keys');
-
-      if (!response.ok) {
-        throw new Error('Failed to retrieve API keys from server');
-      }
-
-      const apiKeys = await response.json();
+      const apiKeys = readStoredApiKeys();
 
       // Step 2: Create blob
       showProgress('Creating file', 50);
@@ -1185,9 +1175,7 @@ export function useDataOperations({
         case 'import-api-keys': {
           // Restore previous API keys
           const previousAPIKeys = lastOperation.data.previous;
-          const newKeys = ImportExportService.importAPIKeys(previousAPIKeys);
-          const apiKeysJson = JSON.stringify(newKeys);
-          document.cookie = `apiKeys=${apiKeysJson}; path=/; max-age=31536000`;
+          writeStoredApiKeys(previousAPIKeys);
 
           // Dismiss progress toast before showing success toast
           toast.dismiss('progress-toast');

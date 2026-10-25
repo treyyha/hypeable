@@ -154,7 +154,14 @@ const CloudProvidersTab = () => {
             </div>
             <div>
               <h4 className="text-md font-medium text-bolt-elements-textPrimary">Cloud Providers</h4>
-              <p className="text-sm text-bolt-elements-textSecondary">Connect to cloud-based AI models and services</p>
+              <p className="text-sm text-bolt-elements-textSecondary">
+                Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that
+                request to your provider, never stored or logged. Verify it in{' '}
+                <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
+                  app/routes/api.chat.ts
+                </a>
+                . Want zero trust? Run Hypeable locally: pnpm dev.
+              </p>
             </div>
           </div>
 

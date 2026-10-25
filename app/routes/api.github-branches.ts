@@ -1,4 +1,4 @@
-import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { getGithubAccessToken } from '~/lib/api/connector-tokens';
 import { withSecurity } from '~/lib/security';
 
 interface GitHubBranch {
@@ -47,19 +47,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
         return Response.json({ error: 'Owner and repo parameters are required' }, { status: 400 });
       }
 
-      // Get API keys from cookies (server-side only)
-      const cookieHeader = request.headers.get('Cookie');
-      const apiKeys = getApiKeysFromCookie(cookieHeader);
-
-      // Try to get GitHub token from various sources
-      githubToken =
-        apiKeys.GITHUB_API_KEY ||
-        apiKeys.VITE_GITHUB_ACCESS_TOKEN ||
-        context?.cloudflare?.env?.GITHUB_TOKEN ||
-        context?.cloudflare?.env?.VITE_GITHUB_ACCESS_TOKEN ||
-        process.env.GITHUB_TOKEN ||
-        process.env.VITE_GITHUB_ACCESS_TOKEN ||
-        '';
+      githubToken = getGithubAccessToken(request, context?.cloudflare?.env) || '';
     }
 
     if (!githubToken) {

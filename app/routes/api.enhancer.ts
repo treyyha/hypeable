@@ -3,8 +3,10 @@ import type { ActionFunctionArgs } from 'react-router';
 import { toApiErrorResponse, toMissingCredentialError } from '~/lib/.server/api/errors';
 import { readJsonBody } from '~/lib/.server/api/read-body';
 import { REQUEST_LIMITS, enhancerRequestSchema, parseBody } from '~/lib/.server/api/schemas';
+import { providerHasCredential } from '~/lib/.server/llm/credentials';
 import { streamText } from '~/lib/.server/llm/stream-text';
-import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { stripIndents } from '~/utils/stripIndent';
 
@@ -18,9 +20,10 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
    * threw a TypeError reading `.name` and surfaced as a 500. Validated up front now.
    */
   let body;
+  let rawBody: unknown;
 
   try {
-    const rawBody = await readJsonBody(request, { maxBytes: REQUEST_LIMITS.MAX_LLMCALL_BODY_BYTES });
+    rawBody = await readJsonBody(request, { maxBytes: REQUEST_LIMITS.MAX_LLMCALL_BODY_BYTES });
 
     body = parseBody(enhancerRequestSchema, rawBody, 'enhancer');
   } catch (error) {
@@ -31,8 +34,12 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
   const providerName = body.provider.name;
 
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = getApiKeysFromCookie(cookieHeader);
+  const apiKeys = getApiKeysFromRequest(request, rawBody);
   const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+
+  if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
+    return missingProviderKeyResponse(providerName);
+  }
 
   try {
     const result = await streamText({
@@ -95,7 +102,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       headers: {
         'Content-Type': 'text/event-stream',
         Connection: 'keep-alive',
-        'Cache-Control': 'no-cache',
+        ...LLM_NO_STORE_HEADERS,
       },
     });
   } catch (error: unknown) {

@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import Cookies from 'js-cookie';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '~/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '~/components/ui/Card';
 import { ConfirmationDialog, SelectionDialog } from '~/components/ui/Dialog';
+import { clearStoredApiKeys } from '~/lib/api/api-key-storage';
 import { useDataOperations } from '~/lib/hooks/useDataOperations';
 import { getAllChats, type Chat } from '~/lib/persistence/chats';
 import { openDatabase } from '~/lib/persistence/db';
@@ -208,7 +208,7 @@ export function DataTab() {
   }, [handleResetChats]);
 
   const handleDeleteAllAPIKeys = useCallback(() => {
-    Cookies.remove('apiKeys', { path: '/' });
+    clearStoredApiKeys();
     setShowDeleteAPIKeysConfirm(false);
     toast.success('All saved API keys were deleted');
     window.location.reload();
@@ -263,7 +263,7 @@ export function DataTab() {
         isOpen={showDeleteAPIKeysConfirm}
         onClose={() => setShowDeleteAPIKeysConfirm(false)}
         title="Delete All API Keys?"
-        description="This permanently removes API keys saved in this browser. Keys provided through environment variables are not affected."
+        description="This permanently removes API keys saved in this browser (localStorage or sessionStorage). Keys provided through environment variables are not affected."
         confirmLabel="Delete All API Keys"
         cancelLabel="Cancel"
         variant="destructive"

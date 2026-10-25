@@ -1,6 +1,9 @@
 import { isbot } from 'isbot';
 import { renderToReadableStream } from 'react-dom/server';
 import { ServerRouter, type EntryContext, type RouterContextProvider } from 'react-router';
+import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
+
+installSafeConsole();
 
 export default async function handleRequest(
   request: Request,
@@ -12,7 +15,7 @@ export default async function handleRequest(
   const body = await renderToReadableStream(<ServerRouter context={routerContext} url={request.url} />, {
     signal: request.signal,
     onError(error: unknown) {
-      console.error(error);
+      console.error(redactUnknown(error));
       responseStatusCode = 500;
     },
   });

@@ -1,17 +1,9 @@
-import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { getNetlifyAccessToken } from '~/lib/api/connector-tokens';
 import { withSecurity } from '~/lib/security';
 
 async function netlifyUserLoader({ request, context }: { request: Request; context: any }) {
   try {
-    // Get API keys from cookies (server-side only)
-    const cookieHeader = request.headers.get('Cookie');
-    const apiKeys = getApiKeysFromCookie(cookieHeader);
-
-    // Try to get Netlify token from various sources
-    const netlifyToken =
-      apiKeys.VITE_NETLIFY_ACCESS_TOKEN ||
-      context?.cloudflare?.env?.VITE_NETLIFY_ACCESS_TOKEN ||
-      process.env.VITE_NETLIFY_ACCESS_TOKEN;
+    const netlifyToken = getNetlifyAccessToken(request, context?.cloudflare?.env);
 
     if (!netlifyToken) {
       return Response.json({ error: 'Netlify token not found' }, { status: 401 });
@@ -70,15 +62,7 @@ async function netlifyUserAction({ request, context }: { request: Request; conte
     const formData = await request.formData();
     const action = formData.get('action');
 
-    // Get API keys from cookies (server-side only)
-    const cookieHeader = request.headers.get('Cookie');
-    const apiKeys = getApiKeysFromCookie(cookieHeader);
-
-    // Try to get Netlify token from various sources
-    const netlifyToken =
-      apiKeys.VITE_NETLIFY_ACCESS_TOKEN ||
-      context?.cloudflare?.env?.VITE_NETLIFY_ACCESS_TOKEN ||
-      process.env.VITE_NETLIFY_ACCESS_TOKEN;
+    const netlifyToken = getNetlifyAccessToken(request, context?.cloudflare?.env);
 
     if (!netlifyToken) {
       return Response.json({ error: 'Netlify token not found' }, { status: 401 });

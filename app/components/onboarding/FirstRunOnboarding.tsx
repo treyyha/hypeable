@@ -1,7 +1,6 @@
-import Cookies from 'js-cookie';
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
-import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
+import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { getAll, openDatabase } from '~/lib/persistence/db';
 import type { MCPConfig } from '~/lib/services/mcpService';
 import { useMCPStore } from '~/lib/stores/mcp';
@@ -62,7 +61,7 @@ export function FirstRunOnboarding() {
           localStorage.getItem('bolt_theme') ||
           localStorage.getItem('provider_settings') ||
           localStorage.getItem('bolt_user_profile') ||
-          Cookies.get('apiKeys'),
+          Object.keys(readStoredApiKeys()).length > 0,
         );
 
         const db = await openDatabase();
@@ -106,22 +105,8 @@ export function FirstRunOnboarding() {
   };
 
   const saveApiKey = () => {
-    const current = Cookies.get('apiKeys');
-
-    let keys: Record<string, string> = {};
-
-    try {
-      keys = current ? (JSON.parse(current) as Record<string, string>) : {};
-    } catch {
-      keys = {};
-    }
-
     if (providerName && apiKey.trim()) {
-      const apiKeys = { ...keys, [providerName]: apiKey.trim() };
-      Cookies.set('apiKeys', JSON.stringify(apiKeys), { expires: 365 });
-      window.dispatchEvent(
-        new CustomEvent<ApiKeysUpdatedDetail>(API_KEYS_UPDATED_EVENT, { detail: { apiKeys, providerName } }),
-      );
+      writeStoredApiKeys({ ...readStoredApiKeys(), [providerName]: apiKey.trim() }, providerName);
     }
   };
 
@@ -302,8 +287,9 @@ export function FirstRunOnboarding() {
         {step === 1 && (
           <div className="space-y-3">
             <p className="text-sm text-[#a09baa]">
-              Choose a provider and add its API key to start building. You can also skip this and use a locally
-              configured provider.
+              Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request
+              to your provider, never stored or logged. Verify it in app/routes/api.chat.ts. Want zero trust? Run
+              Hypeable locally: pnpm dev.
             </p>
             <label className="block text-sm font-medium" htmlFor="onboarding-provider">
               AI provider

@@ -11,9 +11,11 @@ import {
 import { readJsonBody } from '~/lib/.server/api/read-body';
 import { REQUEST_LIMITS, asProviderInfo, llmCallRequestSchema, parseBody } from '~/lib/.server/api/schemas';
 import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel } from '~/lib/.server/llm/constants';
+import { providerHasCredential } from '~/lib/.server/llm/credentials';
 import { toLlmCallResponse } from '~/lib/.server/llm/llmcall-response';
 import { streamText } from '~/lib/.server/llm/stream-text';
-import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getApiKeysFromRequest, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { createMessage } from '~/lib/persistence/messageMigration';
@@ -86,9 +88,10 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
    * the handler and surfaced as a 500.
    */
   let body;
+  let rawBody: unknown;
 
   try {
-    const rawBody = await readJsonBody(request, { maxBytes: REQUEST_LIMITS.MAX_LLMCALL_BODY_BYTES });
+    rawBody = await readJsonBody(request, { maxBytes: REQUEST_LIMITS.MAX_LLMCALL_BODY_BYTES });
 
     body = parseBody(llmCallRequestSchema, rawBody, 'llmcall');
   } catch (error) {
@@ -100,8 +103,12 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
   const { name: providerName } = provider;
 
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = getApiKeysFromCookie(cookieHeader);
+  const apiKeys = getApiKeysFromRequest(request, rawBody);
   const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+
+  if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
+    return missingProviderKeyResponse(providerName);
+  }
 
   if (streamOutput) {
     try {

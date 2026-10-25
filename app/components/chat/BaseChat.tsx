@@ -1,10 +1,8 @@
 import { useStore } from '@nanostores/react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import type { UIMessage } from 'ai';
-import Cookies from 'js-cookie';
 import React, { lazy, Suspense, type RefCallback, useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { getApiKeysFromCookies } from './APIKeyManager';
 import styles from './BaseChat.module.scss';
 import ChatAlert from './ChatAlert';
 import { ChatBox } from './ChatBox';
@@ -22,6 +20,7 @@ import { Menu } from '~/components/sidebar/Menu.client';
 import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
+import { llmFetch, readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
 
 const LazyWorkbench = lazy(() =>
@@ -138,7 +137,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>(readStoredApiKeys());
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
     const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -201,11 +200,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         let parsedApiKeys: Record<string, string> | undefined = {};
 
         try {
-          parsedApiKeys = getApiKeysFromCookies();
+          parsedApiKeys = readStoredApiKeys();
           setApiKeys(parsedApiKeys);
         } catch (error) {
-          console.error('Error loading API keys from cookies:', error);
-          Cookies.remove('apiKeys');
+          console.error('Error loading API keys:', error);
         }
 
         setIsModelLoading('all');
@@ -219,7 +217,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
         const activeProviderNames = providerList.map((activeProvider) => activeProvider.name).join(',');
 
-        fetch(`/api/models?providers=${encodeURIComponent(activeProviderNames)}`)
+        llmFetch(`/api/models?providers=${encodeURIComponent(activeProviderNames)}`)
           .then((response) => response.json())
           .then((data) => {
             const typedData = data as { modelList: ModelInfo[] };
@@ -237,14 +235,14 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const onApiKeysChange = async (providerName: string, apiKey: string) => {
       const newApiKeys = { ...apiKeys, [providerName]: apiKey };
       setApiKeys(newApiKeys);
-      Cookies.set('apiKeys', JSON.stringify(newApiKeys));
+      writeStoredApiKeys(newApiKeys, providerName);
 
       setIsModelLoading(providerName);
 
       let providerModels: ModelInfo[] = [];
 
       try {
-        const response = await fetch(`/api/models/${encodeURIComponent(providerName)}`);
+        const response = await llmFetch(`/api/models/${encodeURIComponent(providerName)}`);
         const data = await response.json();
         providerModels = (data as { modelList: ModelInfo[] }).modelList;
       } catch (error) {
@@ -265,7 +263,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         setApiKeys(apiKeys);
         setIsModelLoading(providerName);
 
-        fetch(`/api/models/${encodeURIComponent(providerName)}`)
+        llmFetch(`/api/models/${encodeURIComponent(providerName)}`)
           .then((response) => response.json())
           .then((data) => {
             const providerModels = (data as { modelList: ModelInfo[] }).modelList;

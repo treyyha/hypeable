@@ -1,5 +1,8 @@
 export type DebugLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'none';
 import { Chalk } from 'chalk';
+import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
+
+installSafeConsole();
 
 const chalk = new Chalk({ level: 3 });
 
@@ -57,15 +60,17 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
   }
 
   const allMessages = messages.reduce((acc, current) => {
+    const piece = redactUnknown(current);
+
     if (acc.endsWith('\n')) {
-      return acc + current;
+      return acc + piece;
     }
 
     if (!acc) {
-      return current;
+      return piece;
     }
 
-    return `${acc} ${current}`;
+    return `${acc} ${piece}`;
   }, '');
 
   const labelBackgroundColor = getColorForLevel(level);

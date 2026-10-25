@@ -142,11 +142,8 @@ const supabaseSchema = z.looseObject({
  * files, promptId, contextOptimization, chatMode, designScheme, supabase and
  * maxLLMSteps.
  *
- * The client still includes `apiKeys` in that body, but the server reads
- * credentials from the cookie and must never take them from the request, where
- * they would land in any log that touches the body. The transform below drops
- * them at the boundary so nothing downstream can pick them up by accident —
- * including a future `logger.debug(body)`.
+ * Keys arrive in `x-hypeable-key`, not this body. If a client still sends
+ * `apiKeys` here, the transform drops them so nothing downstream can log them.
  */
 export const chatRequestSchema = z
   .looseObject({
