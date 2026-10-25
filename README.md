@@ -58,6 +58,9 @@ pnpm dev
 
 Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the only network call with the key is from your local process to the model provider you chose.
 
+## Testing
+Unit tests are `pnpm test`. To prove the workerd dev server without a real provider key, run `pnpm exec playwright install chromium` then `pnpm e2e` (starts a local OpenAI-compatible mock). Details: [docs/TESTING.md](docs/TESTING.md).
+
 ## Contributing
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org).
 
