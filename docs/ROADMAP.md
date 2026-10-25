@@ -9,3 +9,4 @@
 - [ ] Day 8: polish + landing page
 - [ ] Day 9: docs + demo
 - [ ] Day 10: launch
+- [ ] Direct browser-to-provider mode (no server hop) for providers that allow CORS

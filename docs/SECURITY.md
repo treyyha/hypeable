@@ -4,7 +4,7 @@
 | Threat | Mitigation |
 |---|---|
 | Key leaks to GitHub | `.gitignore`, `.husky/pre-commit` secret-scan, CI gitleaks, GitHub push protection |
-| Key leaks via our server | BYO key, never stored/logged; log redaction |
+| Key leaks via our server | Stored in the browser; sent per LLM request in `x-hypeable-key`; used once; never stored; `app/lib/security/redact.ts` on every server log |
 | Abuse of any server route | rate limit + bot protection + origin check |
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
 | Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |

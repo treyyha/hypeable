@@ -25,7 +25,18 @@ pnpm install         # Husky hooks: secret-scan + conventional commits
 npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
-Add your own model key in the app's settings. It stays in your browser.
+Add your own model key in the app's settings. Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request to your provider, never stored or logged. Verify it in [`app/routes/api.chat.ts`](app/routes/api.chat.ts). Want zero trust? Run Hypeable locally: `pnpm dev`.
+
+## Run locally
+Hypeable's server sees your key for the duration of each LLM request so it can forward the call to your provider. If you do not want that hop, run the app on your machine:
+
+```bash
+git clone https://github.com/treyyha/hypeable && cd hypeable
+pnpm install
+pnpm dev
+```
+
+Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the only network call with the key is from your local process to the model provider you chose.
 
 ## Contributing
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org).

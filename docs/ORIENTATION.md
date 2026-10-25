@@ -2,7 +2,7 @@
 
 Chat/LLM: the client (`app/components/chat/Chat.client.tsx`) posts via `useChat` to `/api/chat`; that route streams through `app/lib/.server/llm/stream-text.ts`. Extra LLM hops are `/api/llmcall` and `/api/enhancer`.
 
-API keys live in a browser cookie named `apiKeys` (js-cookie, set from `APIKeyManager`, `BaseChat`, and `FirstRunOnboarding`). The server only reads them from the request cookie (`getApiKeysFromCookie`); they are not stored server-side. Theme/profile sit in `localStorage` (`bolt_theme`, `bolt_user_profile`).
+API keys live in `localStorage` (or `sessionStorage` if "forget keys when I close the tab" is on). On LLM routes they are sent per request in `x-hypeable-key`. See `docs/KEY-FLOW.md`. Theme/profile sit in `localStorage` (`bolt_theme`, `bolt_user_profile`).
 
 Header/logo: `app/components/header/Header.tsx` (images `/logo-light-styled.png` and `/logo-dark-styled.png`, which are currently missing). Favicon is `/favicon.svg` from `app/root.tsx`. There is no product footer; the sidebar (`Menu.client.tsx`) only has settings/theme. Landing copy is in `BaseChat.tsx` (“Where ideas begin”). Onboarding is `FirstRunOnboarding.tsx`.
 
