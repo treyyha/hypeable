@@ -168,7 +168,7 @@ ${escapeBoltTags(file.content)}
           setIsDialogOpen(true);
         }}
         title="Clone a repo"
-        variant="default"
+        variant="outline"
         size="lg"
         className={classNames(
           'gap-2 bg-bolt-elements-background-depth-1',

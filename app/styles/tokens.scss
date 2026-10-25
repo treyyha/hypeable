@@ -1,0 +1,340 @@
+/*
+ * Hypeable design tokens — the only place hex values belong.
+ * Map --bolt-elements-* onto these so the rest of the app recolours
+ * without renaming internals. See docs/DESIGN.md.
+ */
+
+:root {
+  /* Accents (primitives). Lime is a FILL; text sitting on lime is always ink. */
+  --hype-lime: #c8ff3d;
+  --hype-lime-ink: #0a0a0f;
+  --hype-mint: #3dffb4;
+  --hype-cyan: #22d3ee;
+  --hype-warn: #ffb020;
+  --hype-danger: #ff5a5f;
+  --hype-accent-on-light: #4d7a00;
+  --hype-mint-on-light: #0f7a5a;
+  --hype-cyan-on-light: #0e7490;
+
+  /* Radii */
+  --hype-radius-sm: 8px;
+  --hype-radius-md: 12px;
+  --hype-radius-lg: 18px;
+  --hype-radius-full: 999px;
+
+  /* Spacing (4px base) */
+  --hype-space-1: 0.25rem;
+  --hype-space-2: 0.5rem;
+  --hype-space-3: 0.75rem;
+  --hype-space-4: 1rem;
+  --hype-space-5: 1.25rem;
+  --hype-space-6: 1.5rem;
+  --hype-space-8: 2rem;
+  --hype-space-10: 2.5rem;
+  --hype-space-12: 3rem;
+  --hype-space-16: 4rem;
+
+  /* Type */
+  --hype-font-sans: 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+  --hype-font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --hype-text-xs: 0.75rem;
+  --hype-text-sm: 0.875rem;
+  --hype-text-md: 1rem;
+  --hype-text-lg: 1.125rem;
+  --hype-text-xl: 1.25rem;
+  --hype-text-2xl: 1.5rem;
+  --hype-text-3xl: 2rem;
+  --hype-text-4xl: 2.75rem;
+  --hype-leading-tight: 1.2;
+  --hype-leading-body: 1.5;
+  --hype-tracking-tight: -0.02em;
+  --hype-tracking-label: 0.12em;
+
+  /* Motion */
+  --hype-duration-fast: 120ms;
+  --hype-duration-med: 200ms;
+  --hype-duration-slow: 400ms;
+  --hype-duration-aurora: 22s;
+  --hype-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Elevation */
+  --hype-shadow-sm: 0 1px 2px rgba(10, 10, 15, 0.28);
+  --hype-shadow-md: 0 8px 24px rgba(10, 10, 15, 0.32);
+  --hype-shadow-lg: 0 18px 48px rgba(10, 10, 15, 0.4);
+
+  /* Shell */
+  --hype-sidebar-width: 15rem;
+  --hype-sidebar-width-collapsed: 4rem;
+  --header-height: 56px;
+
+  /* Dark-first semantic defaults */
+  --hype-bg: #0a0a0f;
+  --hype-surface: #111118;
+  --hype-surface-2: #17171f;
+  --hype-border: #24242e;
+  --hype-text: #f5f5f7;
+  --hype-muted: #9a9aa6;
+  --hype-accent: var(--hype-lime);
+  --hype-accent-text: var(--hype-lime);
+  --hype-on-accent: var(--hype-lime-ink);
+  --hype-ok: var(--hype-lime);
+  --hype-ring: color-mix(in srgb, var(--hype-lime) 60%, transparent);
+  --hype-gradient-from: var(--hype-lime);
+  --hype-gradient-via: var(--hype-mint);
+  --hype-gradient-to: var(--hype-cyan);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.26);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.22);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.2);
+  --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 14%, transparent);
+}
+
+:root[data-theme='light'] {
+  --hype-bg: #fafaf7;
+  --hype-surface: #ffffff;
+  --hype-surface-2: #f3f3ee;
+  --hype-border: #e6e6df;
+  --hype-text: #0a0a0f;
+  --hype-muted: #5c5c66;
+  --hype-accent: var(--hype-lime);
+  --hype-accent-text: var(--hype-accent-on-light);
+  --hype-on-accent: var(--hype-lime-ink);
+  --hype-ok: var(--hype-accent-on-light);
+  --hype-ring: color-mix(in srgb, var(--hype-accent-on-light) 45%, transparent);
+  --hype-gradient-from: var(--hype-accent-on-light);
+  --hype-gradient-via: var(--hype-mint-on-light);
+  --hype-gradient-to: var(--hype-cyan-on-light);
+  --hype-aurora-lime: rgba(77, 122, 0, 0.16);
+  --hype-aurora-mint: rgba(15, 122, 90, 0.12);
+  --hype-aurora-cyan: rgba(14, 116, 144, 0.12);
+  --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 16%, transparent);
+  --hype-shadow-sm: 0 1px 2px rgba(10, 10, 15, 0.06);
+  --hype-shadow-md: 0 8px 24px rgba(10, 10, 15, 0.08);
+  --hype-shadow-lg: 0 18px 40px rgba(10, 10, 15, 0.1);
+}
+
+:root[data-theme='dark'] {
+  --hype-bg: #0a0a0f;
+  --hype-surface: #111118;
+  --hype-surface-2: #17171f;
+  --hype-border: #24242e;
+  --hype-text: #f5f5f7;
+  --hype-muted: #9a9aa6;
+  --hype-accent: var(--hype-lime);
+  --hype-accent-text: var(--hype-lime);
+  --hype-on-accent: var(--hype-lime-ink);
+  --hype-ok: var(--hype-lime);
+  --hype-ring: color-mix(in srgb, var(--hype-lime) 60%, transparent);
+  --hype-gradient-from: var(--hype-lime);
+  --hype-gradient-via: var(--hype-mint);
+  --hype-gradient-to: var(--hype-cyan);
+}
+
+@mixin bolt-from-hype {
+  --bolt-elements-borderColor: var(--hype-border);
+  --bolt-elements-borderColorActive: var(--hype-accent);
+  --bolt-elements-focus: var(--hype-accent);
+  --bolt-elements-ring: var(--hype-ring);
+
+  --bolt-elements-bg-depth-1: var(--hype-bg);
+  --bolt-elements-bg-depth-2: var(--hype-surface);
+  --bolt-elements-bg-depth-3: var(--hype-surface-2);
+  --bolt-elements-bg-depth-4: color-mix(in srgb, var(--hype-text) 6%, transparent);
+
+  --bolt-elements-textPrimary: var(--hype-text);
+  --bolt-elements-textSecondary: var(--hype-muted);
+  --bolt-elements-textTertiary: color-mix(in srgb, var(--hype-muted) 78%, var(--hype-bg));
+
+  --bolt-elements-code-background: var(--hype-surface-2);
+  --bolt-elements-code-text: var(--hype-text);
+
+  --bolt-elements-button-primary-background: var(--hype-accent);
+  --bolt-elements-button-primary-backgroundHover: color-mix(in srgb, var(--hype-accent) 82%, var(--hype-text));
+  --bolt-elements-button-primary-text: var(--hype-on-accent);
+
+  --bolt-elements-button-secondary-background: var(--hype-surface-2);
+  --bolt-elements-button-secondary-backgroundHover: color-mix(in srgb, var(--hype-text) 8%, var(--hype-surface-2));
+  --bolt-elements-button-secondary-text: var(--hype-text);
+
+  --bolt-elements-button-danger-background: color-mix(in srgb, var(--hype-danger) 14%, transparent);
+  --bolt-elements-button-danger-backgroundHover: color-mix(in srgb, var(--hype-danger) 22%, transparent);
+  --bolt-elements-button-danger-text: var(--hype-danger);
+
+  --bolt-elements-item-contentDefault: var(--hype-muted);
+  --bolt-elements-item-contentActive: var(--hype-text);
+  --bolt-elements-item-contentAccent: var(--hype-accent-text);
+  --bolt-elements-item-contentDanger: var(--hype-danger);
+  --bolt-elements-item-backgroundDefault: transparent;
+  --bolt-elements-item-backgroundActive: color-mix(in srgb, var(--hype-text) 6%, transparent);
+  --bolt-elements-item-backgroundAccent: color-mix(in srgb, var(--hype-accent) 12%, transparent);
+  --bolt-elements-item-backgroundDanger: color-mix(in srgb, var(--hype-danger) 12%, transparent);
+
+  --bolt-elements-loader-background: color-mix(in srgb, var(--hype-text) 8%, transparent);
+  --bolt-elements-loader-progress: var(--hype-accent);
+
+  --bolt-elements-artifacts-background: var(--hype-surface);
+  --bolt-elements-artifacts-backgroundHover: color-mix(in srgb, var(--hype-text) 4%, var(--hype-surface));
+  --bolt-elements-artifacts-borderColor: var(--hype-border);
+  --bolt-elements-artifacts-inlineCode-background: var(--hype-surface-2);
+  --bolt-elements-artifacts-inlineCode-text: var(--hype-text);
+
+  --bolt-elements-actions-background: var(--hype-surface);
+  --bolt-elements-actions-code-background: var(--hype-surface-2);
+
+  --bolt-elements-messages-background: var(--hype-surface-2);
+  --bolt-elements-messages-linkColor: var(--hype-accent-text);
+  --bolt-elements-messages-code-background: var(--hype-bg);
+  --bolt-elements-messages-inlineCode-background: var(--hype-surface-2);
+  --bolt-elements-messages-inlineCode-text: var(--hype-text);
+
+  --bolt-elements-icon-success: var(--hype-ok);
+  --bolt-elements-icon-error: var(--hype-danger);
+  --bolt-elements-icon-primary: var(--hype-text);
+  --bolt-elements-icon-secondary: var(--hype-muted);
+  --bolt-elements-icon-tertiary: var(--hype-muted);
+
+  --bolt-elements-dividerColor: var(--hype-border);
+  --bolt-elements-prompt-background: var(--hype-surface);
+
+  --bolt-elements-sidebar-dropdownShadow: var(--hype-shadow-md);
+  --bolt-elements-sidebar-buttonBackgroundDefault: var(--hype-accent);
+  --bolt-elements-sidebar-buttonBackgroundHover: color-mix(in srgb, var(--hype-accent) 82%, var(--hype-text));
+  --bolt-elements-sidebar-buttonText: var(--hype-on-accent);
+
+  --bolt-elements-preview-addressBar-background: var(--hype-surface-2);
+  --bolt-elements-preview-addressBar-backgroundHover: color-mix(in srgb, var(--hype-text) 6%, var(--hype-surface-2));
+  --bolt-elements-preview-addressBar-backgroundActive: var(--hype-surface);
+  --bolt-elements-preview-addressBar-text: var(--hype-muted);
+  --bolt-elements-preview-addressBar-textActive: var(--hype-text);
+
+  --bolt-elements-terminals-background: var(--hype-bg);
+  --bolt-elements-terminals-buttonBackground: var(--hype-surface-2);
+
+  --bolt-elements-cta-background: var(--hype-surface-2);
+  --bolt-elements-cta-text: var(--hype-text);
+}
+
+:root {
+  @include bolt-from-hype;
+
+  --bolt-terminal-background: var(--hype-bg);
+  --bolt-terminal-foreground: var(--hype-text);
+  --bolt-terminal-selection-background: color-mix(in srgb, var(--hype-text) 18%, transparent);
+  --bolt-terminal-black: #000000;
+  --bolt-terminal-red: var(--hype-danger);
+  --bolt-terminal-green: var(--hype-mint);
+  --bolt-terminal-yellow: var(--hype-warn);
+  --bolt-terminal-blue: var(--hype-cyan);
+  --bolt-terminal-magenta: #c084fc;
+  --bolt-terminal-cyan: var(--hype-cyan);
+  --bolt-terminal-white: var(--hype-text);
+  --bolt-terminal-brightBlack: var(--hype-muted);
+  --bolt-terminal-brightRed: var(--hype-danger);
+  --bolt-terminal-brightGreen: var(--hype-mint);
+  --bolt-terminal-brightYellow: var(--hype-warn);
+  --bolt-terminal-brightBlue: var(--hype-cyan);
+  --bolt-terminal-brightMagenta: #d8b4fe;
+  --bolt-terminal-brightCyan: var(--hype-cyan);
+  --bolt-terminal-brightWhite: var(--hype-text);
+  --modern-scrollbar-thumb-background: color-mix(in srgb, var(--hype-muted) 45%, transparent);
+  --modern-scrollbar-thumb-backgroundHover: color-mix(in srgb, var(--hype-muted) 70%, transparent);
+}
+
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  @include bolt-from-hype;
+}
+
+:root[data-theme='light'] {
+  --bolt-terminal-foreground: var(--hype-text);
+  --bolt-terminal-background: var(--hype-surface);
+}
+
+html,
+body {
+  font-family: var(--hype-font-sans);
+  color: var(--hype-text);
+  background-color: var(--hype-bg);
+}
+
+code,
+kbd,
+pre,
+samp,
+.font-mono {
+  font-family: var(--hype-font-mono);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--hype-ring);
+  outline-offset: 2px;
+}
+
+.hype-gradient-text {
+  background-image: linear-gradient(90deg, var(--hype-gradient-from), var(--hype-gradient-via), var(--hype-gradient-to));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hype-aurora {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hype-aurora__layer {
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(ellipse 42% 36% at 18% 28%, var(--hype-aurora-lime), transparent 70%),
+    radial-gradient(ellipse 38% 34% at 82% 18%, var(--hype-aurora-mint), transparent 68%),
+    radial-gradient(ellipse 48% 40% at 52% 86%, var(--hype-aurora-cyan), transparent 72%);
+  animation: hype-aurora-drift var(--hype-duration-aurora) var(--hype-ease) infinite alternate;
+}
+
+.hype-composer {
+  border-radius: var(--hype-radius-lg);
+  background-color: var(--hype-surface);
+  border: 1px solid var(--hype-border);
+  box-shadow: var(--hype-shadow-sm);
+  transition:
+    border-color var(--hype-duration-fast) var(--hype-ease),
+    box-shadow var(--hype-duration-fast) var(--hype-ease);
+}
+
+.hype-composer:focus-within {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--hype-surface), var(--hype-surface)) padding-box,
+    linear-gradient(135deg, var(--hype-gradient-from), var(--hype-gradient-via), var(--hype-gradient-to)) border-box;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hype-accent) 28%, transparent);
+}
+
+@keyframes hype-aurora-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hype-duration-fast: 0ms;
+    --hype-duration-med: 0ms;
+    --hype-duration-slow: 0ms;
+    --hype-duration-aurora: 0ms;
+  }
+
+  .hype-aurora__layer {
+    animation: none;
+  }
+}

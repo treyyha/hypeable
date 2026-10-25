@@ -106,3 +106,6 @@ pnpm-debug.log*
 !.cursorrules
 !*.md
 !docs/**/*.md
+
+# Third-party visual/structural reference only. Never commit.
+design-reference/

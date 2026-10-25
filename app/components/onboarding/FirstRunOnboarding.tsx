@@ -178,23 +178,23 @@ export function FirstRunOnboarding() {
     >
       <Dialog
         backdropClassName="!bg-[#09080f]/80 !backdrop-blur-md bg-[radial-gradient(ellipse_at_top,_rgba(200,255,61,0.10),_transparent_55%)]"
-        className="w-[min(560px,calc(100vw-2rem))] max-h-[90vh] overflow-y-auto !rounded-xl !border-[#302e39] !bg-[#1b1a22] p-6 !text-[#f4f1fa]"
+        className="w-[min(560px,calc(100vw-2rem))] max-h-[90vh] overflow-y-auto !rounded-xl !border-hype-border !bg-[#1b1a22] p-6 !text-hype-text"
         showCloseButton={false}
       >
         <div className="mb-5">
-          <div className="mb-2 text-xs font-medium text-[#a09baa]">
+          <div className="mb-2 text-xs font-medium text-hype-muted">
             Step {step + 1} of {stepTitles.length}
           </div>
           <div className="mb-3 flex gap-1" aria-hidden="true">
             {stepTitles.map((title, index) => (
               <span
                 key={title}
-                className={`h-1 flex-1 rounded-full ${index <= step ? 'bg-[#C8FF3D]' : 'bg-[#393641]'}`}
+                className={`h-1 flex-1 rounded-full ${index <= step ? 'bg-hype-accent' : 'bg-hype-surface-2'}`}
               />
             ))}
           </div>
           <DialogTitle className="text-xl font-semibold">Welcome to Hypeable</DialogTitle>
-          <DialogDescription className="mt-1 text-sm !text-[#a09baa]">
+          <DialogDescription className="mt-1 text-sm !text-hype-muted">
             worth the hype. Let’s get your workspace ready. Optional details can be left blank and changed later in
             Settings.
           </DialogDescription>
@@ -211,7 +211,7 @@ export function FirstRunOnboarding() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Your name"
-              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
+              className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text outline-none focus:border-hype-accent"
             />
             <div>
               <span className="mb-2 block text-sm font-medium">Choose an avatar</span>
@@ -223,12 +223,12 @@ export function FirstRunOnboarding() {
                     aria-label={`Use ${preset.name} avatar`}
                     aria-pressed={avatar === preset.src}
                     onClick={() => setAvatar(preset.src)}
-                    className={`h-14 w-14 overflow-hidden rounded-full border-2 ${avatar === preset.src ? 'border-[#C8FF3D] ring-2 ring-[#C8FF3D]/40' : 'border-[#393641]'}`}
+                    className={`h-14 w-14 overflow-hidden rounded-full border-2 ${avatar === preset.src ? 'border-hype-accent ring-2 ring-hype-ring/40' : 'border-hype-border'}`}
                   >
                     <img src={preset.src} alt="" className="h-full w-full object-cover" />
                   </button>
                 ))}
-                <label className="flex h-14 cursor-pointer items-center rounded-md border border-dashed border-[#393641] px-3 text-xs text-[#a09baa] hover:bg-[#25232d]">
+                <label className="flex h-14 cursor-pointer items-center rounded-md border border-dashed border-hype-border px-3 text-xs text-hype-muted hover:bg-hype-surface-2">
                   <input
                     type="file"
                     accept="image/*"
@@ -271,12 +271,12 @@ export function FirstRunOnboarding() {
                   <img
                     src={avatar}
                     alt="Uploaded avatar preview"
-                    className="h-14 w-14 rounded-full border border-[#393641] object-cover"
+                    className="h-14 w-14 rounded-full border border-hype-border object-cover"
                   />
                 )}
               </div>
               {error && (
-                <p role="alert" className="mt-2 text-xs text-red-500">
+                <p role="alert" className="mt-2 text-xs text-hype-danger">
                   {error}
                 </p>
               )}
@@ -286,7 +286,7 @@ export function FirstRunOnboarding() {
 
         {step === 1 && (
           <div className="space-y-3">
-            <p className="text-sm text-[#a09baa]">
+            <p className="text-sm text-hype-muted">
               Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request
               to your provider, never stored or logged. Verify it in app/routes/api.chat.ts. Want zero trust? Run
               Hypeable locally: pnpm dev.
@@ -298,7 +298,7 @@ export function FirstRunOnboarding() {
               id="onboarding-provider"
               value={providerName}
               onChange={(event) => setProviderName(event.target.value)}
-              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa]"
+              className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text"
             >
               {PROVIDER_LIST.map((provider) => (
                 <option key={provider.name} value={provider.name}>
@@ -316,14 +316,14 @@ export function FirstRunOnboarding() {
               value={apiKey}
               onChange={(event) => setApiKey(event.target.value)}
               placeholder="Paste your API key"
-              className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
+              className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text outline-none focus:border-hype-accent"
             />
           </div>
         )}
 
         {step === 2 && (
           <div className="space-y-3">
-            <p className="text-sm text-[#a09baa]">
+            <p className="text-sm text-hype-muted">
               Add MCP server configuration as JSON. You can leave this empty and set it up later in Settings.
             </p>
             <label className="block text-sm font-medium" htmlFor="onboarding-mcp">
@@ -335,10 +335,10 @@ export function FirstRunOnboarding() {
               value={mcpText}
               onChange={(event) => setMcpText(event.target.value)}
               rows={9}
-              className="w-full resize-y rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 font-mono text-xs text-[#f4f1fa] outline-none focus:border-[#C8FF3D]"
+              className="w-full resize-y rounded-md border border-hype-border bg-hype-bg px-3 py-2 font-mono text-xs text-hype-text outline-none focus:border-hype-accent"
             />
             {error && (
-              <p role="alert" className="text-sm text-red-500">
+              <p role="alert" className="text-sm text-hype-danger">
                 {error}
               </p>
             )}
@@ -355,7 +355,7 @@ export function FirstRunOnboarding() {
                 id="onboarding-theme"
                 value={selectedTheme}
                 onChange={(event) => setSelectedTheme(event.target.value as Theme)}
-                className="w-full rounded-md border border-[#302e39] bg-[#121116] px-3 py-2 text-sm text-[#f4f1fa]"
+                className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text"
               >
                 {(['light', 'dark'] as const).map((mode) => (
                   <optgroup key={mode} label={`${mode[0].toUpperCase()}${mode.slice(1)} themes`}>
@@ -369,10 +369,10 @@ export function FirstRunOnboarding() {
               </select>
             </div>
 
-            <div className="rounded-md bg-[#22212a] p-3">
+            <div className="rounded-md bg-hype-surface p-3">
               <label className="flex items-center justify-between gap-3 text-sm">
                 <span>
-                  Accent intensity <span className="text-[#a09baa]">({interfaceOptions.accentIntensity}%)</span>
+                  Accent intensity <span className="text-hype-muted">({interfaceOptions.accentIntensity}%)</span>
                 </span>
                 <input
                   aria-label="Accent intensity"
@@ -383,12 +383,12 @@ export function FirstRunOnboarding() {
                   onChange={(event) =>
                     setInterfaceOptions({ ...interfaceOptions, accentIntensity: Number(event.target.value) })
                   }
-                  className="w-1/2 accent-[#C8FF3D]"
+                  className="w-1/2 accent-[var(--hype-accent)]"
                 />
               </label>
             </div>
 
-            <div className="flex items-center justify-between gap-3 rounded-md bg-[#22212a] p-3">
+            <div className="flex items-center justify-between gap-3 rounded-md bg-hype-surface p-3">
               <span className="text-sm">Corner radius</span>
               <div className="flex gap-1" role="group" aria-label="Corner radius">
                 {(['sharp', 'soft', 'round'] as const).map((radius) => (
@@ -397,7 +397,7 @@ export function FirstRunOnboarding() {
                     type="button"
                     aria-pressed={interfaceOptions.cornerRadius === radius}
                     onClick={() => setInterfaceOptions({ ...interfaceOptions, cornerRadius: radius })}
-                    className={`appearance-none rounded-md px-2 py-1 text-xs capitalize ${interfaceOptions.cornerRadius === radius ? 'bg-[#C8FF3D] text-[#0B0B0F]' : 'bg-[#302e39] text-[#b8b3c2]'}`}
+                    className={`appearance-none rounded-md px-2 py-1 text-xs capitalize ${interfaceOptions.cornerRadius === radius ? 'bg-hype-accent text-hype-on-accent' : 'bg-hype-surface-2 text-hype-muted'}`}
                   >
                     {radius}
                   </button>
@@ -413,17 +413,17 @@ export function FirstRunOnboarding() {
             ).map(([key, label, description]) => (
               <label
                 key={key}
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-md bg-[#22212a] p-3"
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-md bg-hype-surface p-3"
               >
                 <span>
                   <span className="block text-sm">{label}</span>
-                  <span className="text-xs text-[#a09baa]">{description}</span>
+                  <span className="text-xs text-hype-muted">{description}</span>
                 </span>
                 <input
                   type="checkbox"
                   checked={interfaceOptions[key]}
                   onChange={(event) => setInterfaceOptions({ ...interfaceOptions, [key]: event.target.checked })}
-                  className="h-4 w-4 accent-[#C8FF3D]"
+                  className="h-4 w-4 accent-[var(--hype-accent)]"
                 />
               </label>
             ))}
@@ -436,7 +436,7 @@ export function FirstRunOnboarding() {
               <button
                 type="button"
                 onClick={() => setStep((current) => current - 1)}
-                className="appearance-none rounded-md border border-[#393641] bg-[#302e39] px-4 py-2 text-sm text-[#eeeaf5] hover:bg-[#3b3846] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8FF3D]"
+                className="appearance-none rounded-md border border-hype-border bg-hype-surface-2 px-4 py-2 text-sm text-hype-text hover:bg-hype-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
               >
                 Back
               </button>
@@ -445,7 +445,7 @@ export function FirstRunOnboarding() {
               type="button"
               disabled={saving}
               onClick={() => void next()}
-              className="rounded-md bg-[#C8FF3D] px-4 py-2 text-sm font-medium text-[#0B0B0F] hover:bg-[#D1FF5C] disabled:opacity-60"
+              className="rounded-md bg-hype-accent px-4 py-2 text-sm font-medium text-hype-on-accent hover:opacity-90 disabled:opacity-60"
             >
               {saving ? 'Saving…' : step === 3 ? 'Finish setup' : 'Continue'}
             </button>

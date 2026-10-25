@@ -1,6 +1,8 @@
 # Hypeable
 
-![Hypeable home](docs/assets/screenshot.png)
+![Hypeable home, dark](docs/assets/home-dark-1440.png)
+
+![Hypeable home, light](docs/assets/home-light-1440.png)
 
 **Worth the hype.** A free, open-source AI app builder. Describe an app, watch it get built, publish it to your own Vercel or GitHub.
 

@@ -3,40 +3,65 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { CostMeter } from '~/components/cost/CostMeter';
 import { PlanPanel } from '~/components/plan/PlanPanel';
+import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import { chatStore } from '~/lib/stores/chat';
+import { sidebarMobileOpenStore, toggleSidebarMobile } from '~/lib/stores/sidebar';
 import { classNames } from '~/utils/classNames';
+
+function openSettings() {
+  document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
+}
 
 export function Header() {
   const chat = useStore(chatStore);
+  const mobileOpen = useStore(sidebarMobileOpenStore);
 
   return (
     <header
-      className={classNames('flex items-center px-4 border-b h-[var(--header-height)]', {
-        'border-transparent': !chat.started,
-        'border-bolt-elements-borderColor': chat.started,
-      })}
-    >
-      <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div className="i-ph:sidebar-simple-duotone text-xl" />
-        <a href="/" className="flex items-center gap-2.5 text-bolt-elements-textPrimary">
-          <img src="/favicon.svg" alt="" width={28} height={28} className="h-7 w-7" />
-          <span
-            className="text-[1.35rem] font-extrabold lowercase leading-none tracking-tight"
-            style={{ fontFamily: 'Outfit, Arial Black, Helvetica, sans-serif' }}
-          >
-            hypeable
-          </span>
-        </a>
-      </div>
-      {chat.started && (
-        <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
-          <ClientOnly>{() => <ChatDescription />}</ClientOnly>
-        </span>
+      className={classNames(
+        'flex items-center gap-3 border-b border-hype-border bg-hype-bg px-3 h-[var(--header-height)]',
       )}
+    >
+      <button
+        type="button"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+        aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
+        onClick={toggleSidebarMobile}
+      >
+        <span className={mobileOpen ? 'i-ph:x text-xl' : 'i-ph:list text-xl'} />
+      </button>
+
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
+        <a href="/" className="shrink-0 font-semibold lowercase tracking-tight text-hype-text">
+          hypeable
+        </a>
+        {chat.started ? (
+          <>
+            <span className="text-hype-muted" aria-hidden="true">
+              /
+            </span>
+            <span className="min-w-0 truncate text-hype-muted">
+              <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+            </span>
+          </>
+        ) : null}
+      </nav>
+
       <ClientOnly>{() => <PlanPanel />}</ClientOnly>
-      <div className="ml-auto flex items-center gap-2">
+
+      <div className="ml-auto flex items-center gap-1.5">
         <ClientOnly>{() => <CostMeter />}</ClientOnly>
+        <ClientOnly>{() => <ThemeSwitch />}</ClientOnly>
+        <button
+          type="button"
+          onClick={openSettings}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+          aria-label="Keys and settings"
+          title="Keys and settings"
+        >
+          <span className="i-ph:key text-lg" />
+        </button>
         {chat.started && (
           <ClientOnly>
             {() => (

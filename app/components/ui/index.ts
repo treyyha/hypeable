@@ -1,9 +1,12 @@
 // Export all UI components for easier imports
 
 // Core components
+export * from './Aurora';
 export * from './Badge';
 export * from './Button';
 export * from './Card';
+export * from './Chip';
+export * from './ErrorState';
 export * from './Checkbox';
 export * from './Collapsible';
 export * from './Dialog';
@@ -18,6 +21,8 @@ export * from './ThemeSwitch';
 // Loading components
 export * from './LoadingDots';
 export * from './LoadingOverlay';
+export * from './LoadingState';
+export * from './Progress';
 
 // New components
 export * from './Breadcrumbs';

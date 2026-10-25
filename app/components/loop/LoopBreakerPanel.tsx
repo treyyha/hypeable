@@ -38,22 +38,22 @@ export function LoopBreakerPanel({
     <section
       role="status"
       aria-live="polite"
-      className="rounded-xl border border-lime-400/35 bg-bolt-elements-background-depth-2 p-4 shadow-lg"
+      className="rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 shadow-[var(--hype-shadow-md)]"
     >
       <div className="flex items-start gap-3">
-        <div className="i-ph:repeat-once text-xl text-lime-300" aria-hidden="true" />
+        <div className="i-ph:repeat-once text-xl text-hype-warn" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-medium text-bolt-elements-textPrimary">Same error, looping</h2>
-          <p className="mt-1 text-sm text-bolt-elements-textSecondary">
+          <h2 className="text-sm font-medium text-hype-text">Same error, looping</h2>
+          <p className="mt-1 text-sm text-hype-muted">
             Failed {count} times. This loop cost you {formatDollars(wastedCost, 3)}.
           </p>
-          <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-bolt-elements-background-depth-3 p-2 text-xs text-bolt-elements-textSecondary">
+          <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-[var(--hype-radius-sm)] bg-hype-bg p-2 text-xs text-hype-muted">
             {shown}
           </pre>
           {truncated && (
             <button
               type="button"
-              className="mt-1 text-[11px] text-lime-300 hover:underline"
+              className="mt-1 text-[11px] text-hype-accent-text hover:underline"
               onClick={() => setExpanded((value) => !value)}
             >
               {expanded ? 'Show less' : 'Show more'}
@@ -92,10 +92,10 @@ function PanelButton({
       onClick={onClick}
       disabled={disabled}
       className={classNames(
-        'rounded-md px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-lime-400/50',
+        'rounded-[var(--hype-radius-md)] px-2.5 py-1.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
         primary
-          ? 'bg-lime-400 text-gray-950 hover:bg-lime-300'
-          : 'border border-bolt-elements-borderColor bg-bolt-elements-background-depth-3 text-bolt-elements-textPrimary hover:border-lime-400/50',
+          ? 'bg-hype-accent text-hype-on-accent hover:opacity-90'
+          : 'border border-hype-border bg-hype-surface-2 text-hype-text hover:border-hype-accent/50',
         disabled ? 'cursor-not-allowed opacity-50' : '',
       )}
     >

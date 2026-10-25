@@ -4,7 +4,6 @@ import React from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { APIKeyManager } from './APIKeyManager';
 import { AttachmentMenu } from './AttachmentMenu';
-import styles from './BaseChat.module.scss';
 import FilePreview from './FilePreview';
 import { McpTools } from './MCPTools';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
@@ -13,10 +12,13 @@ import { SupabaseConnection } from './SupabaseConnection';
 import { ToolAccessMenu } from './ToolAccessMenu';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
+import { Chip } from '~/components/ui/Chip';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import { IconButton } from '~/components/ui/IconButton';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+import { formatDollars } from '~/lib/cost/calc';
+import { estimateRequestCost } from '~/lib/stores/cost';
 import { isGitHubConnected } from '~/lib/stores/githubConnection';
 import { isGitLabConnected } from '~/lib/stores/gitlabConnection';
 import { useMCPStore, type ConnectorId } from '~/lib/stores/mcp';
@@ -161,43 +163,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   ]);
 
   return (
-    <div
-      className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
-
-        /*
-         * {
-         *   'sticky bottom-2': chatStarted,
-         * },
-         */
-      )}
-    >
-      <svg className={classNames(styles.PromptEffectContainer)}>
-        <defs>
-          <linearGradient
-            id="line-gradient"
-            x1="20%"
-            y1="0%"
-            x2="-14%"
-            y2="10%"
-            gradientUnits="userSpaceOnUse"
-            gradientTransform="rotate(-45)"
-          >
-            <stop offset="0%" stopColor="#C8FF3D" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#C8FF3D" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#C8FF3D" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="#C8FF3D" stopOpacity="0%"></stop>
-          </linearGradient>
-          <linearGradient id="shine-gradient">
-            <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#ffffff" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#ffffff" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
-          </linearGradient>
-        </defs>
-        <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
-        <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
-      </svg>
+    <div className={classNames('hype-composer relative w-full max-w-chat mx-auto z-prompt p-3')}>
       <div>
         <ClientOnly>
           {() => (
@@ -249,13 +215,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       {props.selectedElement && (
         <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
           <div className="flex gap-2 items-center lowercase">
-            <code className="bg-accent-500 rounded-4px px-1.5 py-1 mr-0.5 text-white">
+            <code className="bg-hype-accent rounded-[var(--hype-radius-sm)] px-1.5 py-1 mr-0.5 text-hype-on-accent">
               {props?.selectedElement?.tagName}
             </code>
             selected for inspection
           </div>
           <button
-            className="bg-transparent text-accent-500 pointer-auto"
+            className="bg-transparent text-hype-accent-text pointer-auto"
             onClick={() => props.setSelectedElement?.(null)}
           >
             Clear
@@ -274,19 +240,19 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           )}
           onDragEnter={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #C8FF3D';
+            e.currentTarget.style.border = '2px solid var(--hype-accent)';
           }}
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #C8FF3D';
+            e.currentTarget.style.border = '2px solid var(--hype-accent)';
           }}
           onDragLeave={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.style.border = '1px solid var(--hype-border)';
           }}
           onDrop={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.style.border = '1px solid var(--hype-border)';
 
             const files = Array.from(e.dataTransfer.files);
             files.forEach((file) => {
@@ -473,18 +439,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
             {planSettings.enabled && props.chatMode === 'build' && !planUi.pending ? (
-              <button
-                type="button"
+              <Chip
+                selected={!planUi.skipNextTurn}
                 onClick={() => skipPlanThisTurn()}
-                className={classNames(
-                  'rounded-md px-1.5 py-1 text-xs transition-all',
-                  planUi.skipNextTurn
-                    ? 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent'
-                    : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault hover:bg-bolt-elements-item-backgroundActive',
-                )}
+                title="Skip plan for the next message"
               >
-                Skip plan
-              </button>
+                Plan first
+              </Chip>
+            ) : null}
+            {!props.chatStarted && props.model ? (
+              <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />
             ) : null}
             <SpeechRecognitionButton
               isListening={props.isListening}
@@ -519,3 +483,18 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
     </div>
   );
 };
+
+function PlanEstimateChip({ model, provider, input }: { model: string; provider?: string; input: string }) {
+  const estimate = estimateRequestCost({
+    model,
+    provider,
+    contextText: input || 'Plan a small web app with a few pages, data, and features.',
+    completionHint: 'A structured plan with pages, data, features, and a cost range.',
+  });
+
+  return (
+    <Chip tone="default" disabled>
+      {estimate.unknown ? 'set a price to estimate' : `about ${formatDollars(estimate.dollars, 2)} to plan`}
+    </Chip>
+  );
+}

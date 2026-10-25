@@ -10,16 +10,18 @@ import GitCloneButton from './GitCloneButton';
 import LlmErrorAlert from './LLMApiAlert';
 import { Messages, type DisplayMessage } from './Messages.client';
 import ProgressCompilation from './ProgressCompilation';
-import StarterTemplates from './StarterTemplates';
 import { ToolApprovalTray } from './ToolApprovalTray';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 import { ImportZipButton } from '~/components/chat/ImportZipButton';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
+import { HomeHero } from '~/components/home/HomeHero';
+import { RecentProjects } from '~/components/home/RecentProjects';
+import { SpendCard } from '~/components/home/SpendCard';
 import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
 import { PlanHost } from '~/components/plan/PlanHost';
-import { Menu } from '~/components/sidebar/Menu.client';
 import { BrandFooter } from '~/components/ui/BrandFooter';
+import { Chip } from '~/components/ui/Chip';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { llmFetch, readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
@@ -38,7 +40,7 @@ import type { ProgressAnnotation } from '~/types/context';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
+import { PROVIDER_LIST, STARTER_TEMPLATES } from '~/utils/constants';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -406,28 +408,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
       >
-        <ClientOnly>{() => <Menu />}</ClientOnly>
         {chatStarted && showChat && !showWorkbench && (
           <WorkbenchReopenButton onClick={() => workbenchStore.showWorkbench.set(true)} />
         )}
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
-            {!chatStarted && (
-              <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
-                <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
-                  Where ideas begin
-                </h1>
-                <p
-                  className="mb-3 text-lg font-semibold text-accent-500 animate-fade-in animation-delay-200"
-                  style={{ fontFamily: 'Outfit, Arial Black, Helvetica, sans-serif' }}
-                >
-                  worth the hype
-                </p>
-                <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
-                  Bring ideas to life in seconds or get help on existing projects.
-                </p>
-              </div>
-            )}
+            {!chatStarted && <HomeHero />}
             <StickToBottom
               className={classNames('pt-6 px-2 sm:px-6 relative', {
                 'h-full flex flex-col modern-scrollbar': chatStarted,
@@ -571,6 +557,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               )}
               <div className="flex flex-col gap-5">
+                {!chatStarted && (
+                  <div className="mx-auto flex w-full max-w-chat flex-wrap justify-center gap-2 px-4">
+                    {STARTER_TEMPLATES.slice(0, 8).map((template) => (
+                      <Chip
+                        key={template.name}
+                        onClick={() =>
+                          (window.location.href = `/starter?template=${encodeURIComponent(template.name)}`)
+                        }
+                      >
+                        {template.label}
+                      </Chip>
+                    ))}
+                  </div>
+                )}
                 {!chatStarted &&
                   ExamplePrompts((event, messageInput) => {
                     if (isStreaming) {
@@ -580,8 +580,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                     handleSendMessage?.(event, messageInput);
                   })}
-                {!chatStarted && <StarterTemplates />}
-                {!chatStarted && <BrandFooter className="mt-8 mb-4" />}
+                {!chatStarted && (
+                  <div className="mx-auto grid w-full max-w-chat gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
+                    <RecentProjects />
+                    <SpendCard />
+                  </div>
+                )}
+                {!chatStarted && <BrandFooter className="mt-4 mb-4" />}
               </div>
             </div>
           </div>

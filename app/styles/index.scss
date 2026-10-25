@@ -1,3 +1,4 @@
+@use 'tokens.scss';
 @use 'variables.scss';
 @use 'z-index.scss';
 @use 'animations.scss';
@@ -59,9 +60,9 @@ html[data-animated-transitions='false'] *::after {
 
 :root {
   --gradient-opacity: 0.35;
-  --primary-color: rgba(200, 255, 61, var(--gradient-opacity));
-  --secondary-color: rgba(163, 163, 163, 0.18);
-  --accent-color: rgba(200, 255, 61, 0.22);
+  --primary-color: color-mix(in srgb, var(--hype-lime) 35%, transparent);
+  --secondary-color: color-mix(in srgb, var(--hype-muted) 18%, transparent);
+  --accent-color: color-mix(in srgb, var(--hype-lime) 22%, transparent);
 }
 
 .modern-scrollbar {

@@ -12,7 +12,7 @@ export const SettingsButton = memo(({ onClick }: SettingsButtonProps) => {
       size="xl"
       title="Preferences"
       data-testid="settings-button"
-      className="text-[#666] hover:text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive/10 transition-colors"
+      className="text-hype-muted hover:text-hype-text hover:bg-hype-surface-2 transition-colors"
     />
   );
 });
@@ -29,7 +29,7 @@ export const HelpButton = memo(({ onClick }: HelpButtonProps) => {
       size="xl"
       title="Help & Documentation"
       data-testid="help-button"
-      className="text-[#666] hover:text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive/10 transition-colors"
+      className="text-hype-muted hover:text-hype-text hover:bg-hype-surface-2 transition-colors"
     />
   );
 });

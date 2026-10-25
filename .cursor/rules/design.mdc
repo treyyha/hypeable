@@ -1,0 +1,9 @@
+---
+description: Hypeable UI must use the design tokens and aurora rules
+alwaysApply: true
+---
+- All UI uses tokens from `app/styles/tokens.scss` (`--hype-*` or mapped `--bolt-elements-*`). Never raw hex in components.
+- Follow `docs/DESIGN.md`.
+- No CSS gradients except the Aurora atmosphere (home hero / empty states) and at most one gradient word in a heading, plus the composer focus ring.
+- Logo is flat lime. Buttons are solid single colours. Status colours never use a gradient.
+- Do not imitate other products' logos, colours, or copy.

@@ -113,8 +113,36 @@ export default defineConfig({
     ['b', {}],
   ],
   theme: {
+    fontFamily: {
+      sans: 'var(--hype-font-sans)',
+      mono: 'var(--hype-font-mono)',
+    },
+    borderRadius: {
+      sm: 'var(--hype-radius-sm)',
+      md: 'var(--hype-radius-md)',
+      lg: 'var(--hype-radius-lg)',
+      full: 'var(--hype-radius-full)',
+    },
     colors: {
       ...COLOR_PRIMITIVES,
+      hype: {
+        bg: 'var(--hype-bg)',
+        surface: 'var(--hype-surface)',
+        'surface-2': 'var(--hype-surface-2)',
+        border: 'var(--hype-border)',
+        text: 'var(--hype-text)',
+        muted: 'var(--hype-muted)',
+        accent: 'var(--hype-accent)',
+        'accent-text': 'var(--hype-accent-text)',
+        'on-accent': 'var(--hype-on-accent)',
+        ok: 'var(--hype-ok)',
+        warn: 'var(--hype-warn)',
+        danger: 'var(--hype-danger)',
+        lime: 'var(--hype-lime)',
+        mint: 'var(--hype-mint)',
+        cyan: 'var(--hype-cyan)',
+        ring: 'var(--hype-ring)',
+      },
       bolt: {
         elements: {
           borderColor: 'var(--bolt-elements-borderColor)',
@@ -240,6 +268,7 @@ export default defineConfig({
     presetIcons({
       warn: true,
       collections: {
+        ph: () => import('@iconify-json/ph/icons.json').then((mod) => mod.default),
         ...customIconCollection,
       },
       unit: 'em',

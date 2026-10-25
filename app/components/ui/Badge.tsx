@@ -3,29 +3,26 @@ import * as React from 'react';
 import { classNames } from '~/utils/classNames';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 transition-colors focus:outline-none focus:ring-2 focus:ring-bolt-elements-ring focus:ring-offset-2',
+  'inline-flex items-center gap-1 border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
   {
     variants: {
       variant: {
-        default:
-          'border-transparent bg-bolt-elements-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background/80',
-        secondary:
-          'border-transparent bg-bolt-elements-background text-bolt-elements-textSecondary hover:bg-bolt-elements-background/80',
-        destructive: 'border-transparent bg-red-500/10 text-red-500 hover:bg-red-500/20',
-        outline: 'text-bolt-elements-textPrimary',
-        primary: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-        success: 'bg-green-500/10 text-green-600 dark:text-green-400',
-        warning: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
-        danger: 'bg-red-500/10 text-red-600 dark:text-red-400',
-        info: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-        subtle:
-          'border border-bolt-elements-borderColor/30 dark:border-bolt-elements-borderColor-dark/30 bg-white/50 dark:bg-bolt-elements-background-depth-4/50 backdrop-blur-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary-dark',
+        default: 'border-transparent bg-hype-surface-2 text-hype-text',
+        secondary: 'border-transparent bg-hype-surface-2 text-hype-muted',
+        destructive: 'border-transparent bg-hype-danger/10 text-hype-danger',
+        outline: 'border-hype-border text-hype-text',
+        primary: 'border-transparent bg-hype-accent text-hype-on-accent',
+        success: 'border-transparent bg-hype-ok/12 text-hype-ok',
+        warning: 'border-transparent bg-hype-warn/12 text-hype-warn',
+        danger: 'border-transparent bg-hype-danger/12 text-hype-danger',
+        info: 'border-transparent bg-hype-cyan/12 text-hype-cyan',
+        subtle: 'border-hype-border bg-hype-surface text-hype-muted',
       },
       size: {
         default: 'rounded-full px-2.5 py-0.5 text-xs font-semibold',
         sm: 'rounded-full px-1.5 py-0.5 text-xs',
-        md: 'rounded-md px-2 py-1 text-xs font-medium',
-        lg: 'rounded-md px-2.5 py-1.5 text-sm',
+        md: 'rounded-[var(--hype-radius-sm)] px-2 py-1 text-xs font-medium',
+        lg: 'rounded-[var(--hype-radius-md)] px-2.5 py-1.5 text-sm',
       },
     },
     defaultVariants: {

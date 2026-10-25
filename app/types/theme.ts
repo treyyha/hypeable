@@ -1,5 +1,5 @@
 export const THEMES = [
-  { id: 'light', name: 'Light', mode: 'light', colors: ['#fafafa', '#e5e5e5', '#C8FF3D'] },
+  { id: 'light', name: 'Light', mode: 'light', colors: ['#FAFAF7', '#FFFFFF', '#C8FF3D'] },
   { id: 'light-solarized', name: 'Solarized Light', mode: 'light', colors: ['#fdf6e3', '#eee8d5', '#268bd2'] },
   { id: 'light-nord', name: 'Nord Light', mode: 'light', colors: ['#eceff4', '#d8dee9', '#5e81ac'] },
   { id: 'light-monochrome', name: 'Monochrome', mode: 'light', colors: ['#f5f5f5', '#d4d4d4', '#525252'] },
@@ -16,7 +16,7 @@ export const THEMES = [
   { id: 'light-mint-breeze', name: 'Mint Breeze', mode: 'light', colors: ['#f1fbf7', '#d9f3e8', '#22a982'] },
   { id: 'light-lemonade', name: 'Lemonade', mode: 'light', colors: ['#fffdf0', '#fff2b8', '#d49a13'] },
   { id: 'light-lavender-fields', name: 'Lavender Fields', mode: 'light', colors: ['#faf7ff', '#ece3ff', '#8b5cf6'] },
-  { id: 'dark', name: 'Hypeable', mode: 'dark', colors: ['#0B0B0F', '#171717', '#C8FF3D'] },
+  { id: 'dark', name: 'Hypeable', mode: 'dark', colors: ['#0A0A0F', '#111118', '#C8FF3D'] },
   { id: 'dark-aurora', name: 'Aurora', mode: 'dark', colors: ['#111827', '#312e81', '#a78bfa'] },
   { id: 'dark-solarized', name: 'Solarized', mode: 'dark', colors: ['#002b36', '#073642', '#2aa198'] },
   { id: 'dark-nord', name: 'Nord', mode: 'dark', colors: ['#2e3440', '#3b4252', '#88c0d0'] },

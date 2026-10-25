@@ -7,9 +7,10 @@
 .Toastify__toast {
   --at-apply: shadow-md;
 
-  background-color: var(--bolt-elements-bg-depth-2);
-  color: var(--bolt-elements-textPrimary);
-  border: 1px solid var(--bolt-elements-borderColor);
+  background-color: var(--hype-surface);
+  color: var(--hype-text);
+  border: 1px solid var(--hype-border);
+  border-radius: var(--hype-radius-md);
 }
 
 .Toastify__close-button {

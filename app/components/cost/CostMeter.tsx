@@ -50,11 +50,14 @@ function CapBar({ label, spent, cap }: { label: string; spent: number; cap: numb
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-bolt-elements-background-depth-3">
         <div
-          className={classNames('h-full rounded-full transition-[width,background-color] duration-300', {
-            'bg-accent-500': level === 'ok',
-            'bg-orange-400': level === 'warn',
-            'bg-red-500': level === 'hit',
-          })}
+          className={classNames(
+            'h-full rounded-full transition-[width,background-color] duration-[var(--hype-duration-med)]',
+            {
+              'bg-hype-ok': level === 'ok',
+              'bg-hype-warn': level === 'warn',
+              'bg-hype-danger': level === 'hit',
+            },
+          )}
           style={{ width: off ? '0%' : `${ratio}%` }}
         />
       </div>
@@ -138,11 +141,11 @@ export function CostMeter() {
             type="button"
             className={classNames(
               'group flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] font-semibold tabular-nums tracking-tight',
-              'transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60',
+              'transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
               {
-                'border-accent-500/30 bg-accent-500/10 text-accent-300 hover:border-accent-500/60': tone === 'ok',
-                'border-orange-400/40 bg-orange-400/10 text-orange-300 hover:border-orange-400/70': tone === 'warn',
-                'border-red-500/50 bg-red-500/10 text-red-400 hover:border-red-500/80': tone === 'hit',
+                'border-hype-ok/30 bg-hype-ok/10 text-hype-ok hover:border-hype-ok/60': tone === 'ok',
+                'border-hype-warn/40 bg-hype-warn/10 text-hype-warn hover:border-hype-warn/70': tone === 'warn',
+                'border-hype-danger/50 bg-hype-danger/10 text-hype-danger hover:border-hype-danger/80': tone === 'hit',
                 'cost-meter-tick': ticking,
               },
             )}
@@ -156,7 +159,7 @@ export function CostMeter() {
           <Popover.Content
             align="end"
             sideOffset={8}
-            className="z-[9999] w-[320px] rounded-xl border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 p-3.5 shadow-2xl"
+            className="z-[9999] w-[320px] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3.5 shadow-[var(--hype-shadow-lg)]"
           >
             <div className="mb-3 flex items-start justify-between gap-2">
               <div>
@@ -169,7 +172,7 @@ export function CostMeter() {
               <button
                 type="button"
                 onClick={copyReceipt}
-                className="rounded-md border border-bolt-elements-borderColor px-2 py-1 text-[11px] text-bolt-elements-textSecondary hover:border-accent-500/50 hover:text-accent-300"
+                className="rounded-[var(--hype-radius-sm)] border border-hype-border px-2 py-1 text-[11px] text-hype-muted hover:border-hype-accent/50 hover:text-hype-accent-text"
               >
                 Copy receipt
               </button>
@@ -211,7 +214,7 @@ export function CostMeter() {
                 <button
                   type="button"
                   onClick={openCostSettings}
-                  className="mt-2 text-left text-[11px] text-accent-300 hover:underline"
+                  className="mt-2 text-left text-[11px] text-hype-accent-text hover:underline"
                 >
                   Price unknown, set it in settings
                 </button>
@@ -226,7 +229,11 @@ export function CostMeter() {
               >
                 Start new session
               </button>
-              <button type="button" onClick={openCostSettings} className="text-[11px] text-accent-300 hover:underline">
+              <button
+                type="button"
+                onClick={openCostSettings}
+                className="text-[11px] text-hype-accent-text hover:underline"
+              >
                 Caps &amp; prices
               </button>
             </div>

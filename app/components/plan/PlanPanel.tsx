@@ -19,7 +19,7 @@ export function PlanPanel() {
         type="button"
         aria-expanded={state.panelOpen}
         onClick={() => setPlanPanelOpen(!state.panelOpen)}
-        className="rounded-md border border-lime-400/40 px-2 py-0.5 text-xs font-medium text-lime-300 hover:bg-lime-400/10"
+        className="rounded-[var(--hype-radius-sm)] border border-hype-border bg-hype-surface px-2 py-0.5 text-xs font-medium text-hype-accent-text hover:bg-hype-surface-2"
       >
         Plan
       </button>

@@ -1,9 +1,8 @@
 import { useStore } from '@nanostores/react';
-import { motion, type Variants } from 'framer-motion';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { HistoryItem } from './HistoryItem';
-import { binDates } from './date-binning';
+import { binDates, groupHistoryBins } from './date-binning';
 
 /*
  * Lazy-load the heavy ControlPanel (settings UI).  Most users don't open it on
@@ -13,74 +12,33 @@ import { binDates } from './date-binning';
 const LazyControlPanel = lazy(() =>
   import('~/components/@settings/core/ControlPanel').then((m) => ({ default: m.ControlPanel })),
 );
-import { BrandFooter } from '~/components/ui/BrandFooter';
 import { Button } from '~/components/ui/Button';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
-import { SettingsButton, HelpButton } from '~/components/ui/SettingsButton';
-import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
-import { DEFAULT_AVATAR, profileStore } from '~/lib/stores/profile';
+import {
+  setSidebarCollapsed,
+  setSidebarMobileOpen,
+  sidebarCollapsedStore,
+  sidebarMobileOpenStore,
+} from '~/lib/stores/sidebar';
+import { APP_REPO_URL } from '~/utils/brand';
 import { classNames } from '~/utils/classNames';
-import { cubicEasingFn } from '~/utils/easings';
-
-const menuVariants = {
-  closed: {
-    opacity: 0,
-    visibility: 'hidden',
-    left: '-340px',
-    transition: {
-      duration: 0.2,
-      ease: cubicEasingFn,
-    },
-  },
-  open: {
-    opacity: 1,
-    visibility: 'initial',
-    left: 0,
-    transition: {
-      duration: 0.2,
-      ease: cubicEasingFn,
-    },
-  },
-} satisfies Variants;
 
 type DialogContent =
   { type: 'delete'; item: ChatHistoryItem } | { type: 'bulkDelete'; items: ChatHistoryItem[] } | null;
 
-function CurrentDateTime() {
-  const [dateTime, setDateTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setDateTime(new Date());
-    }, 60000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800/50">
-      <div className="h-4 w-4 i-ph:clock opacity-80" />
-      <div className="flex gap-2">
-        <span>{dateTime.toLocaleDateString()}</span>
-        <span>{dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-      </div>
-    </div>
-  );
-}
-
 export const Menu = () => {
   const { duplicateCurrentChat, exportChat } = useChatHistory({ loadHistory: false });
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
-  const [open, setOpen] = useState(false);
+  const collapsed = useStore(sidebarCollapsedStore);
+  const mobileOpen = useStore(sidebarMobileOpenStore);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<string | undefined>(undefined);
-  const profile = useStore(profileStore);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -274,52 +232,14 @@ export const Menu = () => {
   }, [filteredList]); // Depends only on filteredList
 
   useEffect(() => {
-    if (open) {
-      loadEntries();
-    }
-  }, [open, loadEntries]);
-
-  // Exit selection mode when sidebar is closed
-  useEffect(() => {
-    if (!open && selectionMode) {
-      /*
-       * Don't clear selection state anymore when sidebar closes
-       * This allows the selection to persist when reopening the sidebar
-       */
-      console.log('Sidebar closed, preserving selection state');
-    }
-  }, [open, selectionMode]);
-
-  useEffect(() => {
-    const enterThreshold = 20;
-    const exitThreshold = 20;
-
-    function onMouseMove(event: MouseEvent) {
-      if (isSettingsOpen) {
-        return;
-      }
-
-      if (event.pageX < enterThreshold) {
-        setOpen(true);
-      }
-
-      if (menuRef.current && event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold) {
-        setOpen(false);
-      }
-    }
-
-    window.addEventListener('mousemove', onMouseMove);
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-    };
-  }, [isSettingsOpen]);
+    loadEntries();
+  }, [loadEntries]);
 
   useEffect(() => {
     const handleOpenGitHubSettings = () => {
       setSettingsInitialTab('github');
       setIsSettingsOpen(true);
-      setOpen(false);
+      setSidebarMobileOpen(false);
     };
 
     document.addEventListener('open-github-settings', handleOpenGitHubSettings);
@@ -328,7 +248,7 @@ export const Menu = () => {
       const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab;
       setSettingsInitialTab(tab);
       setIsSettingsOpen(true);
-      setOpen(false);
+      setSidebarMobileOpen(false);
     };
 
     document.addEventListener('open-hypeable-settings', handleOpenHypeableSettings);
@@ -346,7 +266,7 @@ export const Menu = () => {
 
   const handleSettingsClick = () => {
     setIsSettingsOpen(true);
-    setOpen(false);
+    setSidebarMobileOpen(false);
   };
 
   const handleSettingsClose = () => {
@@ -359,107 +279,118 @@ export const Menu = () => {
     setDialogContent(content);
   }, []);
 
+  const showLabels = !collapsed;
+
   return (
     <>
-      <motion.div
+      {mobileOpen ? (
+        <button
+          type="button"
+          className="fixed inset-0 z-sidebar bg-hype-bg/70 lg:hidden"
+          aria-label="Close sidebar"
+          onClick={() => setSidebarMobileOpen(false)}
+        />
+      ) : null}
+      <aside
         ref={menuRef}
-        initial="closed"
-        animate={open ? 'open' : 'closed'}
-        variants={menuVariants}
-        style={{ width: '340px' }}
         className={classNames(
-          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl',
-          'bg-bolt-elements-background-depth-1 border-r border-bolt-elements-borderColor',
-          'shadow-sm text-sm',
+          'flex h-full shrink-0 flex-col border-r border-hype-border bg-hype-surface text-sm text-hype-text',
+          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-max max-lg:w-[var(--hype-sidebar-width)]',
+          'max-lg:transition-transform max-lg:duration-[var(--hype-duration-med)]',
+          mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+          collapsed ? 'lg:w-[var(--hype-sidebar-width-collapsed)]' : 'lg:w-[var(--hype-sidebar-width)]',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}
       >
-        <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 rounded-tr-2xl">
-          <div className="text-bolt-elements-textPrimary font-medium"></div>
-          <div className="flex items-center gap-3">
-            <HelpButton onClick={() => setIsDocumentationOpen(true)} />
-            <span className="font-medium text-sm text-bolt-elements-textPrimary truncate">
-              {profile?.username || 'Guest User'}
-            </span>
-            <div className="flex items-center justify-center w-[32px] h-[32px] overflow-hidden bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary rounded-full shrink-0">
-              <img
-                src={profile?.avatar || DEFAULT_AVATAR}
-                alt={profile?.username || 'User'}
-                className="w-full h-full object-cover"
-                loading="eager"
-                decoding="sync"
-              />
-            </div>
-          </div>
+        <div className="flex h-[var(--header-height)] items-center gap-2 border-b border-hype-border px-3">
+          <a href="/" className="flex min-w-0 items-center gap-2 text-hype-text">
+            <img src="/favicon.svg" alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
+            {showLabels ? (
+              <span className="truncate text-base font-semibold lowercase tracking-tight">hypeable</span>
+            ) : null}
+          </a>
+          <button
+            type="button"
+            className="ml-auto hidden h-8 w-8 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text lg:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onClick={() => setSidebarCollapsed(!collapsed)}
+          >
+            <span className={collapsed ? 'i-ph:caret-right' : 'i-ph:caret-left'} />
+          </button>
         </div>
-        <CurrentDateTime />
-        <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-          <div className="p-4 space-y-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="space-y-2 p-3">
             <div className="flex gap-2">
               <a
                 href="/"
-                className="flex-1 flex gap-2 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-4 py-2 transition-colors"
-              >
-                <span className="inline-block i-ph:plus-circle h-4 w-4" />
-                <span className="text-sm font-medium">Start new chat</span>
-              </a>
-              <button
-                onClick={toggleSelectionMode}
+                title="New build"
                 className={classNames(
-                  'flex gap-1 items-center rounded-lg px-3 py-2 transition-colors',
-                  selectionMode
-                    ? 'bg-purple-600 dark:bg-purple-500 text-white border border-purple-700 dark:border-purple-600'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
+                  'flex flex-1 items-center justify-center gap-2 rounded-[var(--hype-radius-md)] bg-hype-accent px-3 py-2 text-sm font-medium text-hype-on-accent hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
+                  !showLabels && 'px-0',
                 )}
-                aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
               >
-                <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
-              </button>
-            </div>
-            <div className="relative w-full">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <span className="i-ph:magnifying-glass h-4 w-4 text-gray-400 dark:text-gray-500" />
-              </div>
-              <input
-                className="w-full bg-bolt-elements-background-depth-2 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-bolt-elements-borderColorActive/50 text-sm text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary border border-bolt-elements-borderColor"
-                type="search"
-                placeholder="Search chats..."
-                onChange={handleSearchChange}
-                aria-label="Search chats"
-              />
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
-            {selectionMode && (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={selectAll}>
-                  {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBulkDeleteClick}
-                  disabled={selectedItems.length === 0}
+                <span className="i-ph:plus-circle h-4 w-4" />
+                {showLabels ? <span>New build</span> : <span className="sr-only">New build</span>}
+              </a>
+              {showLabels ? (
+                <button
+                  type="button"
+                  onClick={toggleSelectionMode}
+                  className={classNames(
+                    'flex items-center rounded-[var(--hype-radius-md)] border px-2.5 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
+                    selectionMode
+                      ? 'border-hype-accent bg-hype-accent text-hype-on-accent'
+                      : 'border-hype-border bg-hype-surface-2 text-hype-muted hover:text-hype-text',
+                  )}
+                  aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
                 >
-                  Delete selected
-                </Button>
+                  <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
+                </button>
+              ) : null}
+            </div>
+            {showLabels ? (
+              <div className="relative w-full">
+                <span className="pointer-events-none absolute left-3 top-1/2 i-ph:magnifying-glass h-4 w-4 -translate-y-1/2 text-hype-muted" />
+                <input
+                  className="w-full rounded-[var(--hype-radius-md)] border border-hype-border bg-hype-bg py-2 pl-9 pr-3 text-sm text-hype-text placeholder:text-hype-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+                  type="search"
+                  placeholder="Search"
+                  onChange={handleSearchChange}
+                  aria-label="Search chats"
+                />
               </div>
-            )}
+            ) : null}
           </div>
-          <div className="flex-1 overflow-auto modern-scrollbar px-3 pb-3">
-            {filteredList.length === 0 && (
-              <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
-                {list.length === 0 ? 'No previous conversations' : 'No matches found'}
+          {showLabels && selectionMode ? (
+            <div className="flex items-center justify-end gap-2 px-3 pb-2">
+              <Button variant="ghost" size="sm" onClick={selectAll}>
+                {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDeleteClick}
+                disabled={selectedItems.length === 0}
+              >
+                Delete selected
+              </Button>
+            </div>
+          ) : null}
+          <div className="flex-1 overflow-auto modern-scrollbar px-2 pb-3">
+            {filteredList.length === 0 && showLabels && (
+              <div className="px-3 py-6 text-sm text-hype-muted">
+                {list.length === 0 ? 'No projects yet' : 'No matches found'}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>
-              {binDates(filteredList).map(({ category, items }) => (
+              {groupHistoryBins(binDates(filteredList)).map(({ category, items }) => (
                 <div key={category} className="mt-2 first:mt-0 space-y-1">
-                  <div className="text-xs font-medium text-bolt-elements-textTertiary sticky top-0 z-1 bg-bolt-elements-background-depth-1 px-4 py-1">
-                    {category}
-                  </div>
-                  <div className="space-y-0.5 pr-1">
+                  {showLabels ? (
+                    <div className="sticky top-0 z-1 bg-hype-surface px-3 py-1 text-[10px] font-semibold uppercase tracking-[var(--hype-tracking-label)] text-hype-muted">
+                      {category}
+                    </div>
+                  ) : null}
+                  <div className="space-y-0.5">
                     {items.map((item) => (
                       <HistoryItem
                         key={item.id}
@@ -468,7 +399,6 @@ export const Menu = () => {
                         onDelete={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
-                          console.log('Delete triggered for item:', item);
                           setDialogContentWithLogging({ type: 'delete', item });
                         }}
                         onDuplicate={() => handleDuplicate(item.id)}
@@ -558,35 +488,35 @@ export const Menu = () => {
               </Dialog>
             </DialogRoot>
           </div>
-          <div className="border-t border-gray-200 dark:border-gray-800">
-            <BrandFooter className="px-4 pt-3 pb-1 text-left" />
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                <SettingsButton onClick={handleSettingsClick} />
-              </div>
-              <ThemeSwitch />
-            </div>
-          </div>
+          <nav className="mt-auto space-y-0.5 border-t border-hype-border p-2">
+            <button
+              type="button"
+              onClick={handleSettingsClick}
+              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+            >
+              <span className="i-ph:gear h-4 w-4 shrink-0" />
+              {showLabels ? <span>Settings</span> : <span className="sr-only">Settings</span>}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDocumentationOpen(true)}
+              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+            >
+              <span className="i-ph:book-open h-4 w-4 shrink-0" />
+              {showLabels ? <span>Docs</span> : <span className="sr-only">Docs</span>}
+            </button>
+            <a
+              href={APP_REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+            >
+              <span className="i-ph:github-logo h-4 w-4 shrink-0" />
+              {showLabels ? <span>GitHub</span> : <span className="sr-only">GitHub</span>}
+            </a>
+          </nav>
         </div>
-      </motion.div>
-
-      {/* Persistent sidebar trigger — always visible when sidebar is closed */}
-      {!open && !isSettingsOpen && (
-        <button
-          onClick={() => setOpen(true)}
-          className={classNames(
-            'fixed left-0 top-[72px] z-sidebar',
-            'bg-bolt-elements-background-depth-1',
-            'border border-l-0 border-bolt-elements-borderColor',
-            'rounded-r-lg p-1.5 shadow-sm',
-            'hover:bg-bolt-elements-background-depth-2',
-            'transition-colors',
-          )}
-          aria-label="Open sidebar"
-        >
-          <div className="i-ph:caret-right text-gray-500 dark:text-gray-400" />
-        </button>
-      )}
+      </aside>
 
       <Suspense fallback={null}>
         <LazyControlPanel open={isSettingsOpen} onClose={handleSettingsClose} initialTab={settingsInitialTab as any} />

@@ -65,19 +65,21 @@ export function PlanCard({
     <section
       role="region"
       aria-label="Build plan"
-      className="rounded-xl border border-lime-400/35 bg-[#1b1a22] p-4 text-[#f4f1fa] shadow-lg"
+      className="rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 text-hype-text shadow-[var(--hype-shadow-md)]"
     >
       {plan ? (
         <>
-          <h2 className="text-base font-semibold text-lime-300">{asPlainText(plan.title)}</h2>
-          <p className="mt-1 text-sm text-[#c9c4d4]">{asPlainText(plan.summary)}</p>
-          {intro ? <p className="mt-2 text-xs text-[#a09baa]">{asPlainText(intro)}</p> : null}
+          <h2 className="text-base font-semibold text-hype-text">{asPlainText(plan.title)}</h2>
+          <p className="mt-1 text-sm text-hype-muted">{asPlainText(plan.summary)}</p>
+          {intro ? <p className="mt-2 text-xs text-hype-muted">{asPlainText(intro)}</p> : null}
 
           <PlanList label="Pages" items={plan.pages.map((page) => `${page.name}: ${page.purpose}`)} />
           <PlanList label="Data" items={plan.data.map((row) => `${row.entity} (${row.storage})`)} />
 
           <div className="mt-3">
-            <h3 className="text-xs font-medium uppercase tracking-wide text-[#a09baa]">Features</h3>
+            <h3 className="text-xs font-medium uppercase tracking-[var(--hype-tracking-label)] text-hype-muted">
+              Features
+            </h3>
             <ul className="mt-1 space-y-1">
               {plan.features.map((feature) => (
                 <li key={feature.id}>
@@ -96,11 +98,11 @@ export function PlanCard({
 
                         setPlanTickedIds([...next]);
                       }}
-                      className="h-4 w-4 accent-[#C8FF3D]"
+                      className="h-4 w-4 accent-[var(--hype-accent)]"
                     />
                     <span>
                       {asPlainText(feature.text)}
-                      {feature.optional ? <span className="ml-1 text-xs text-[#a09baa]">optional</span> : null}
+                      {feature.optional ? <span className="ml-1 text-xs text-hype-muted">optional</span> : null}
                     </span>
                   </label>
                 </li>
@@ -118,11 +120,11 @@ export function PlanCard({
                 value={extraFeature}
                 onChange={(event) => setPlanExtraFeature(event.target.value)}
                 placeholder="Add a feature"
-                className="flex-1 rounded-md border border-[#302e39] bg-[#121116] px-2 py-1 text-sm outline-none focus:border-lime-400"
+                className="flex-1 rounded-[var(--hype-radius-sm)] border border-hype-border bg-hype-bg px-2 py-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
               />
               <button
                 type="submit"
-                className="rounded-md border border-[#393641] px-2 py-1 text-xs text-[#c9c4d4] hover:border-lime-400/50"
+                className="rounded-[var(--hype-radius-sm)] border border-hype-border px-2 py-1 text-xs text-hype-muted hover:border-hype-accent/50 hover:text-hype-text"
               >
                 Add
               </button>
@@ -143,9 +145,9 @@ export function PlanCard({
         </>
       ) : (
         <>
-          <h2 className="text-base font-semibold text-lime-300">Plan could not be parsed</h2>
-          {error ? <p className="mt-1 text-sm text-[#c9c4d4]">{asPlainText(error)}</p> : null}
-          <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-[#121116] p-2 text-xs text-[#c9c4d4]">
+          <h2 className="text-base font-semibold text-hype-text">Plan could not be parsed</h2>
+          {error ? <p className="mt-1 text-sm text-hype-muted">{asPlainText(error)}</p> : null}
+          <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-[var(--hype-radius-sm)] bg-hype-bg p-2 text-xs text-hype-muted">
             {asPlainText(raw || intro)}
           </pre>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -168,8 +170,8 @@ function PlanList({ label, items }: { label: string; items: string[] }) {
 
   return (
     <div className="mt-3">
-      <h3 className="text-xs font-medium uppercase tracking-wide text-[#a09baa]">{label}</h3>
-      <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-[#c9c4d4]">
+      <h3 className="text-xs font-medium uppercase tracking-[var(--hype-tracking-label)] text-hype-muted">{label}</h3>
+      <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-hype-muted">
         {items.map((item) => (
           <li key={item}>{asPlainText(item)}</li>
         ))}
@@ -181,15 +183,15 @@ function PlanList({ label, items }: { label: string; items: string[] }) {
 function PlanEstimate({ estimate }: { estimate: ReturnType<typeof estimatePlanCost> }) {
   if (estimate.unknown) {
     return (
-      <p className="mt-3 text-sm text-[#a09baa]">
-        Build cost <span className="font-medium text-[#f4f1fa]">estimate</span>: price unknown. Set a price in Settings.
+      <p className="mt-3 text-sm text-hype-muted">
+        Build cost <span className="font-medium text-hype-text">estimate</span>: price unknown. Set a price in Settings.
       </p>
     );
   }
 
   return (
-    <p className="mt-3 text-sm text-[#a09baa]">
-      Build cost <span className="font-medium text-[#f4f1fa]">estimate</span>:{' '}
+    <p className="mt-3 text-sm text-hype-muted">
+      Build cost <span className="font-medium text-hype-text">estimate</span>:{' '}
       <CostAmount dollars={estimate.low} verified={estimate.verified} digits={2} />
       {' – '}
       <CostAmount dollars={estimate.high} verified={estimate.verified} digits={2} />
@@ -205,7 +207,7 @@ function PrimaryButton({ onClick, children }: { onClick: () => void; children: s
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md bg-lime-400 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-lime-300"
+      className="rounded-[var(--hype-radius-md)] bg-hype-accent px-3 py-1.5 text-sm font-medium text-hype-on-accent hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
     >
       {children}
     </button>
@@ -227,7 +229,7 @@ function GhostButton({
       onClick={onClick}
       disabled={disabled}
       className={classNames(
-        'rounded-md border border-[#393641] bg-[#302e39] px-3 py-1.5 text-sm text-[#eeeaf5] hover:border-lime-400/50',
+        'rounded-[var(--hype-radius-md)] border border-hype-border bg-hype-surface-2 px-3 py-1.5 text-sm text-hype-text hover:border-hype-accent/50',
         disabled ? 'cursor-not-allowed opacity-50' : '',
       )}
     >

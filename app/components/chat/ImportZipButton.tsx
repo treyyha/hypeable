@@ -88,7 +88,7 @@ export const ImportZipButton: React.FC<ImportZipButtonProps> = ({ className, imp
       <Button
         onClick={() => inputRef.current?.click()}
         title="Import ZIP"
-        variant="default"
+        variant="outline"
         size="lg"
         className={classNames(
           'gap-2 bg-bolt-elements-background-depth-1',

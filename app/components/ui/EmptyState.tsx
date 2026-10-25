@@ -87,26 +87,16 @@ export function EmptyState({
     <div
       className={classNames(
         'flex flex-col items-center justify-center',
-        'text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary-dark',
-        'bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-3 rounded-lg',
+        'text-hype-muted bg-hype-surface rounded-[var(--hype-radius-lg)] border border-hype-border',
         styles.container,
         className,
       )}
     >
       {/* Icon */}
       <div
-        className={classNames(
-          'rounded-full bg-bolt-elements-background-depth-3 dark:bg-bolt-elements-background-depth-4 flex items-center justify-center',
-          styles.icon.container,
-        )}
+        className={classNames('rounded-full bg-hype-surface-2 flex items-center justify-center', styles.icon.container)}
       >
-        <span
-          className={classNames(
-            icon,
-            styles.icon.size,
-            'text-bolt-elements-textTertiary dark:text-bolt-elements-textTertiary-dark',
-          )}
-        />
+        <span className={classNames(icon, styles.icon.size, 'text-hype-muted')} />
       </div>
 
       {/* Title */}
@@ -114,14 +104,7 @@ export function EmptyState({
 
       {/* Description */}
       {description && (
-        <p
-          className={classNames(
-            'text-bolt-elements-textTertiary dark:text-bolt-elements-textTertiary-dark text-center max-w-xs',
-            styles.description,
-          )}
-        >
-          {description}
-        </p>
+        <p className={classNames('text-hype-muted text-center max-w-xs', styles.description)}>{description}</p>
       )}
 
       {/* Action buttons */}
@@ -129,12 +112,7 @@ export function EmptyState({
         <div className={classNames('flex items-center gap-2', styles.actions)}>
           {actionLabel && onAction && (
             <motion.div {...buttonAnimation}>
-              <Button
-                onClick={onAction}
-                variant="default"
-                size={styles.buttonSize}
-                className="bg-purple-500 hover:bg-purple-600 text-white"
-              >
+              <Button onClick={onAction} variant="default" size={styles.buttonSize}>
                 {actionLabel}
               </Button>
             </motion.div>

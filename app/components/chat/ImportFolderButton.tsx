@@ -121,7 +121,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
           input?.click();
         }}
         title="Import Folder"
-        variant="default"
+        variant="outline"
         size="lg"
         className={classNames(
           'gap-2 bg-bolt-elements-background-depth-1',

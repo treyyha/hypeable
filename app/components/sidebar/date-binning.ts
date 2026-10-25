@@ -29,6 +29,32 @@ export function binDates(_list: ChatHistoryItem[]) {
   return bins;
 }
 
+/** Sidebar grouping: Today / Yesterday / Earlier. */
+export function groupHistoryBins(bins: Bin[]): Bin[] {
+  const today = bins.find((bin) => bin.category === 'Today');
+  const yesterday = bins.find((bin) => bin.category === 'Yesterday');
+
+  const earlierItems = bins
+    .filter((bin) => bin.category !== 'Today' && bin.category !== 'Yesterday')
+    .flatMap((bin) => bin.items);
+
+  const grouped: Bin[] = [];
+
+  if (today) {
+    grouped.push(today);
+  }
+
+  if (yesterday) {
+    grouped.push(yesterday);
+  }
+
+  if (earlierItems.length > 0) {
+    grouped.push({ category: 'Earlier', items: earlierItems });
+  }
+
+  return grouped;
+}
+
 function dateCategory(date: Date) {
   if (isToday(date)) {
     return 'Today';

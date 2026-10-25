@@ -33,7 +33,7 @@ export function CapReachedModal() {
     >
       <Dialog onClose={dismissCapDialog} onBackdrop={dismissCapDialog}>
         <div className="p-6">
-          <DialogTitle className="text-red-400">
+          <DialogTitle className="text-hype-danger">
             {isWouldCross ? 'This request would cross your cap' : `Cap reached: ${spentLabel} of ${capLabel}`}
           </DialogTitle>
           <DialogDescription>
