@@ -1,0 +1,13 @@
+# Orientation
+
+Chat/LLM: the client (`app/components/chat/Chat.client.tsx`) posts via `useChat` to `/api/chat`; that route streams through `app/lib/.server/llm/stream-text.ts`. Extra LLM hops are `/api/llmcall` and `/api/enhancer`.
+
+API keys live in a browser cookie named `apiKeys` (js-cookie, set from `APIKeyManager`, `BaseChat`, and `FirstRunOnboarding`). The server only reads them from the request cookie (`getApiKeysFromCookie`); they are not stored server-side. Theme/profile sit in `localStorage` (`bolt_theme`, `bolt_user_profile`).
+
+Header/logo: `app/components/header/Header.tsx` (images `/logo-light-styled.png` and `/logo-dark-styled.png`, which are currently missing). Favicon is `/favicon.svg` from `app/root.tsx`. There is no product footer; the sidebar (`Menu.client.tsx`) only has settings/theme. Landing copy is in `BaseChat.tsx` (“Where ideas begin”). Onboarding is `FirstRunOnboarding.tsx`.
+
+Server routes: declared in `app/routes.ts` — pages `/`, `/chat/:id`, `/git`, `/starter`, `/webcontainer/connect/:id`, `/webcontainer/preview/:id`; APIs `/api/chat`, `/api/llmcall`, `/api/enhancer`, `/api/models`, `/api/models/:provider`, `/api/check-env-key`, `/api/configured-providers`, `/api/export-api-keys`, `/api/mcp-check`, `/api/mcp-update-config`, `/api/update`, `/api/bug-report`, `/api/health`, `/api/web-search`, git/GitHub/GitLab/Netlify/Vercel/Supabase proxies, and `/api/system/*`. COEP `credentialless` and COOP `same-origin` are set in `app/entry.server.tsx` (required for WebContainers).
+
+Theme colours: primitives in `uno.config.ts` (`BASE_COLORS.accent` is purple `#9C7DFF`); CSS tokens in `app/styles/variables.scss` (`--bolt-elements-*`, palettes via `data-color-theme`). Background-ray purples are extra vars in `app/styles/index.scss`. Default stored theme key is `bolt_theme`; unset dark falls back to `dark-dracula`.
+
+Bolt/StackBlitz-owned domains: update check fetches `raw.githubusercontent.com/stackblitz-labs/bolt.diy` (`app/lib/api/updates.ts`); Electron updater uses `electron-update.yml` (`stackblitz-labs/bolt.diy`) and `electron-builder.yml` publish `Derek-X-Wang/bolt.local`. In-app docs iframe `stackblitz-labs.github.io/bolt.diy`; bug reports open `github.com/stackblitz-labs/bolt.diy`. LLM discuss prompt links `support.bolt.new`. Vite Chrome-129 error links `github.com/stackblitz/bolt.new`. WebContainer runtime uses `@webcontainer/api` and `*.webcontainer-api.io` (needed; not telemetry). Connect route defaults `editorOrigin` to `https://stackblitz.com`. No Discord, no PostHog. No live announcements feed. `_sendToAnalytics` in `metrics.ts` is a no-op unless `window.__PERFORMANCE_ANALYTICS__` is injected. LICENSE/NOTICE keep upstream credit.
