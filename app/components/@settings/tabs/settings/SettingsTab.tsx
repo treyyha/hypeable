@@ -336,7 +336,7 @@ export default function SettingsTab() {
             <h3 className="mb-2 text-xs font-medium capitalize text-bolt-elements-textSecondary">{mode} themes</h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {THEMES.filter((theme) => theme.mode === mode).map((theme) => {
-                const selected = activeTheme === theme.id || (activeTheme === 'dark' && theme.id === 'dark-dracula');
+                const selected = activeTheme === theme.id;
 
                 return (
                   <button

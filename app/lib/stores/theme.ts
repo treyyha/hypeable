@@ -10,7 +10,7 @@ export function themeIsDark() {
   return getThemeMode(themeStore.get()) === 'dark';
 }
 
-export const DEFAULT_THEME = 'light';
+export const DEFAULT_THEME = 'dark';
 
 export const themeStore = atom<Theme>(initStore());
 
@@ -39,7 +39,7 @@ export function toggleTheme() {
     isTheme(savedTheme) && getThemeMode(savedTheme) === targetMode
       ? savedTheme
       : targetMode === 'dark'
-        ? 'dark-dracula'
+        ? 'dark'
         : 'light';
 
   setTheme(newTheme);
@@ -56,7 +56,7 @@ export function setTheme(newTheme: Theme | 'dark') {
   // Update the HTML attribute
   const root = document.querySelector('html');
   root?.setAttribute('data-theme', getThemeMode(newTheme));
-  root?.setAttribute('data-color-theme', newTheme === 'dark' ? 'dark-dracula' : newTheme);
+  root?.setAttribute('data-color-theme', newTheme);
 
   // Update user profile if it exists
   try {

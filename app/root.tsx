@@ -66,12 +66,12 @@ const inlineThemeCode = stripIndents`
     let colorTheme = localStorage.getItem('bolt_theme');
 
     if (!colorTheme) {
-      colorTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-dracula' : 'light';
+      colorTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     const mode = colorTheme === 'dark' || colorTheme.startsWith('dark-') ? 'dark' : 'light';
     document.querySelector('html')?.setAttribute('data-theme', mode);
-    document.querySelector('html')?.setAttribute('data-color-theme', colorTheme === 'dark' ? 'dark-dracula' : colorTheme);
+    document.querySelector('html')?.setAttribute('data-color-theme', colorTheme);
   }
 `;
 
@@ -81,7 +81,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const mode = theme === 'dark' || theme.startsWith('dark-') ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', mode);
-    document.documentElement.setAttribute('data-color-theme', theme === 'dark' ? 'dark-dracula' : theme);
+    document.documentElement.setAttribute('data-color-theme', theme);
   }, [theme]);
 
   // The theme script applies saved browser preferences before hydration.
@@ -90,7 +90,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       lang="en"
       suppressHydrationWarning
       data-theme={theme === 'dark' || theme.startsWith('dark-') ? 'dark' : 'light'}
-      data-color-theme={theme === 'dark' ? 'dark-dracula' : theme}
+      data-color-theme={theme}
       className="w-full h-full"
     >
       <head>
