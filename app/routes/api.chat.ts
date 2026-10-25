@@ -33,6 +33,7 @@ import { getApiKeysFromRequest } from '~/lib/api/request-keys';
 import { getAgentLoopInstructions, getAgentLoopProgress } from '~/lib/common/agentLoop';
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
 import { getStarterBuildProgress } from '~/lib/common/starterBuild';
+import { extractTokenUsage } from '~/lib/cost/usage';
 import { createMessage, getMessageText } from '~/lib/persistence/messageMigration';
 import { getPluginToolDescriptions, getPluginTools } from '~/lib/plugins/adapters';
 import { getProjectToolNames, projectToolDefinitions } from '~/lib/runtime/projectMcp.shared';
@@ -95,10 +96,32 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
    * dead. Continuation segments are now counted explicitly below.
    */
 
+  const lastUserMessage = messages.filter((message) => message.role === 'user').at(-1);
+  const requestModel = lastUserMessage ? extractPropertiesFromMessage(lastUserMessage) : undefined;
+
   const cumulativeUsage = {
     completionTokens: 0,
     promptTokens: 0,
     totalTokens: 0,
+    cachedTokens: 0,
+    cost: undefined as number | undefined,
+  };
+
+  const addUsage = (usage: unknown) => {
+    const extracted = extractTokenUsage(usage);
+
+    if (!extracted) {
+      return;
+    }
+
+    cumulativeUsage.completionTokens += extracted.completionTokens;
+    cumulativeUsage.promptTokens += extracted.promptTokens;
+    cumulativeUsage.totalTokens += extracted.totalTokens;
+    cumulativeUsage.cachedTokens += extracted.cachedTokens;
+
+    if (extracted.cost !== undefined) {
+      cumulativeUsage.cost = (cumulativeUsage.cost ?? 0) + extracted.cost;
+    }
   };
 
   let progressCounter: number = 1;
@@ -187,9 +210,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             onFinish(resp) {
               if (resp.usage) {
                 logger.debug('createSummary token usage', JSON.stringify(resp.usage));
-                cumulativeUsage.completionTokens += (resp.usage as any)?.outputTokens || 0;
-                cumulativeUsage.promptTokens += (resp.usage as any)?.inputTokens || 0;
-                cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
+                addUsage(resp.usage);
               }
             },
           });
@@ -236,9 +257,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             onFinish(resp) {
               if (resp.usage) {
                 logger.debug('selectContext token usage', JSON.stringify(resp.usage));
-                cumulativeUsage.completionTokens += (resp.usage as any)?.outputTokens || 0;
-                cumulativeUsage.promptTokens += (resp.usage as any)?.inputTokens || 0;
-                cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
+                addUsage(resp.usage);
               }
             },
           });
@@ -444,9 +463,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             logger.debug('usage', JSON.stringify(usage));
 
             if (usage) {
-              cumulativeUsage.completionTokens += usage.outputTokens || 0;
-              cumulativeUsage.promptTokens += usage.inputTokens || 0;
-              cumulativeUsage.totalTokens += usage.totalTokens || 0;
+              addUsage(usage);
             }
 
             if (finishReason === 'error') {
@@ -460,6 +477,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                   completionTokens: cumulativeUsage.completionTokens,
                   promptTokens: cumulativeUsage.promptTokens,
                   totalTokens: cumulativeUsage.totalTokens,
+                  cachedTokens: cumulativeUsage.cachedTokens,
+                  model: requestModel?.model,
+                  provider: requestModel?.provider,
+                  ...(cumulativeUsage.cost !== undefined ? { cost: cumulativeUsage.cost } : {}),
                 },
               });
               writer.write({

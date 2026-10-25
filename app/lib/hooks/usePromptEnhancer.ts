@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { llmFetch } from '~/lib/api/api-key-storage';
+import { takeUsageMarker } from '~/lib/cost/usage';
+import { ingestUsageAnnotation, pendingUsageId } from '~/lib/stores/cost';
 import type { ProviderInfo } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -62,9 +64,11 @@ export function usePromptEnhancer() {
 
           _input += decoder.decode(value);
 
-          logger.trace('Set input', _input);
+          const visible = takeUsageMarker(_input).text;
 
-          setInput(_input);
+          logger.trace('Set input', visible);
+
+          setInput(visible);
         }
       } catch (error) {
         _error = error;
@@ -72,6 +76,17 @@ export function usePromptEnhancer() {
       } finally {
         if (_error) {
           logger.error(_error);
+        }
+
+        const split = takeUsageMarker(_input);
+        _input = split.text;
+
+        if (split.usage) {
+          ingestUsageAnnotation(split.usage, {
+            id: pendingUsageId(`enhancer:${Date.now()}`),
+            model,
+            provider: provider.name,
+          });
         }
 
         setEnhancingPrompt(false);

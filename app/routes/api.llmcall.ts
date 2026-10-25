@@ -16,6 +16,7 @@ import { toLlmCallResponse } from '~/lib/.server/llm/llmcall-response';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { getApiKeysFromRequest, missingProviderKeyResponse } from '~/lib/api/request-keys';
+import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { createMessage } from '~/lib/persistence/messageMigration';
@@ -131,12 +132,17 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         provider: providerName,
       });
 
-      return new Response(toSafeTextStream(result.textStream), {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
+      return new Response(
+        toSafeTextStream(
+          wrapTextStreamWithUsage(result.textStream, usageFromResult(result), { model, provider: providerName }),
+        ),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
         },
-      });
+      );
     } catch (error: unknown) {
       if (isTokenLimitFailure(error)) {
         return toApiErrorResponse(toTokenLimitError(providerName));

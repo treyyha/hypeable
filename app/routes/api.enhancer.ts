@@ -1,12 +1,13 @@
 import type { UIMessage } from 'ai';
 import type { ActionFunctionArgs } from 'react-router';
-import { toApiErrorResponse, toMissingCredentialError } from '~/lib/.server/api/errors';
+import { toApiErrorResponse, toMissingCredentialError, toSafeTextStream } from '~/lib/.server/api/errors';
 import { readJsonBody } from '~/lib/.server/api/read-body';
 import { REQUEST_LIMITS, enhancerRequestSchema, parseBody } from '~/lib/.server/api/schemas';
 import { providerHasCredential } from '~/lib/.server/llm/credentials';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse } from '~/lib/api/request-keys';
+import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { stripIndents } from '~/utils/stripIndent';
 
@@ -96,15 +97,19 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       },
     });
 
-    // Return the text stream directly since it's already text data
-    return new Response(result.textStream, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/event-stream',
-        Connection: 'keep-alive',
-        ...LLM_NO_STORE_HEADERS,
+    return new Response(
+      toSafeTextStream(
+        wrapTextStreamWithUsage(result.textStream, usageFromResult(result), { model, provider: providerName }),
+      ),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          Connection: 'keep-alive',
+          ...LLM_NO_STORE_HEADERS,
+        },
       },
-    });
+    );
   } catch (error: unknown) {
     if (error instanceof Error && error.message?.includes('API key')) {
       return toApiErrorResponse(toMissingCredentialError(providerName, error.message));
