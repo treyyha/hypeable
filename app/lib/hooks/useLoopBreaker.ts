@@ -1,11 +1,12 @@
 /**
  * Wires loop-breaker signals into the live chat: abort on trigger, feed
- * alerts and user messages, optional ?debugLoop=1 demo.
+ * alerts and user messages. A development-only demo helper is loaded behind
+ * `import.meta.env.DEV` so production builds cannot trigger it.
  */
 import { useEffect, useRef } from 'react';
 import { isAutoFixRequest } from '~/lib/loop';
 import { getMessageText } from '~/lib/persistence/messageMigration';
-import { costStore, recordUsage } from '~/lib/stores/cost';
+import { costStore } from '~/lib/stores/cost';
 import {
   loopAbortTick,
   noteLoopUserMessage,
@@ -21,8 +22,6 @@ type ChatLikeMessage = {
   id?: string;
   role?: string;
 };
-
-let debugLoopFired = false;
 
 export function useLoopBreaker(options: {
   abort: () => void;
@@ -79,33 +78,11 @@ export function useLoopBreaker(options: {
   }, []);
 
   useEffect(() => {
-    if (!import.meta.env.DEV || debugLoopFired || typeof window === 'undefined') {
+    if (!import.meta.env.DEV) {
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.get('debugLoop') !== '1') {
-      return;
-    }
-
-    debugLoopFired = true;
-
-    const err = `TypeError: Cannot read properties of undefined (reading 'map')
-    at App (/Users/demo/proj/src/App.tsx:12:4)`;
-    reportLoopError(err, 'preview');
-    recordUsage({
-      id: 'debug-loop-cost',
-      model: 'claude-3-haiku-20240307',
-      promptTokens: 400_000,
-      completionTokens: 80_000,
-    });
-    reportLoopError(
-      `TypeError: Cannot read properties of undefined (reading 'map')
-    at App (C:\\Users\\demo\\proj\\src\\App.tsx:44:8)`,
-      'preview',
-    );
-    reportLoopError(err, 'preview');
+    void import('~/lib/loop/debug-loop').then((mod) => mod.runDebugLoopOnce());
   }, []);
 
   return {

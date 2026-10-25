@@ -27,6 +27,20 @@ These assert a 16.67ms (60fps) wall-clock budget against `render()` in jsdom. Th
 
 `tests/performance/syntax-highlighting.perf.test.ts` asserts wall-clock budgets (`< 600ms` small, `< 1000ms` large, `< 200ms` for 10 incremental highlights). Under CI load `createHighlighter()` / `codeToHtml()` can exceed those budgets even when highlighting is correct. `tests/unit/syntax-highlighter-client.test.ts` can also flake if the worker is slow to start. Do not treat a timing miss as a highlighter regression.
 
+## Local 5s timeouts (3)
+
+These import a full LLM route and talk to a local mock (or fail before one is listening). Vitest's default 5s budget is tight on a loaded Windows machine; they usually pass on retry.
+
+7. `app/lib/api/request-keys.spec.ts` — `POST /api/llmcall missing key` dynamically imports `~/routes/api.llmcall`. Route module graph + Cloudflare-shaped context can exceed 5s before the 401 is asserted.
+8. `app/lib/.server/llm/api-chat.integration.spec.ts` — streams `POST /api/chat` against `scripts/dev/mock-openai.mjs`. Startup of the mock + the chat action can miss 5s.
+9. `app/lib/.server/llm/mock-openai-stream.spec.ts` — same mock server path through `POST /api/llmcall` with a fake `x-hypeable-key`.
+
+Do not treat a 5s timeout here as a key-leak regression; re-run the file. Do not add more known-failing tests.
+
+## Logger null (fixed)
+
+`app/utils/logger.spec.ts` `should handle null and undefined as strings` used to throw `TypeError: Cannot read properties of undefined (reading 'replace')` in `app/lib/security/redact.ts` because `JSON.stringify(undefined)` is not a string. `redactUnknown` now stringifies `null` / `undefined` first. Keep it off this list unless it regresses.
+
 ## Production `pnpm audit --prod` leftovers
 
 Only critical/high issues with a patch or minor fix were applied; no major bumps. After those batches, **0 critical / 0 high** remain in production.

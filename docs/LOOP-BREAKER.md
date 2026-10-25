@@ -47,4 +47,4 @@ Threshold defaults to **3**, configurable 2–5, or the feature can be turned of
 
 ## Demo
 
-In a development build, open `/?debugLoop=1` (or `/chat/<id>?debugLoop=1`). The hook feeds three identical preview errors so the panel appears without a real loop.
+In a development build (`import.meta.env.DEV`), open `/?debugLoop=1` (or `/chat/<id>?debugLoop=1`). The hook dynamically loads a helper that feeds three identical preview errors so the panel appears without a real loop. Production builds drop that helper; the query does nothing.
