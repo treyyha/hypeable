@@ -1,19 +1,39 @@
 import type { ActionFunctionArgs } from 'react-router';
-import { MCPService, type MCPConfig } from '~/lib/services/mcpService';
+import { mcpConfigSchema } from '~/lib/services/mcpService';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('api.mcp-update-config');
 
+const updateConfigSchema = mcpConfigSchema.strict();
+
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const mcpConfig = (await request.json()) as MCPConfig;
+    let body: unknown;
 
-    if (!mcpConfig || typeof mcpConfig !== 'object') {
+    try {
+      body = await request.json();
+    } catch {
       return Response.json({ error: 'Invalid MCP servers configuration' }, { status: 400 });
     }
 
-    const mcpService = MCPService.getInstance();
-    const serverTools = await mcpService.updateConfig(mcpConfig);
+    const parsed = updateConfigSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return Response.json({ error: 'Invalid MCP servers configuration' }, { status: 400 });
+    }
+
+    /*
+     * Empty config is the onboarding default. Return without constructing
+     * MCP clients — that path used to load Node stdio inside the Cloudflare
+     * worker and abort the request, which the browser reports as "Failed to fetch".
+     */
+    if (Object.keys(parsed.data.mcpServers).length === 0) {
+      return Response.json({});
+    }
+
+    const mcpModule = await import('~/lib/services/mcpService');
+    const mcpService = mcpModule.MCPService.getInstance();
+    const serverTools = await mcpService.updateConfig(parsed.data);
 
     return Response.json(serverTools);
   } catch (error) {

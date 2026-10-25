@@ -159,18 +159,37 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
   },
 }));
 
-async function updateServerConfig(config: MCPConfig) {
-  const response = await fetch('/api/mcp-update-config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(config),
-  });
+export function isEmptyMcpConfig(config: MCPConfig | null | undefined): boolean {
+  const servers = config?.mcpServers;
+
+  return !servers || typeof servers !== 'object' || Object.keys(servers).length === 0;
+}
+
+export async function pushMcpConfigToServer(config: MCPConfig): Promise<MCPServerTools> {
+  if (isEmptyMcpConfig(config)) {
+    return {};
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch('/api/mcp-update-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : 'network error';
+    throw new Error(`Could not reach the MCP config endpoint (${detail}).`);
+  }
 
   if (!response.ok) {
     throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
   }
 
-  const data = (await response.json()) as MCPServerTools;
+  return (await response.json()) as MCPServerTools;
+}
 
-  return data;
+async function updateServerConfig(config: MCPConfig) {
+  return pushMcpConfigToServer(config);
 }

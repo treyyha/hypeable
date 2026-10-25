@@ -28,4 +28,10 @@ describe('redactUnknown', () => {
     expect(redactUnknown(new Error(`provider failed for ${FAKE_KEY}`))).not.toContain(FAKE_KEY);
     expect(redactUnknown(`provider failed for ${FAKE_KEY}`)).toContain('[REDACTED]');
   });
+
+  it('stringifies null and undefined instead of throwing', () => {
+    expect(redactUnknown(null)).toBe('null');
+    expect(redactUnknown(undefined)).toBe('undefined');
+    expect(redact(undefined as unknown as string)).toBe('undefined');
+  });
 });

@@ -1,5 +1,4 @@
 import { createMCPClient } from '@ai-sdk/mcp';
-import { Experimental_StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { convertToModelMessages, type ToolSet, type UIMessage, type UIMessageStreamWriter } from 'ai';
 import { z } from 'zod';
@@ -207,7 +206,13 @@ export class MCPService {
       `Creating STDIO client for '${serverName}' with command: '${config.command}' ${config.args?.join(' ') || ''}`,
     );
 
-    const client = await createMCPClient({ transport: new Experimental_StdioMCPTransport(config) });
+    /*
+     * Loaded only when a stdio server is actually configured. The Cloudflare
+     * worker cannot spawn processes; a top-level import aborted the whole
+     * `/api/mcp-update-config` request (browser: "Failed to fetch").
+     */
+    const mcpStdio = await import('@ai-sdk/mcp/mcp-stdio');
+    const client = await createMCPClient({ transport: new mcpStdio.Experimental_StdioMCPTransport(config) });
 
     return Object.assign(client, { serverName });
   }

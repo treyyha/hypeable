@@ -14,9 +14,19 @@ const PATTERNS: RegExp[] = [
   /(?:apiKeys|githubToken|gitlabToken|netlifyToken|VITE_VERCEL_ACCESS_TOKEN)=([^;]+)/gi,
 ];
 
-export const redact = (s: string): string => PATTERNS.reduce((acc, re) => acc.replace(re, '[REDACTED]'), s);
+export const redact = (s: string): string => {
+  if (typeof s !== 'string') {
+    return String(s);
+  }
+
+  return PATTERNS.reduce((acc, re) => acc.replace(re, '[REDACTED]'), s);
+};
 
 function stringifyUnknown(value: unknown): string {
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+
   if (typeof value === 'string') {
     return value;
   }
@@ -26,7 +36,10 @@ function stringifyUnknown(value: unknown): string {
   }
 
   try {
-    return JSON.stringify(value);
+    const json = JSON.stringify(value);
+
+    // JSON.stringify(undefined) and some exotic values return undefined, not a string.
+    return typeof json === 'string' ? json : String(value);
   } catch {
     return String(value);
   }
