@@ -58,9 +58,9 @@ LLM responses set `Cache-Control: no-store` (`LLM_NO_STORE_HEADERS` in `request-
 | SSR render errors | `app/entry.server.tsx` ~15 | `redactUnknown(error)` |
 | Provider credential failures | `toMissingCredentialError` | Logs `Provider credential error` without the provider's diagnostic |
 
-Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-…`, GitHub `gh*_…`, `Bearer …`, `x-hypeable-key` / `x-api-key` / `authorization` dumps, `apiKeys=` cookie blobs.
+Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-…`, GitHub `gh*_…`, `Bearer …`, `x-hypeable-key` / `x-api-key` / `authorization` dumps, `apiKeys=` / `githubToken=` / other connector-token cookie blobs.
 
 ## What we do not do
 
 - We do **not** send the key from the browser straight to the provider. There is a server hop. Direct browser-to-provider (CORS) is on `docs/ROADMAP.md`.
-- Connector tokens (GitHub/Vercel/Netlify/Supabase) are **not** LLM keys. They use a dedicated cookie (`githubToken`) or `Authorization`, not `apiKeys`. See `app/lib/api/connector-tokens.ts`.
+- Connector tokens (GitHub/Vercel/Netlify/Supabase/MCP) are **not** LLM keys. They travel in `Authorization` or the JSON body, never cookies. See `app/lib/api/connector-tokens.ts`.

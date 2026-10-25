@@ -164,7 +164,11 @@ export class MCPService {
   }
 
   async updateConfig(config: MCPConfig) {
-    logger.debug('updating config', JSON.stringify(config));
+    const servers = Object.entries(config.mcpServers ?? {}).map(([name, server]) => ({
+      name,
+      type: 'type' in server ? server.type : undefined,
+    }));
+    logger.debug('updating config', JSON.stringify({ servers }));
     this._config = config;
     await this._createClients();
 

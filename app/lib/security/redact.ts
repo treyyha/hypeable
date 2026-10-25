@@ -11,7 +11,7 @@ const PATTERNS: RegExp[] = [
   /gh[pousr]_[A-Za-z0-9]{20,}/g,
   /Bearer\s+[A-Za-z0-9._-]+/gi,
   /(?:x-hypeable-key|x-api-key|authorization)\s*[:=]\s*[^\s,;]+/gi,
-  /apiKeys=([^;]+)/gi,
+  /(?:apiKeys|githubToken|gitlabToken|netlifyToken|VITE_VERCEL_ACCESS_TOKEN)=([^;]+)/gi,
 ];
 
 export const redact = (s: string): string => PATTERNS.reduce((acc, re) => acc.replace(re, '[REDACTED]'), s);

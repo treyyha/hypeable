@@ -1,10 +1,8 @@
 /**
  * Connector tokens (GitHub/Vercel/Netlify/Supabase) are not LLM keys.
- * They used to be stuffed into the same `apiKeys` cookie. After that cookie
- * was removed, these routes read a dedicated cookie, Authorization, or env.
+ * They travel in Authorization or the JSON body, never cookies — cookies
+ * attach to every same-origin request, including static assets.
  */
-import { parseCookies } from '~/lib/api/cookies';
-
 function bearerToken(request: Request): string | undefined {
   const auth = request.headers.get('Authorization');
 
@@ -23,61 +21,62 @@ function bearerToken(request: Request): string | undefined {
   return undefined;
 }
 
-function firstDefined(...values: Array<string | undefined>): string | undefined {
-  return values.find((value) => typeof value === 'string' && value.length > 0);
+function firstDefined(...values: Array<string | undefined | null>): string | undefined {
+  return values.find((value) => typeof value === 'string' && value.length > 0) ?? undefined;
+}
+
+function envValue(env: Record<string, string | undefined> | undefined, ...keys: string[]): string | undefined {
+  for (const key of keys) {
+    const fromEnv = env?.[key] || process.env[key];
+
+    if (fromEnv) {
+      return fromEnv;
+    }
+  }
+
+  return undefined;
 }
 
 export function getGithubAccessToken(
   request: Request,
   env: Record<string, string | undefined> | undefined,
+  bodyToken?: string,
 ): string | undefined {
-  const cookies = parseCookies(request.headers.get('Cookie'));
-
   return firstDefined(
-    cookies.githubToken,
+    bodyToken,
     bearerToken(request),
-    env?.GITHUB_TOKEN,
-    env?.VITE_GITHUB_ACCESS_TOKEN,
-    process.env.GITHUB_TOKEN,
-    process.env.VITE_GITHUB_ACCESS_TOKEN,
+    envValue(env, 'GITHUB_TOKEN', 'GITHUB_ACCESS_TOKEN', 'VITE_GITHUB_ACCESS_TOKEN'),
   );
 }
 
 export function getVercelAccessToken(
   request: Request,
   env: Record<string, string | undefined> | undefined,
+  bodyToken?: string,
 ): string | undefined {
-  return firstDefined(
-    bearerToken(request),
-    env?.VITE_VERCEL_ACCESS_TOKEN,
-    env?.VERCEL_TOKEN,
-    process.env.VITE_VERCEL_ACCESS_TOKEN,
-    process.env.VERCEL_TOKEN,
-  );
+  return firstDefined(bodyToken, bearerToken(request), envValue(env, 'VITE_VERCEL_ACCESS_TOKEN', 'VERCEL_TOKEN'));
 }
 
 export function getNetlifyAccessToken(
   request: Request,
   env: Record<string, string | undefined> | undefined,
+  bodyToken?: string,
 ): string | undefined {
   return firstDefined(
+    bodyToken,
     bearerToken(request),
-    env?.VITE_NETLIFY_ACCESS_TOKEN,
-    env?.NETLIFY_AUTH_TOKEN,
-    process.env.VITE_NETLIFY_ACCESS_TOKEN,
-    process.env.NETLIFY_AUTH_TOKEN,
+    envValue(env, 'VITE_NETLIFY_ACCESS_TOKEN', 'NETLIFY_AUTH_TOKEN', 'NETLIFY_TOKEN'),
   );
 }
 
 export function getSupabaseAccessToken(
   request: Request,
   env: Record<string, string | undefined> | undefined,
+  bodyToken?: string,
 ): string | undefined {
   return firstDefined(
+    bodyToken,
     bearerToken(request),
-    env?.VITE_SUPABASE_ACCESS_TOKEN,
-    env?.SUPABASE_ACCESS_TOKEN,
-    process.env.VITE_SUPABASE_ACCESS_TOKEN,
-    process.env.SUPABASE_ACCESS_TOKEN,
+    envValue(env, 'VITE_SUPABASE_ACCESS_TOKEN', 'SUPABASE_ACCESS_TOKEN'),
   );
 }

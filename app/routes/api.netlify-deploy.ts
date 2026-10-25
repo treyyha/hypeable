@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { ActionFunctionArgs } from 'react-router';
+import { getNetlifyAccessToken } from '~/lib/api/connector-tokens';
 import type { NetlifySiteInfo } from '~/types/netlify';
 
 interface DeployRequestBody {
@@ -27,7 +28,8 @@ async function readNetlifyError(response: Response) {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const { siteId, files, token, chatId } = (await request.json()) as DeployRequestBody & { token: string };
+    const { siteId, files, token: bodyToken, chatId } = (await request.json()) as DeployRequestBody & { token: string };
+    const token = getNetlifyAccessToken(request, undefined, bodyToken);
 
     if (!token) {
       return Response.json({ error: 'Not connected to Netlify' }, { status: 401 });

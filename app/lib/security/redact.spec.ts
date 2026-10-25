@@ -14,6 +14,7 @@ describe('redact', () => {
   it('strips x-hypeable-key header dumps and apiKeys cookies', () => {
     expect(redact(`x-hypeable-key: ${FAKE_KEY}`)).not.toContain(FAKE_KEY);
     expect(redact(`Cookie: theme=dark; apiKeys=%7B%22OpenAI%22%3A%22${FAKE_KEY}%22%7D`)).not.toContain(FAKE_KEY);
+    expect(redact(`Cookie: githubToken=${FAKE_KEY}`)).not.toContain(FAKE_KEY);
   });
 
   it('redacts keys nested in objects', () => {

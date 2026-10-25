@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
+import { getVercelAccessToken } from '~/lib/api/connector-tokens';
 import type { VercelProjectInfo } from '~/types/vercel';
 
 // Function to detect framework from project files
@@ -176,7 +177,7 @@ const detectFramework = (files: Record<string, string>): string => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const projectId = url.searchParams.get('projectId');
-  const token = url.searchParams.get('token');
+  const token = getVercelAccessToken(request, undefined);
 
   if (!projectId || !token) {
     return Response.json({ error: 'Missing projectId or token' }, { status: 400 });
@@ -242,9 +243,18 @@ interface DeployRequestBody {
 // Existing action function for POST requests
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const { projectId, files, sourceFiles, token, chatId, framework } = (await request.json()) as DeployRequestBody & {
+    const {
+      projectId,
+      files,
+      sourceFiles,
+      token: bodyToken,
+      chatId,
+      framework,
+    } = (await request.json()) as DeployRequestBody & {
       token: string;
     };
+
+    const token = getVercelAccessToken(request, undefined, bodyToken);
 
     if (!token) {
       return Response.json({ error: 'Not connected to Vercel' }, { status: 401 });

@@ -28,7 +28,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
       const body: any = await request.json();
       owner = body.owner;
       repo = body.repo;
-      githubToken = body.token;
+      githubToken = getGithubAccessToken(request, context?.cloudflare?.env, body.token) || '';
 
       if (!owner || !repo) {
         return Response.json({ error: 'Owner and repo parameters are required' }, { status: 400 });
@@ -38,7 +38,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
         return Response.json({ error: 'GitHub token is required' }, { status: 400 });
       }
     } else {
-      // Handle GET request with params and cookie token (backwards compatibility)
+      // Handle GET with params; token comes from Authorization or server env
       const url = new URL(request.url);
       owner = url.searchParams.get('owner') || '';
       repo = url.searchParams.get('repo') || '';

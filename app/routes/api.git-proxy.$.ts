@@ -104,7 +104,7 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       headers.set('User-Agent', 'git/@isomorphic-git/cors-proxy');
     }
 
-    console.log('Request headers:', Object.fromEntries(headers.entries()));
+    console.log('Proxying', request.method, domain);
 
     /*
      * `duplex` is required by undici/Node when streaming a request body, but it is

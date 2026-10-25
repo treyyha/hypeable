@@ -172,13 +172,6 @@ async function githubUserAction({ request, context }: { request: Request; contex
       });
     }
 
-    if (action === 'get_token') {
-      // Return the GitHub token for git authentication
-      return Response.json({
-        token: githubToken,
-      });
-    }
-
     if (action === 'search_repos') {
       if (!searchQuery) {
         return Response.json({ error: 'Search query is required' }, { status: 400 });
