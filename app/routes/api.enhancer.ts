@@ -5,7 +5,7 @@ import { readJsonBody } from '~/lib/.server/api/read-body';
 import { REQUEST_LIMITS, enhancerRequestSchema, parseBody } from '~/lib/.server/api/schemas';
 import { providerHasCredential } from '~/lib/.server/llm/credentials';
 import { streamText } from '~/lib/.server/llm/stream-text';
-import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { createMessage } from '~/lib/persistence/messageMigration';
@@ -34,9 +34,8 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
   const { message, model } = body;
   const providerName = body.provider.name;
 
-  const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromRequest(request, rawBody);
-  const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+  const providerSettings = getProviderSettingsFromRequest(request);
 
   if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
     return missingProviderKeyResponse(providerName);

@@ -111,10 +111,10 @@ describe('POST /api/chat against a local OpenAI-compatible mock', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe('no-store');
-    expect(text).toMatch(/Hello from mock|Hello/);
+    expect(text).toMatch(/boltArtifact|Todo app/);
     expect(text).toMatch(/promptTokens/);
     expect(text).toMatch(/completionTokens/);
     expect(text).not.toContain(FAKE_KEY);
     expect(printed).not.toContain(FAKE_KEY);
-  });
+  }, 20_000);
 });

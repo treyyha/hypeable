@@ -28,7 +28,7 @@ import { getWebResearchInstructions } from '~/lib/.server/llm/prompt-web-tools';
 import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
 import { streamText, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
-import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest } from '~/lib/api/request-keys';
 import { getAgentLoopInstructions, getAgentLoopProgress } from '~/lib/common/agentLoop';
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
@@ -91,9 +91,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const files = asFileMap(body.files);
   const designScheme = asDesignScheme(body.designScheme);
 
-  const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromRequest(request, rawBody);
-  const providerSettings: Record<string, IProviderSetting> = getProviderSettingsFromCookie(cookieHeader);
+  const providerSettings: Record<string, IProviderSetting> = getProviderSettingsFromRequest(request);
 
   /*
    * SwitchableStream is no longer used: its .switches counter was the only

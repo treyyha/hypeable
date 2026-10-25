@@ -46,6 +46,7 @@ describe('vitest project split', () => {
 
     expect(SHARED_EXCLUDE).toContain('**/tests/e2e/**');
     expect(SHARED_EXCLUDE).toContain('**/tests/preview/**');
+    expect(SHARED_EXCLUDE).toContain('**/e2e/**');
   });
 
   it('loads the DOM-free base setup in node and both layers in dom', () => {

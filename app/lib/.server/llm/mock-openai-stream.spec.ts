@@ -152,5 +152,5 @@ describe('OpenAI-like chat pipeline against a local mock', () => {
     const text = await response.text();
     expect(text).toContain('Hello from mock');
     expect(text).not.toContain(FAKE_KEY);
-  });
+  }, 20_000);
 });

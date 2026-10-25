@@ -14,7 +14,7 @@ import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel } from '~/lib/
 import { providerHasCredential } from '~/lib/.server/llm/credentials';
 import { toLlmCallResponse } from '~/lib/.server/llm/llmcall-response';
 import { streamText } from '~/lib/.server/llm/stream-text';
-import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { LLMManager } from '~/lib/modules/llm/manager';
@@ -103,9 +103,8 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
   const provider = asProviderInfo(body.provider);
   const { name: providerName } = provider;
 
-  const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromRequest(request, rawBody);
-  const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+  const providerSettings = getProviderSettingsFromRequest(request);
 
   if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
     return missingProviderKeyResponse(providerName);

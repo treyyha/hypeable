@@ -259,6 +259,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     }, [providerList, provider]);
 
     const onApiKeysChange = async (providerName: string, apiKey: string) => {
+      if ((apiKeys[providerName] || '') === apiKey) {
+        return;
+      }
+
       const newApiKeys = { ...apiKeys, [providerName]: apiKey };
       setApiKeys(newApiKeys);
       writeStoredApiKeys(newApiKeys, providerName);

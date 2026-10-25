@@ -13,6 +13,7 @@ import {
   setForgetKeysOnTabClose,
   writeStoredApiKeys,
 } from './api-key-storage';
+import { HYPEABLE_PROVIDERS_HEADER, PROVIDER_SETTINGS_STORAGE_KEY } from './provider-settings';
 
 const FAKE_KEY = 'sk-testkeytestkeytestkey12';
 
@@ -68,5 +69,39 @@ describe('api-key-storage', () => {
 
     expect(headers[HYPEABLE_KEY_HEADER]).toBe(encodeURIComponent(JSON.stringify({ OpenAI: FAKE_KEY })));
     expect(JSON.stringify(headers)).not.toContain('apiKeys');
+  });
+
+  it('does not dispatch bolt:api-keys-updated when the stored map is unchanged', () => {
+    writeStoredApiKeys({ OpenAI: FAKE_KEY });
+
+    let count = 0;
+
+    const onUpdate = () => {
+      count += 1;
+    };
+
+    window.addEventListener('bolt:api-keys-updated', onUpdate);
+
+    writeStoredApiKeys({ OpenAI: FAKE_KEY }, 'OpenAI');
+
+    window.removeEventListener('bolt:api-keys-updated', onUpdate);
+
+    expect(count).toBe(0);
+  });
+
+  it('puts OpenAILike base URL in x-hypeable-providers from localStorage', () => {
+    writeStoredApiKeys({ OpenAILike: FAKE_KEY });
+    window.localStorage.setItem(
+      PROVIDER_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        OpenAILike: { settings: { enabled: true, baseUrl: 'http://127.0.0.1:8787/v1' } },
+      }),
+    );
+
+    const headers = getLlmRequestHeaders();
+
+    expect(headers[HYPEABLE_PROVIDERS_HEADER]).toBe(
+      encodeURIComponent(JSON.stringify({ OpenAILike: { enabled: true, baseUrl: 'http://127.0.0.1:8787/v1' } })),
+    );
   });
 });

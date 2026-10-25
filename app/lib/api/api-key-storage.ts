@@ -7,6 +7,11 @@
  */
 import Cookies from 'js-cookie';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
+import {
+  encodeProviderSettingsHeader,
+  HYPEABLE_PROVIDERS_HEADER,
+  readClientProviderSettings,
+} from '~/lib/api/provider-settings';
 
 export const API_KEYS_STORAGE_KEY = 'hypeable_api_keys';
 export const API_KEYS_FORGET_KEY = 'hypeable_api_keys_forget';
@@ -84,9 +89,16 @@ export function writeStoredApiKeys(keys: Record<string, string>, providerName?: 
     }
   }
 
-  activeStore().setItem(API_KEYS_STORAGE_KEY, JSON.stringify(next));
+  const serialized = JSON.stringify(next);
+  const unchanged = activeStore().getItem(API_KEYS_STORAGE_KEY) === serialized;
+
+  activeStore().setItem(API_KEYS_STORAGE_KEY, serialized);
   inactiveStore().removeItem(API_KEYS_STORAGE_KEY);
   deleteLegacyApiKeysCookie();
+
+  if (unchanged) {
+    return;
+  }
 
   if (providerName) {
     window.dispatchEvent(
@@ -168,9 +180,19 @@ export function encodeApiKeysHeader(keys: Record<string, string>): string | unde
 }
 
 export function getLlmRequestHeaders(): Record<string, string> {
-  const value = encodeApiKeysHeader(readStoredApiKeys());
+  const headers: Record<string, string> = {};
+  const keyHeader = encodeApiKeysHeader(readStoredApiKeys());
+  const providersHeader = encodeProviderSettingsHeader(readClientProviderSettings());
 
-  return value ? { [HYPEABLE_KEY_HEADER]: value } : {};
+  if (keyHeader) {
+    headers[HYPEABLE_KEY_HEADER] = keyHeader;
+  }
+
+  if (providersHeader) {
+    headers[HYPEABLE_PROVIDERS_HEADER] = providersHeader;
+  }
+
+  return headers;
 }
 
 export function llmFetch(
@@ -180,9 +202,14 @@ export function llmFetch(
 ): Promise<Response> {
   const headers = new Headers(init?.headers);
   const keyHeader = encodeApiKeysHeader(keys);
+  const providersHeader = encodeProviderSettingsHeader(readClientProviderSettings());
 
   if (keyHeader) {
     headers.set(HYPEABLE_KEY_HEADER, keyHeader);
+  }
+
+  if (providersHeader) {
+    headers.set(HYPEABLE_PROVIDERS_HEADER, providersHeader);
   }
 
   return fetch(input, { ...init, headers });

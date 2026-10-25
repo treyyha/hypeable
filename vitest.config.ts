@@ -37,6 +37,7 @@ const DOM_TESTS = [
   // React rendering
   'app/routes.spec.tsx',
   'app/components/chat/Artifact.spec.tsx',
+  'app/components/chat/APIKeyManager.spec.tsx',
   'app/components/chat/ImportZipButton.spec.tsx',
   'app/components/loop/LoopBreakerPanel.spec.tsx',
   'app/components/plan/PlanCard.spec.tsx',
@@ -90,6 +91,8 @@ const EXCLUDE = [
   '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
   '**/tests/preview/**', // Exclude preview tests that require Playwright
   '**/tests/e2e/**', // Exclude e2e tests that require Playwright
+  '**/e2e/**', // Playwright smoke against workerd + mock OpenAI
+  '**/playwright.config*.ts',
   'app/components/chat/Markdown.spec.ts', // Exclude - imports cause issues with import.meta.hot
   'app/lib/stores/workbench.spec.ts', // Exclude - imports cause issues with import.meta.hot
 ];

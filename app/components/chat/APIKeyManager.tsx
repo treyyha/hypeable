@@ -34,10 +34,17 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
     const savedKey = savedKeys[provider.name] || '';
 
     setTempKey(savedKey);
-    setApiKey(savedKey);
     setIsEditing(false);
     setForgetOnClose(getForgetKeysOnTabClose());
-  }, [provider.name, setApiKey]);
+
+    /*
+     * Parent often passes an inline setApiKey. Including it in deps re-ran this
+     * effect every render, which retriggered /api/models until fetch failed.
+     */
+    if (savedKey !== apiKey) {
+      setApiKey(savedKey);
+    }
+  }, [provider.name]);
 
   const checkEnvApiKey = useCallback(async () => {
     if (providerEnvKeyStatusCache[provider.name] !== undefined) {

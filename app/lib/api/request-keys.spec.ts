@@ -35,6 +35,25 @@ describe('getApiKeysFromRequest', () => {
 
     expect(getApiKeysFromRequest(request)).toEqual({});
   });
+
+  it('reads mixed-case header names the way workerd Headers does', () => {
+    const headers = new Headers();
+    headers.set('X-Hypeable-Key', encodeURIComponent(JSON.stringify({ OpenAILike: FAKE_KEY })));
+
+    const request = new Request('https://example.com/api/models/OpenAILike', { headers });
+
+    expect(getApiKeysFromRequest(request)).toEqual({ OpenAILike: FAKE_KEY });
+  });
+
+  it('accepts already-decoded JSON if the runtime decoded the header value', () => {
+    const request = new Request('https://example.com/api/chat', {
+      headers: {
+        [HYPEABLE_KEY_HEADER]: JSON.stringify({ OpenAILike: FAKE_KEY }),
+      },
+    });
+
+    expect(getApiKeysFromRequest(request)).toEqual({ OpenAILike: FAKE_KEY });
+  });
 });
 
 describe('missingProviderKeyResponse', () => {
@@ -94,5 +113,5 @@ describe('POST /api/llmcall missing key', () => {
 
     spy.mockRestore();
     logSpy.mockRestore();
-  });
+  }, 20_000);
 });

@@ -19,14 +19,14 @@ Implementation: `app/lib/api/api-key-storage.ts`.
 
 ## Client → our server
 
-The key is sent **only** on LLM routes, per request, in `x-hypeable-key` (URI-encoded JSON `{ "OpenAI": "…" }`).
+The key is sent **only** on LLM routes, per request, in `x-hypeable-key` (URI-encoded JSON `{ "OpenAI": "…" }`). OpenAILike also needs its base URL on those same requests: `x-hypeable-providers` (URI-encoded JSON `{ "OpenAILike": { "enabled": true, "baseUrl": "http://127.0.0.1:8787/v1" } }`). The `providers` cookie is a fallback; it is written from a React effect and can miss the first `/api/models` fetch.
 
 | Route | Client | Header attached |
 |---|---|---|
-| `POST /api/chat` | `Chat.client.tsx` `DefaultChatTransport.headers` (~266) | `getLlmRequestHeaders()` |
-| `POST /api/llmcall` | (internal / programmatic) | same header |
+| `POST /api/chat` | `Chat.client.tsx` `DefaultChatTransport.headers` (~266) | `getLlmRequestHeaders()` (`x-hypeable-key` + `x-hypeable-providers`) |
+| `POST /api/llmcall` | (internal / programmatic) | same headers |
 | `POST /api/enhancer` | `usePromptEnhancer.ts` `llmFetch` (~33) | `llmFetch` |
-| `GET /api/models` and `GET /api/models/:provider` | `BaseChat.tsx` `llmFetch` (~220, ~245, ~266) | `llmFetch` |
+| `GET /api/models` and `GET /api/models/:provider` | `BaseChat.tsx` `llmFetch` (~220, ~245, ~266) | `llmFetch` — OpenAILike lists models only when **both** the key and the base URL are present |
 
 The chat JSON body no longer includes `apiKeys`. If a client still sends that field, `chatRequestSchema` drops it (`app/lib/.server/api/schemas.ts`).
 
@@ -34,7 +34,9 @@ The chat JSON body no longer includes `apiKeys`. If a client still sends that fi
 
 ## Server: used once, never persisted
 
-`getApiKeysFromRequest()` (`app/lib/api/request-keys.ts` ~51) reads `x-hypeable-key`, then a body `apiKeys` field. **It never reads the `apiKeys` cookie.**
+`getApiKeysFromRequest()` (`app/lib/api/request-keys.ts`) reads `x-hypeable-key`, then a body `apiKeys` field. **It never reads the `apiKeys` cookie.** Header lookup is case-insensitive and accepts either URI-encoded JSON or already-decoded JSON (workerd vs Node Headers).
+
+`getProviderSettingsFromRequest()` (`app/lib/api/provider-settings.ts`) reads `x-hypeable-providers`, then the `providers` cookie. OpenAILike's Settings tab and onboarding still persist the base URL in `localStorage` key `provider_settings`; `llmFetch` copies that onto the header at request time.
 
 Called from:
 

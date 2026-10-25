@@ -1,4 +1,4 @@
-import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
@@ -47,9 +47,8 @@ export async function loader({
 }): Promise<Response> {
   const llmManager = LLMManager.getInstance(context.cloudflare?.env);
 
-  const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromRequest(request);
-  const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+  const providerSettings = getProviderSettingsFromRequest(request);
   const enabledProviderNames = new URL(request.url).searchParams.get('providers')?.split(',').filter(Boolean);
 
   const { providers, defaultProvider } = getProviderInfo(llmManager);

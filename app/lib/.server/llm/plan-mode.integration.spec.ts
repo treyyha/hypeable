@@ -142,7 +142,7 @@ describe('plan mode against the mock OpenAI server', () => {
 
     const buildText = await buildResponse.text();
     expect(buildResponse.status).toBe(200);
-    expect(buildText).toMatch(/Hello from mock|Hello/);
+    expect(buildText).toMatch(/boltArtifact|Todo app/);
     expect(buildText).not.toContain('```hypeable-plan');
     expect(buildText).not.toContain(FAKE_KEY);
 

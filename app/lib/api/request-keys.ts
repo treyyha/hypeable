@@ -32,7 +32,46 @@ function asKeyMap(value: unknown): Record<string, string> {
   return out;
 }
 
-function parseHeaderPayload(raw: string): Record<string, string> {
+/**
+ * Workerd's Headers is case-insensitive for `get()`, but incoming values may
+ * already be URI-decoded (Node undici leaves the raw percent-encoding). Try
+ * JSON first, then decodeURIComponent. Scan entries if `get()` misses.
+ */
+export function getHeaderCaseInsensitive(headers: Headers, name: string): string | null {
+  const direct = headers.get(name);
+
+  if (direct) {
+    return direct;
+  }
+
+  const wanted = name.toLowerCase();
+
+  for (const [key, value] of headers.entries()) {
+    if (key.toLowerCase() === wanted && value) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+export function readEncodedJsonHeader(headers: Headers, name: string): unknown {
+  const raw = getHeaderCaseInsensitive(headers, name);
+
+  if (!raw) {
+    return undefined;
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    const parsed = safeJsonParse<unknown>(trimmed, undefined);
+
+    if (parsed !== undefined) {
+      return parsed;
+    }
+  }
+
   let decoded = raw;
 
   try {
@@ -41,7 +80,7 @@ function parseHeaderPayload(raw: string): Record<string, string> {
     decoded = raw;
   }
 
-  return asKeyMap(safeJsonParse<unknown>(decoded, {}));
+  return safeJsonParse<unknown>(decoded, undefined);
 }
 
 /**
@@ -49,14 +88,10 @@ function parseHeaderPayload(raw: string): Record<string, string> {
  * used to ride along with every same-origin fetch, including static assets.
  */
 export function getApiKeysFromRequest(request: Request, body?: unknown): Record<string, string> {
-  const header = request.headers.get(HYPEABLE_KEY_HEADER);
+  const fromHeader = asKeyMap(readEncodedJsonHeader(request.headers, HYPEABLE_KEY_HEADER));
 
-  if (header) {
-    const fromHeader = parseHeaderPayload(header);
-
-    if (Object.keys(fromHeader).length > 0) {
-      return fromHeader;
-    }
+  if (Object.keys(fromHeader).length > 0) {
+    return fromHeader;
   }
 
   if (body && typeof body === 'object' && body !== null && 'apiKeys' in body) {

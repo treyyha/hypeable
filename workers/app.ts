@@ -1,4 +1,5 @@
-import { createRequestHandler, RouterContextProvider, type ServerBuild } from 'react-router';
+import { createRequestHandler, type ServerBuild } from 'react-router';
+import { BoltRouterContext } from '../app/lib/cloudflare-context';
 
 declare global {
   interface CloudflareEnvironment extends Env {}
@@ -13,11 +14,14 @@ const requestHandler = createRequestHandler(
 
 export default {
   async fetch(request, env, ctx) {
-    const context = new RouterContextProvider() as RouterContextProvider & {
-      cloudflare: { env: Env; ctx: ExecutionContext };
-    };
-
-    context.cloudflare = { env, ctx };
+    /*
+     * Production edge always sets cf-connecting-ip. Local workerd / vite preview
+     * often leave it empty, and withSecurity then 503s every /api/chat because
+     * rate limiting has no trusted client IP. Electron already passes 127.0.0.1.
+     */
+    const cfIp = request.headers.get('cf-connecting-ip')?.trim();
+    const clientAddress = cfIp || '127.0.0.1';
+    const context = new BoltRouterContext({ env, ctx }, clientAddress);
 
     return requestHandler(request, context);
   },

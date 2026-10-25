@@ -38,7 +38,7 @@ export function parseCookies(cookieHeader: string | null) {
   return cookies;
 }
 
-export function getProviderSettingsFromCookie(cookieHeader: string | null): Record<string, any> {
+export function getProviderSettingsFromCookie(cookieHeader: string | null): Record<string, unknown> {
   const cookies = parseCookies(cookieHeader);
-  return safeJsonParse<Record<string, any>>(cookies.providers, {});
+  return safeJsonParse<Record<string, unknown>>(cookies.providers, {});
 }
