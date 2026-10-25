@@ -1,5 +1,7 @@
 # Hypeable
 
+![Hypeable home](docs/assets/screenshot.png)
+
 **Worth the hype.** A free, open-source AI app builder. Describe an app, watch it get built, publish it to your own Vercel or GitHub.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
