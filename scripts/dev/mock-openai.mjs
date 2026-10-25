@@ -41,6 +41,16 @@ function sendChatChunks(res) {
       choices: [{ index: 0, delta: {}, finish_reason: 'stop' }],
     })}\n\n`,
   );
+  res.write(
+    `data: ${JSON.stringify({
+      id: 'chatcmpl-mock',
+      object: 'chat.completion.chunk',
+      created: 1,
+      model: 'mock-model',
+      choices: [],
+      usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 },
+    })}\n\n`,
+  );
   res.write('data: [DONE]\n\n');
   res.end();
 }
