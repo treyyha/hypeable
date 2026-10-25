@@ -6,6 +6,14 @@
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 
+## Live cost meter
+
+The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too.
+
+Unknown models show tokens plus a prompt to set a price in Settings. Copy receipt produces a shareable line such as `Built with Hypeable: $0.42 | 38k tokens | claude-x, gpt-y | hypeable.dev`.
+
+Details: [docs/COST-METER.md](docs/COST-METER.md).
+
 ## Why Hypeable
 | Problem with typical AI builders | What Hypeable does |
 |---|---|
