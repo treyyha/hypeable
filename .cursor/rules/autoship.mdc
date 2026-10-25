@@ -8,3 +8,4 @@ alwaysApply: true
 - If the secret scan blocks a commit, fix the cause. Do not bypass it. If a real key was ever exposed, tell the user to rotate it.
 - Never read `.env*` files or print environment variables.
 - Keep commits small: one idea each.
+- After every push, run `gh run list --limit 1`, wait for that run to finish, and if CI is red, fix it before doing anything else.
