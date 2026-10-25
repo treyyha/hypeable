@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { checkRateLimit, createSecurityHeaders, withSecurity } from './security';
 
 describe('security middleware', () => {
@@ -157,6 +157,41 @@ describe('security middleware', () => {
       });
 
       expect(response.status).toBe(500);
+    });
+
+    it('does not echo headers, cookies, or a key when a handler throws', async () => {
+      const fakeKey = 'sk-testkeytestkeytestkey12';
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      const response = await withSecurity(
+        async () => {
+          throw new Error(`upstream 401 for ${fakeKey}`);
+        },
+        { allowedMethods: ['POST'] },
+      )({
+        request: new Request('https://example.com/api/llmcall', {
+          method: 'POST',
+          headers: {
+            Cookie: `apiKeys=${fakeKey}`,
+            'x-hypeable-key': fakeKey,
+          },
+        }),
+        context,
+        params: {},
+      } as never);
+
+      const body = (await response.json()) as { message: string };
+
+      expect(response.status).toBe(500);
+      expect(response.headers.get('Cache-Control')).toBe('no-store');
+      expect(JSON.stringify(body)).not.toContain(fakeKey);
+      expect(JSON.stringify(body)).not.toContain('x-hypeable-key');
+      expect(JSON.stringify(body)).not.toContain('apiKeys=');
+
+      const printed = spy.mock.calls.flat().map(String).join(' ');
+      expect(printed).not.toContain(fakeKey);
+
+      spy.mockRestore();
     });
 
     it('does not leak an unexpected error message to the client in production', async () => {

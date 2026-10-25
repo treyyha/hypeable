@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { safeJsonParse, parseCookies, getApiKeysFromCookie, getProviderSettingsFromCookie } from './cookies';
+import { safeJsonParse, parseCookies, getProviderSettingsFromCookie } from './cookies';
 
 describe('cookies utilities', () => {
   describe('safeJsonParse', () => {
@@ -40,19 +40,6 @@ describe('cookies utilities', () => {
       expect(cookies.user).toBe('✓');
       expect(cookies.regular).toBe('hello');
       expect(cookies.malformed).toBeDefined();
-    });
-  });
-
-  describe('getApiKeysFromCookie', () => {
-    it('extracts and parses valid apiKeys cookie', () => {
-      const header = 'apiKeys=%7B%22OpenAI%22%3A%22sk-test123%22%7D';
-      const keys = getApiKeysFromCookie(header);
-      expect(keys).toEqual({ OpenAI: 'sk-test123' });
-    });
-
-    it('returns empty object if apiKeys cookie is missing or malformed', () => {
-      expect(getApiKeysFromCookie(null)).toEqual({});
-      expect(getApiKeysFromCookie('apiKeys=corrupted_non_json')).toEqual({});
     });
   });
 
