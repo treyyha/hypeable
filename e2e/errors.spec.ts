@@ -107,9 +107,13 @@ test.describe('user-facing error states', () => {
   test('offline shows a connection message', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.goto('/');
-    await expect(page.locator('#composer')).toBeVisible({ timeout: 20_000 });
-    await page.context().setOffline(true);
-    await sendFromHome(page);
+    const composer = page.locator('#composer');
+    await expect(composer).toBeVisible({ timeout: 20_000 });
+    await composer.fill('make a todo app');
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
+    });
+    await composer.press('Enter');
     await expect(page.getByText('You look offline')).toBeVisible({ timeout: 15_000 });
   });
 

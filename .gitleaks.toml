@@ -1,0 +1,7 @@
+title = "Hypeable"
+
+[allowlist]
+description = "Fake connector tokens in unit tests, never real credentials"
+paths = [
+  '''(^|/)app/lib/security/redact\.spec\.ts$''',
+]

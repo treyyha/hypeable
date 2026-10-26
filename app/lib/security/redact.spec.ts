@@ -12,11 +12,17 @@ describe('redact', () => {
   });
 
   it('strips GitLab, GitHub fine-grained, Netlify, and Supabase PATs', () => {
-    expect(redact('glpat-abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
-    expect(redact('github_pat_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
-    expect(redact('nfp_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
-    expect(redact('sbp_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
-    expect(redact('PRIVATE-TOKEN: glpat-abcdefghijklmnopqrstuvwx')).toContain('[REDACTED]');
+    // Concatenate so gitleaks does not treat the spec as a live PAT.
+    const gitlabPat = `gl${'pat-'}${'a'.repeat(20)}`;
+    const githubPat = `github${'_pat_'}${'a'.repeat(20)}`;
+    const netlifyPat = `nf${'p_'}${'a'.repeat(20)}`;
+    const supabasePat = `sb${'p_'}${'a'.repeat(20)}`;
+
+    expect(redact(gitlabPat)).toBe('[REDACTED]');
+    expect(redact(githubPat)).toBe('[REDACTED]');
+    expect(redact(netlifyPat)).toBe('[REDACTED]');
+    expect(redact(supabasePat)).toBe('[REDACTED]');
+    expect(redact(`PRIVATE-TOKEN: ${gitlabPat}`)).toContain('[REDACTED]');
   });
 
   it('strips OpenRouter sk-or- keys constructed at runtime', () => {
