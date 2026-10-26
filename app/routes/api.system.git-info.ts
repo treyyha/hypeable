@@ -70,8 +70,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
     return blocked;
   }
 
-  console.log('Git info API called with URL:', request.url);
-
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
     return new Response(null, {

@@ -67,8 +67,7 @@ async function gitlabBranchesLoader({ request, context }: ActionFunctionArgs) {
         return Response.json({ error: 'Project not found or no access' }, { status: 404 });
       }
 
-      const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('GitLab API error:', response.status, errorText);
+      console.error('GitLab API error:', response.status);
 
       return Response.json(
         {

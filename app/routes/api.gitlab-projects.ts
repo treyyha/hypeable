@@ -55,8 +55,7 @@ async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
         return Response.json({ error: 'Invalid GitLab token' }, { status: 401 });
       }
 
-      const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('GitLab API error:', response.status, errorText);
+      console.error('GitLab API error:', response.status);
 
       return Response.json(
         {

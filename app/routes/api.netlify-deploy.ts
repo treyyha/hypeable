@@ -218,7 +218,7 @@ export async function action({ request }: ActionFunctionArgs) {
               uploadSuccess = uploadResponse.ok;
 
               if (!uploadSuccess) {
-                console.error('Upload failed:', await uploadResponse.text());
+                console.error('Upload failed:', uploadResponse.status);
                 uploadRetries++;
                 await new Promise((resolve) => setTimeout(resolve, 2000));
               }

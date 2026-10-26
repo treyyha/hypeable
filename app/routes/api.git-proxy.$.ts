@@ -96,8 +96,6 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
       return Response.json({ error: 'Invalid path format' }, { status: 400 });
     }
 
-    console.log('Target URL:', targetURL);
-
     // Filter and prepare headers
     const headers = new Headers();
 
@@ -115,8 +113,6 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
     if (!headers.has('user-agent') || !headers.get('user-agent')?.startsWith('git/')) {
       headers.set('User-Agent', 'git/@isomorphic-git/cors-proxy');
     }
-
-    console.log('Proxying', request.method, domain);
 
     /*
      * `duplex` is required by undici/Node when streaming a request body, but it is
@@ -139,8 +135,6 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
 
     // Forward the request to the target URL
     const response = await fetch(targetURL, fetchOptions);
-
-    console.log('Response status:', response.status);
 
     // Create response headers
     const responseHeaders = new Headers();
@@ -168,8 +162,6 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
       responseHeaders.set('x-redirected-url', response.url);
     }
 
-    console.log('Response headers:', Object.fromEntries(responseHeaders.entries()));
-
     let body: ReadableStream<Uint8Array> | null = response.body;
 
     if (hosted && body) {
@@ -188,7 +180,7 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('Proxy error');
     return Response.json(
       {
         error: 'Proxy error',

@@ -16,7 +16,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const { projectId, query } = (await request.json()) as any;
-    logger.debug('Executing query:', { projectId, query });
 
     const response = await fetch(`https://api.supabase.com/v1/projects/${projectId}/database/query`, {
       method: 'POST',
@@ -34,19 +33,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
       try {
         errorData = JSON.parse(errorText);
-      } catch (e) {
-        console.log(e);
-        errorData = { message: errorText };
+      } catch {
+        errorData = { message: 'Unparseable error' };
       }
 
-      logger.error(
-        'Supabase API error:',
-        JSON.stringify({
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        }),
-      );
+      logger.error('Supabase API error:', response.status);
 
       return new Response(
         JSON.stringify({

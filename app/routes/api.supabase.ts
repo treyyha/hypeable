@@ -17,8 +17,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     if (!projectsResponse.ok) {
-      const errorText = await projectsResponse.text();
-      console.error('Projects fetch failed:', errorText);
+      console.error('Projects fetch failed:', projectsResponse.status);
 
       return Response.json({ error: 'Failed to fetch projects' }, { status: 401 });
     }

@@ -7,13 +7,16 @@ The public site (`hypeable.dev`) is a **stateless** Hypeable: users bring their 
 A request is **hosted** when **any** of these is true, unless the operator sets `HYPEABLE_SELF_HOSTED=1`:
 
 1. `HYPEABLE_HOSTED=1` (Cloudflare env or process env)
-2. The request `Host` is **not** loopback / `localhost` / RFC1918 / link-local / `*.local`
+2. The request URL's own host is **not** loopback / `localhost` / RFC1918 / link-local / `*.local`
+3. That host is **missing, empty, or unparseable** (fail closed)
+
+Host comes from `request.url` only. `Host`, `X-Forwarded-Host`, `Forwarded`, and similar headers are ignored — they are caller-controlled.
 
 Local `pnpm dev`, Playwright, and Electron stay open: they hit `localhost` / `127.0.0.1` and do not set the env. A forgotten env var on the public hostname still locks custom endpoints.
 
 Set `HYPEABLE_SELF_HOSTED=1` only if you run Hypeable on a public hostname and **want** Ollama / custom URLs / MCP.
 
-| Capability | Hosted (public Host or `HYPEABLE_HOSTED=1`) | Local / `HYPEABLE_SELF_HOSTED=1` |
+| Capability | Hosted (public/missing Host or `HYPEABLE_HOSTED=1`) | Local / `HYPEABLE_SELF_HOSTED=1` |
 |---|---|---|
 | First-party providers (OpenAI, Anthropic, Google, OpenRouter, Groq, DeepSeek, Mistral, xAI, Together, Perplexity, Cohere, Hugging Face, Fireworks, Cerebras, Amazon Bedrock, GitHub Models, Moonshot, Hyperbolic, Z.ai) | Yes, BYO key in the browser | Yes |
 | Custom OpenAI-compatible base URL, Ollama, LM Studio | Rejected: "Run Hypeable locally to use custom endpoints" | Yes |
@@ -30,6 +33,24 @@ After a deploy: `npm run smoke:live -- https://hypeable.dev`
 ## Primary path: Cloudflare Worker via Workers Builds
 
 `wrangler.jsonc` is the source of truth (`name`: `hypeable`, `main`: `./workers/app.ts`). The Vite Cloudflare plugin emits static assets from `build/client`. There are no secrets in `wrangler.jsonc`.
+
+`workers_dev` is **true** so deploys keep the `*.workers.dev` test URL. `preview_urls` is **false**.
+
+TODO: turn `workers_dev` off once `hypeable.dev` is live and verified.
+
+## Observability and logs (never stored or logged)
+
+The privacy claim is that the BYO key is never stored or logged. Cloudflare Workers observability can persist **invocation logs** that include request metadata (URL, method, headers on some plans). Our key travels in `x-hypeable-key`. Production `wrangler.jsonc` therefore sets:
+
+- `observability.enabled`: `false`
+- `observability.traces.enabled`: `false`
+- `observability.logs.enabled`: `false` (no invocation logs, not persisted)
+
+Temporarily debug a live Worker with `npx wrangler tail` (stream to your terminal only; do not leave it running; do not paste tail output that might contain headers). Turn it off when you are done.
+
+Server `console.*` is wrapped by `installSafeConsole()` (`app/lib/security/redact.ts`). Still: **do not log headers, bodies, or cookies.** Status codes and generic error names are fine. If a real key ever appears in a log, rotate it.
+
+### Dashboard steps
 
 1. Open [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages).
 2. **Create** → **Workers** → **Import a repository** / **Connect to Git**.
