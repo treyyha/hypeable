@@ -44,6 +44,7 @@ const DOM_TESTS = [
   'app/components/spend/SpendView.spec.tsx',
   'app/components/predeploy/PredeployModal.spec.tsx',
   'app/components/plan/PlanFirstChip.spec.tsx',
+  'app/components/ui/BrandFooter.spec.tsx',
   'app/components/workbench/WorkbenchReopenButton.spec.tsx',
   'app/lib/hooks/useMessageParser.spec.ts',
   'app/lib/persistence/useChatHistory.spec.tsx',

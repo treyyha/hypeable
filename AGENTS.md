@@ -57,6 +57,7 @@ Times are local (Windows) after this speed pass. CI still runs gitleaks, typeche
 | `pnpm test` | Full unit suite. CI only, unless you need the whole picture. | ~33s |
 | `pnpm build` | Production build | ~34s |
 | `pnpm e2e` | Playwright smoke. Locally only if you touched routes, chat, or shell UI. | ~60s |
+| `npm run smoke:live -- <url> [--expect-commit <sha>]` | Live deploy checks. With `--expect-commit`, poll `/api/health` up to 5 minutes until `commit` matches, then run the rest. | |
 
 ## Git hooks
 Husky (`.husky/`) is the only hook system. `pnpm install` sets `core.hooksPath` to `.husky/_`. Do not set `core.hooksPath` yourself.

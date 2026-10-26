@@ -23,12 +23,20 @@ Set `HYPEABLE_SELF_HOSTED=1` only if you run Hypeable on a public hostname and *
 | Git proxy | `github.com` / `gitlab.com` (and GitHub raw/codeload hosts), git smart-HTTP only | Open (same as today) |
 | MCP, bug-report, update, `/api/system/*`, `/api/git-info`, `/api/check-env-key`, `/api/configured-providers` | 404 | Yes |
 | `/api/export-api-keys` | 410 (keys are browser-only) | 410 |
-| `/api/health` | `{ ok: true, hosted: true }` | `{ ok: true, hosted: false }` |
+| `/api/health` | `{ ok: true, hosted: true, commit }` | `{ ok: true, hosted: false, commit }` |
 | WebContainer preview | Yes | Yes |
 
 No secrets are required on the public deployment. Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser and are sent over HTTPS for the request, never stored or logged.
 
-After a deploy: `npm run smoke:live -- https://hypeable.dev`
+After a deploy, wait until the Worker is serving this commit:
+
+```bash
+npm run smoke:live -- https://hypeable.gentle-scene-0c4c.workers.dev --expect-commit $(git rev-parse HEAD)
+```
+
+`commit` is the SHA baked in at build time (`WORKERS_CI_COMMIT_SHA` from Workers Builds, else `git rev-parse HEAD`). You do not add that variable in the dashboard. The home footer shows `v0.1.0 . abc1234` and links to that commit on GitHub.
+
+Once `hypeable.dev` is verified, run the same command against `https://hypeable.dev`.
 
 ## Primary path: Cloudflare Worker via Workers Builds
 

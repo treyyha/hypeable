@@ -2,10 +2,12 @@
 /*
  * Live smoke against a deployed Hypeable. Exit 1 on any failure.
  *   npm run smoke:live -- https://hypeable.dev
+ *   npm run smoke:live -- https://hypeable.dev --expect-commit <sha>
  */
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseSmokeLiveArgs, waitForCommit } from './smoke-live-lib.mjs';
 
 const CUSTOM = 'Run Hypeable locally to use custom endpoints';
 
@@ -25,14 +27,23 @@ const catalog = JSON.parse(
 
 const KEY_PATTERNS = catalog.patterns.map((row) => new RegExp(row.source, row.flags || ''));
 
-const target = process.argv[2];
+const { url: target, expectCommit } = parseSmokeLiveArgs(process.argv.slice(2));
 
 if (!target) {
-  console.error('usage: npm run smoke:live -- <url>');
+  console.error('usage: npm run smoke:live -- <url> [--expect-commit <sha>]');
   process.exit(2);
 }
 
 const origin = new URL(target).origin;
+
+if (expectCommit) {
+  try {
+    await waitForCommit({ origin, expected: expectCommit });
+  } catch (error) {
+    console.error('FAIL  ' + (error instanceof Error ? error.message : String(error)));
+    process.exit(1);
+  }
+}
 
 let failed = 0;
 
@@ -97,6 +108,54 @@ if (!headers.get('content-security-policy-report-only')) {
   fail('missing Content-Security-Policy-Report-Only');
 } else {
   pass('CSP-Report-Only present');
+}
+
+const robots = await get('/robots.txt');
+
+if (robots.response.status !== 200 || !robots.text.includes('Disallow: /api/')) {
+  fail(`/robots.txt → ${robots.response.status} ${robots.text.slice(0, 80)}`);
+} else {
+  pass('robots.txt disallows /api/');
+}
+
+const sitemap = await get('/sitemap.xml');
+
+if (sitemap.response.status !== 200 || !sitemap.text.includes('https://hypeable.dev/')) {
+  fail(`/sitemap.xml → ${sitemap.response.status}`);
+} else {
+  pass('sitemap.xml lists the home page');
+}
+
+const llms = await get('/llms.txt');
+
+if (llms.response.status !== 200 || !llms.text.toLowerCase().includes('hypeable')) {
+  fail(`/llms.txt → ${llms.response.status}`);
+} else {
+  pass('llms.txt is present');
+}
+
+const og = await get('/og.png');
+
+if (og.response.status !== 200 || !(og.response.headers.get('content-type') || '').includes('image/png')) {
+  fail(`/og.png → ${og.response.status} ${og.response.headers.get('content-type')}`);
+} else {
+  pass('og.png is a PNG');
+}
+
+const manifest = await get('/site.webmanifest');
+
+if (manifest.response.status !== 200 || !manifest.text.includes('Hypeable')) {
+  fail(`/site.webmanifest → ${manifest.response.status}`);
+} else {
+  pass('site.webmanifest is present');
+}
+
+const favicon = await get('/favicon.svg');
+
+if (favicon.response.status !== 200) {
+  fail(`/favicon.svg → ${favicon.response.status}`);
+} else {
+  pass('favicon.svg is present');
 }
 
 for (const path of DISABLED) {
@@ -181,9 +240,11 @@ try {
 }
 
 if (!healthJson || healthJson.ok !== true || healthJson.hosted !== true) {
-  fail(`/api/health → ${health.text.slice(0, 160)}, expected {ok:true,hosted:true}`);
+  fail(`/api/health → ${health.text.slice(0, 160)}, expected {ok:true,hosted:true,commit}`);
+} else if (typeof healthJson.commit !== 'string' || !healthJson.commit) {
+  fail(`/api/health missing commit: ${health.text.slice(0, 160)}`);
 } else {
-  pass('/api/health says hosted:true');
+  pass(`/api/health says hosted:true commit=${healthJson.commit.slice(0, 7)}`);
 }
 
 for (const { path, text } of bodies) {

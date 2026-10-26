@@ -1,10 +1,20 @@
 import { cloudflare } from '@cloudflare/vite-plugin';
 import { reactRouter } from '@react-router/dev/vite';
 import * as dotenv from 'dotenv';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
+import { resolveCommitSha } from './scripts/resolve-commit-sha.ts';
 import { browserPolyfills } from './scripts/vite/browser-polyfills.ts';
+
+const packageJson = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'package.json'), 'utf8'),
+) as { version?: string };
+const BUILD_COMMIT_SHA = resolveCommitSha();
+const BUILD_APP_VERSION = packageJson.version ?? '0.0.0';
 
 /*
  * Prevent miniflare from making an external network request to workers.cloudflare.com
@@ -22,6 +32,10 @@ export default defineConfig((config) => {
 
       // Ensure process.cwd is defined as a function for path-browserify compatibility
       'process.cwd': '() => "/"',
+
+      // Full SHA for /api/health and the footer "verify it in the code" link.
+      __COMMIT_SHA: JSON.stringify(BUILD_COMMIT_SHA),
+      __APP_VERSION: JSON.stringify(BUILD_APP_VERSION),
     },
     resolve: {
       tsconfigPaths: true,

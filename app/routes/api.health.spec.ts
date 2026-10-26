@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { loader } from './api.health';
 
+type HealthBody = { ok: boolean; hosted: boolean; commit: string };
+
+async function healthJson(response: Response): Promise<HealthBody> {
+  return (await response.json()) as HealthBody;
+}
+
 const originalHosted = process.env.HYPEABLE_HOSTED;
 const originalSelf = process.env.HYPEABLE_SELF_HOSTED;
 
@@ -29,9 +35,11 @@ describe('GET /api/health', () => {
       context: {},
     } as never);
 
-    const body = await response.json();
+    const body = await healthJson(response);
 
-    expect(body).toEqual({ ok: true, hosted: true });
+    expect(body).toMatchObject({ ok: true, hosted: true });
+    expect(typeof body.commit).toBe('string');
+    expect(body.commit.length).toBeGreaterThan(0);
   });
 
   it('reports hosted:false on loopback without env', async () => {
@@ -44,9 +52,10 @@ describe('GET /api/health', () => {
       context: { hostname: 'localhost' },
     } as never);
 
-    const body = await response.json();
+    const body = await healthJson(response);
 
-    expect(body).toEqual({ ok: true, hosted: false });
+    expect(body).toMatchObject({ ok: true, hosted: false });
+    expect(typeof body.commit).toBe('string');
   });
 
   it('reports hosted:true on a public Host even without env', async () => {
@@ -59,9 +68,9 @@ describe('GET /api/health', () => {
       context: { hostname: 'hypeable.dev' },
     } as never);
 
-    const body = await response.json();
+    const body = await healthJson(response);
 
-    expect(body).toEqual({ ok: true, hosted: true });
+    expect(body).toMatchObject({ ok: true, hosted: true });
   });
 
   it('reports hosted:true when HYPEABLE_HOSTED=1 on localhost', async () => {
@@ -74,9 +83,9 @@ describe('GET /api/health', () => {
       context: { hostname: 'localhost', cloudflare: { env: { HYPEABLE_HOSTED: '1' } } },
     } as never);
 
-    const body = await response.json();
+    const body = await healthJson(response);
 
-    expect(body).toEqual({ ok: true, hosted: true });
+    expect(body).toMatchObject({ ok: true, hosted: true });
   });
 
   it('reports hosted:false when HYPEABLE_SELF_HOSTED=1 on a public Host', async () => {
@@ -92,8 +101,8 @@ describe('GET /api/health', () => {
       },
     } as never);
 
-    const body = await response.json();
+    const body = await healthJson(response);
 
-    expect(body).toEqual({ ok: true, hosted: false });
+    expect(body).toMatchObject({ ok: true, hosted: false });
   });
 });
