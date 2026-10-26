@@ -1,40 +1,32 @@
 import { useStore } from '@nanostores/react';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import React from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { APIKeyManager } from './APIKeyManager';
 import { AttachmentMenu } from './AttachmentMenu';
 import FilePreview from './FilePreview';
 import { McpTools } from './MCPTools';
+import { ModelKeyPopover } from './ModelKeyPopover';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { SendButton } from './SendButton.client';
 import { SupabaseConnection } from './SupabaseConnection';
-import { ToolAccessMenu } from './ToolAccessMenu';
-import { ModelSelector } from '~/components/chat/ModelSelector';
-import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { PlanFirstChip } from '~/components/plan/PlanFirstChip';
 import { Chip } from '~/components/ui/Chip';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
-import { IconButton } from '~/components/ui/IconButton';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { formatDollars } from '~/lib/cost/calc';
 import { estimateRequestCost } from '~/lib/stores/cost';
 import { isGitHubConnected } from '~/lib/stores/githubConnection';
 import { isGitLabConnected } from '~/lib/stores/gitlabConnection';
+import { OPEN_MODEL_PICKER_EVENT } from '~/lib/stores/loop';
 import { useMCPStore, type ConnectorId } from '~/lib/stores/mcp';
 import { netlifyConnection } from '~/lib/stores/netlify';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { vercelConnection } from '~/lib/stores/vercel';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
 
 interface ChatBoxProps {
-  isModelSettingsCollapsed: boolean;
-  setIsModelSettingsCollapsed: (collapsed: boolean) => void;
   provider: any;
   providerList: any[];
   modelList: any[];
@@ -160,38 +152,40 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
     supabaseConnected,
   ]);
 
+  const [modelKeyOpen, setModelKeyOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const onOpenPicker = (event: Event) => {
+      const detail = (event as CustomEvent<{ model?: string; provider?: string }>).detail ?? {};
+      setModelKeyOpen(true);
+
+      if (detail.model) {
+        props.setModel?.(detail.model);
+      }
+
+      if (detail.provider) {
+        const match = (props.providerList || []).find((entry: ProviderInfo) => entry.name === detail.provider);
+
+        if (match) {
+          props.setProvider?.(match);
+        }
+      }
+    };
+
+    window.addEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
+
+    return () => window.removeEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
+  }, [props.providerList, props.setModel, props.setProvider]);
+
+  const canSend = props.input.length > 0 || props.uploadedFiles.length > 0;
+
   return (
-    <div className={classNames('hype-composer relative w-full max-w-chat mx-auto z-prompt p-3')}>
-      <div>
-        <ClientOnly>
-          {() => (
-            <div className={props.isModelSettingsCollapsed ? 'hidden' : ''}>
-              <ModelSelector
-                key={props.provider?.name}
-                model={props.model}
-                setModel={props.setModel}
-                modelList={props.modelList}
-                provider={props.provider}
-                setProvider={props.setProvider}
-                providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
-                apiKeys={props.apiKeys}
-                modelLoading={props.isModelLoading}
-              />
-              {(props.providerList || []).length > 0 &&
-                props.provider &&
-                (props.provider.name === 'OpenAILike' || !LOCAL_PROVIDERS.includes(props.provider.name)) && (
-                  <APIKeyManager
-                    provider={props.provider}
-                    apiKey={props.apiKeys[props.provider.name] || ''}
-                    setApiKey={(key) => {
-                      props.onApiKeysChange(props.provider.name, key);
-                    }}
-                  />
-                )}
-            </div>
-          )}
-        </ClientOnly>
-      </div>
+    <div
+      className={classNames(
+        'hype-composer relative z-[1] mx-auto w-full p-3',
+        props.chatStarted ? 'max-w-chat' : 'max-w-[520px]',
+      )}
+    >
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
@@ -226,15 +220,12 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </button>
         </div>
       )}
-      <div
-        className={classNames('relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg')}
-      >
+      <div className="relative">
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
             'transition-all duration-200',
-            'hover:border-bolt-elements-focus',
           )}
           onDragEnter={(e) => {
             e.preventDefault();
@@ -301,171 +292,87 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           }
           translate="no"
         />
-        <ClientOnly>
-          {() => (
-            <SendButton
-              show={props.input.length > 0 || props.isStreaming || props.uploadedFiles.length > 0}
-              isStreaming={props.isStreaming}
-              disabled={!props.providerList || props.providerList.length === 0}
-              onClick={(event) => {
-                if (props.isStreaming) {
-                  props.handleStop?.();
-                  return;
-                }
-
-                if (props.input.length > 0 || props.uploadedFiles.length > 0) {
-                  props.handleSendMessage?.(event);
-                }
-              }}
-            />
-          )}
-        </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-4 pt-2">
-          <div className="flex gap-1 items-center">
-            <ClientOnly>
-              {() => (
-                <AttachmentMenu
-                  onAttachFile={() => props.handleFileUpload()} // Opens image file picker (image/* only)
-                  onOpenDesignDialog={() => {
-                    /*
-                     * Trigger the design dialog by programmatically clicking the hidden button
-                     * This is a workaround since ColorSchemeDialog manages its own state
-                     */
-                    const designButton = document.querySelector('[title="Design Palette"]') as HTMLButtonElement;
-                    designButton?.click();
-                  }}
-                  onEnhancePrompt={() => {
-                    props.enhancePrompt?.();
-                  }}
-                  connectors={connectors}
-                  onConnectorEnabledChange={setConnectorEnabled}
-                  onOpenMcpTools={() => setIsMcpToolsOpen(true)}
-                  mcpToolsInitialized={mcpToolsInitialized}
-                  webSearchEnabled={mcpSettings.webSearchEnabled}
-                  onWebSearchEnabledChange={setWebSearchEnabled}
-                  enhancingPrompt={props.enhancingPrompt}
-                  isEnhanceDisabled={props.input.length === 0 || props.enhancingPrompt}
-                />
-              )}
-            </ClientOnly>
-            <ClientOnly>{() => <ToolAccessMenu />}</ClientOnly>
-            {/* Hidden components for programmatic access from menu */}
-            <div className="hidden">
-              <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-              <SupabaseConnection />
-            </div>
-            <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button
-                  type="button"
-                  title={props.chatMode === 'discuss' ? 'Discuss Mode' : 'Agent Mode'}
-                  className={classNames(
-                    'transition-all flex items-center gap-1 rounded-md px-1.5 py-1 text-xs',
-                    props.chatMode === 'discuss'
-                      ? 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent'
-                      : props.agentMode
-                        ? 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent'
-                        : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault hover:bg-bolt-elements-item-backgroundActive',
-                  )}
-                >
-                  {props.chatMode === 'discuss' ? (
-                    <>
-                      <div className="i-ph:chats text-lg" />
-                      <span>Discuss</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="i-ph:robot text-lg" />
-                      <span>Agent</span>
-                    </>
-                  )}
-                  <div className="i-ph:caret-down text-sm" />
-                </button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  className={classNames(
-                    'min-w-[160px] rounded-lg p-1',
-                    'bg-bolt-elements-background-depth-2',
-                    'border border-bolt-elements-borderColor',
-                    'shadow-lg',
-                    'z-50',
-                  )}
-                  sideOffset={5}
-                  align="start"
-                >
-                  <DropdownMenu.Item
-                    className={classNames(
-                      'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer',
-                      'text-bolt-elements-textPrimary',
-                      'hover:bg-bolt-elements-item-backgroundActive',
-                      'focus:outline-none',
-                      props.chatMode === 'build' && props.agentMode && 'bg-bolt-elements-item-backgroundAccent',
-                    )}
-                    onSelect={() => {
-                      props.setChatMode?.('build');
-                      props.setAgentMode?.(true);
-                    }}
-                  >
-                    <div className="i-ph:robot text-lg" />
-                    <div className="flex flex-col">
-                      <span>Agent</span>
-                      <span className="text-xs text-bolt-elements-textSecondary">Plans & uses tools</span>
-                    </div>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    className={classNames(
-                      'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer',
-                      'text-bolt-elements-textPrimary',
-                      'hover:bg-bolt-elements-item-backgroundActive',
-                      'focus:outline-none',
-                      props.chatMode === 'discuss' && 'bg-bolt-elements-item-backgroundAccent',
-                    )}
-                    onSelect={() => {
-                      props.setChatMode?.('discuss');
-                      props.setAgentMode?.(false);
-                    }}
-                  >
-                    <div className="i-ph:chats text-lg" />
-                    <div className="flex flex-col">
-                      <span>Discuss</span>
-                      <span className="text-xs text-bolt-elements-textSecondary">Chat without tools</span>
-                    </div>
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-            <PlanFirstChip chatMode={props.chatMode} />
+        <div className="flex items-center gap-1.5 pt-1">
+          <ClientOnly>
+            {() => (
+              <AttachmentMenu
+                onAttachFile={() => props.handleFileUpload()}
+                onOpenDesignDialog={() => {
+                  const designButton = document.querySelector('[title="Design Palette"]') as HTMLButtonElement;
+                  designButton?.click();
+                }}
+                onEnhancePrompt={() => {
+                  props.enhancePrompt?.();
+                }}
+                connectors={connectors}
+                onConnectorEnabledChange={setConnectorEnabled}
+                onOpenMcpTools={() => setIsMcpToolsOpen(true)}
+                mcpToolsInitialized={mcpToolsInitialized}
+                webSearchEnabled={mcpSettings.webSearchEnabled}
+                onWebSearchEnabledChange={setWebSearchEnabled}
+                enhancingPrompt={props.enhancingPrompt}
+                isEnhanceDisabled={props.input.length === 0 || props.enhancingPrompt}
+                isListening={props.isListening}
+                onToggleListening={() => {
+                  if (props.isListening) {
+                    props.stopListening();
+                  } else {
+                    props.startListening();
+                  }
+                }}
+                micDisabled={props.isStreaming}
+                chatMode={props.chatMode}
+                agentMode={props.agentMode}
+                setChatMode={props.setChatMode}
+                setAgentMode={props.setAgentMode}
+              />
+            )}
+          </ClientOnly>
+          <div className="hidden">
+            <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
+            <SupabaseConnection />
+          </div>
+          <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
+          <PlanFirstChip chatMode={props.chatMode} />
+          <ClientOnly>
+            {() => (
+              <ModelKeyPopover
+                open={modelKeyOpen}
+                onOpenChange={setModelKeyOpen}
+                provider={props.provider}
+                providerList={props.providerList}
+                model={props.model}
+                modelList={props.modelList}
+                apiKeys={props.apiKeys}
+                isModelLoading={props.isModelLoading}
+                setProvider={props.setProvider}
+                setModel={props.setModel}
+                onApiKeysChange={props.onApiKeysChange}
+              />
+            )}
+          </ClientOnly>
+          <div className="ml-auto flex min-w-0 items-center gap-1.5">
             {!props.chatStarted && props.model ? (
               <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />
             ) : null}
-            <SpeechRecognitionButton
-              isListening={props.isListening}
-              onStart={props.startListening}
-              onStop={props.stopListening}
-              disabled={props.isStreaming}
-            />
-            <IconButton
-              title="Model Settings"
-              className={classNames('transition-all flex items-center gap-1', {
-                'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
-                  props.isModelSettingsCollapsed,
-                'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
-                  !props.isModelSettingsCollapsed,
-              })}
-              onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
-              disabled={!props.providerList || props.providerList.length === 0}
-            >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-              {props.isModelSettingsCollapsed ? (
-                <span className="text-xs" title={props.model}>
-                  {props.model && props.model.length > 25 ? `${props.model.slice(0, 22)}...` : props.model}
-                </span>
-              ) : (
-                <span />
+            <ClientOnly>
+              {() => (
+                <SendButton
+                  isStreaming={props.isStreaming}
+                  disabled={(!canSend && !props.isStreaming) || !props.providerList || props.providerList.length === 0}
+                  onClick={(event) => {
+                    if (props.isStreaming) {
+                      props.handleStop?.();
+                      return;
+                    }
+
+                    if (canSend) {
+                      props.handleSendMessage?.(event);
+                    }
+                  }}
+                />
               )}
-            </IconButton>
+            </ClientOnly>
           </div>
           <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
         </div>

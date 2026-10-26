@@ -16,16 +16,14 @@ const EXAMPLE_PROMPTS = [
  * @param sendMessage - Optional callback function to send a message when a prompt is clicked
  * @returns React component displaying example prompt buttons
  */
-export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined }) {
+export function ExamplePrompts(
+  sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined },
+  limit = 4,
+) {
   return (
-    <div id="examples" className="relative flex flex-col gap-9 w-full max-w-3xl mx-auto flex justify-center mt-6">
-      <div
-        className="flex flex-wrap justify-center gap-2"
-        style={{
-          animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
-        }}
-      >
-        {EXAMPLE_PROMPTS.map((examplePrompt, index: number) => {
+    <div id="examples" className="relative mx-auto mt-4 flex w-full max-w-[520px] justify-center">
+      <div className="flex flex-nowrap justify-center gap-2 overflow-x-auto px-1">
+        {EXAMPLE_PROMPTS.slice(0, limit).map((examplePrompt, index: number) => {
           return (
             <button
               key={index}

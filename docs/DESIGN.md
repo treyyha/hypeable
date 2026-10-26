@@ -25,7 +25,7 @@ Uno classes: `bg-hype-bg`, `text-hype-text`, `border-hype-border`, `bg-hype-acce
 
 **Do**
 
-- Aurora: layered CSS radial-gradients (lime, mint, cyan at ~20–30% alpha) behind the home hero/composer and empty states only. Slow drift, off under `prefers-reduced-motion`.
+- Aurora: full-bleed layered CSS radial-gradients (lime, mint, cyan) behind the empty home column only, fading out once a chat starts. Slow drift, off under `prefers-reduced-motion`. No background box on the heading.
 - At most one gradient word in a heading (`hype-gradient-text`).
 - Composer: subtle lime→mint→cyan focus ring (`.hype-composer:focus-within`).
 

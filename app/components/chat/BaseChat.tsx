@@ -6,22 +6,20 @@ import { ClientOnly } from 'remix-utils/client-only';
 import styles from './BaseChat.module.scss';
 import ChatAlert from './ChatAlert';
 import { ChatBox } from './ChatBox';
-import GitCloneButton from './GitCloneButton';
 import LlmErrorAlert from './LLMApiAlert';
 import { Messages, type DisplayMessage } from './Messages.client';
 import ProgressCompilation from './ProgressCompilation';
 import { ToolApprovalTray } from './ToolApprovalTray';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
-import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
-import { ImportZipButton } from '~/components/chat/ImportZipButton';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
 import { HomeHero } from '~/components/home/HomeHero';
+import { MoreWaysToStart } from '~/components/home/MoreWaysToStart';
 import { RecentProjects } from '~/components/home/RecentProjects';
 import { SpendCard } from '~/components/home/SpendCard';
 import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
 import { PlanHost } from '~/components/plan/PlanHost';
+import { Aurora } from '~/components/ui/Aurora';
 import { BrandFooter } from '~/components/ui/BrandFooter';
-import { Chip } from '~/components/ui/Chip';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { llmFetch, readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
@@ -32,7 +30,6 @@ const LazyWorkbench = lazy(() =>
 );
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { OPEN_MODEL_PICKER_EVENT } from '~/lib/stores/loop';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { workbenchStore } from '~/lib/stores/workbench';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
@@ -40,7 +37,7 @@ import type { ProgressAnnotation } from '~/types/context';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST, STARTER_TEMPLATES } from '~/utils/constants';
+import { PROVIDER_LIST } from '~/utils/constants';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -144,7 +141,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>(readStoredApiKeys());
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
-    const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
     const [transcript, setTranscript] = useState('');
@@ -159,29 +155,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         setQrModalOpen(true);
       }
     }, [expoUrl]);
-
-    useEffect(() => {
-      const onOpenPicker = (event: Event) => {
-        const detail = (event as CustomEvent<{ model?: string; provider?: string }>).detail ?? {};
-        setIsModelSettingsCollapsed(false);
-
-        if (detail.model) {
-          setModel?.(detail.model);
-        }
-
-        if (detail.provider) {
-          const match = (providerList || []).find((entry) => entry.name === detail.provider);
-
-          if (match) {
-            setProvider?.(match);
-          }
-        }
-      };
-
-      window.addEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
-
-      return () => window.removeEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
-    }, [providerList, setModel, setProvider]);
 
     useEffect(() => {
       console.log(transcript);
@@ -412,10 +385,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           <WorkbenchReopenButton onClick={() => workbenchStore.showWorkbench.set(true)} />
         )}
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
-          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
+          <div
+            className={classNames(
+              styles.Chat,
+              'relative flex h-full min-h-full flex-grow flex-col lg:min-w-[var(--chat-min-width)]',
+            )}
+            data-testid="home-main"
+          >
+            {!chatStarted && <Aurora data-testid="home-aurora" />}
             {!chatStarted && <HomeHero />}
             <StickToBottom
-              className={classNames('pt-6 px-2 sm:px-6 relative', {
+              className={classNames('relative z-[1] px-2 pt-6 sm:px-6', {
                 'h-full flex flex-col modern-scrollbar': chatStarted,
               })}
               resize="smooth"
@@ -442,8 +422,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <ScrollToBottom />
               </StickToBottom.Content>
               <div
-                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
+                className={classNames('z-prompt mx-auto my-auto mb-6 flex w-full flex-col gap-2', {
                   'sticky bottom-2': chatStarted,
+                  'max-w-chat': chatStarted,
+                  'max-w-[520px]': !chatStarted,
                 })}
               >
                 <div className="flex flex-col gap-2">
@@ -483,8 +465,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <ToolApprovalTray messages={messages} addToolOutput={addToolOutput} />
                 {incomingProgressAnnotations && <ProgressCompilation data={incomingProgressAnnotations} />}
                 <ChatBox
-                  isModelSettingsCollapsed={isModelSettingsCollapsed}
-                  setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
                   provider={provider}
                   setProvider={setProvider}
                   providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
@@ -528,49 +508,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 />
               </div>
             </StickToBottom>
-            <div className="flex flex-col justify-center">
-              {!chatStarted && (
-                <div className="flex justify-center gap-2">
-                  <ImportFolderButton
-                    importChat={importChat}
-                    className={classNames(
-                      'gap-2 bg-bolt-elements-background-depth-1',
-                      'text-bolt-elements-textPrimary',
-                      'hover:bg-bolt-elements-background-depth-2',
-                      'border border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.08)]',
-                      'h-10 px-4 py-2 min-w-[120px] justify-center',
-                      'transition-all duration-200 ease-in-out rounded-lg',
-                    )}
-                  />
-                  <ImportZipButton
-                    importChat={importChat}
-                    className={classNames(
-                      'gap-2 bg-bolt-elements-background-depth-1',
-                      'text-bolt-elements-textPrimary',
-                      'hover:bg-bolt-elements-background-depth-2',
-                      'border border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.08)]',
-                      'h-10 px-4 py-2 min-w-[120px] justify-center',
-                      'transition-all duration-200 ease-in-out rounded-lg',
-                    )}
-                  />
-                  <GitCloneButton importChat={importChat} />
-                </div>
-              )}
-              <div className="flex flex-col gap-5">
-                {!chatStarted && (
-                  <div className="mx-auto flex w-full max-w-chat flex-wrap justify-center gap-2 px-4">
-                    {STARTER_TEMPLATES.slice(0, 8).map((template) => (
-                      <Chip
-                        key={template.name}
-                        onClick={() =>
-                          (window.location.href = `/starter?template=${encodeURIComponent(template.name)}`)
-                        }
-                      >
-                        {template.label}
-                      </Chip>
-                    ))}
-                  </div>
-                )}
+            <div className="relative z-[1] flex flex-col justify-center">
+              <div className="flex flex-col gap-4">
                 {!chatStarted &&
                   ExamplePrompts((event, messageInput) => {
                     if (isStreaming) {
@@ -580,6 +519,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                     handleSendMessage?.(event, messageInput);
                   })}
+                {!chatStarted && <MoreWaysToStart importChat={importChat} />}
                 {!chatStarted && (
                   <div className="mx-auto grid w-full max-w-chat gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
                     <RecentProjects />

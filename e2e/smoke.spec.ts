@@ -74,6 +74,9 @@ test.describe('OpenAILike mock smoke', () => {
     expect(documentResponse?.headers()['cross-origin-opener-policy']).toBe('same-origin');
 
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
+    await expect(page.locator('header').getByText('new build')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Model and key' }).click();
 
     const providerBox = page.getByRole('combobox').first();
     await expect(providerBox).toContainText('OpenAILike', { timeout: 20_000 });

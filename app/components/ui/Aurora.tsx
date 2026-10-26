@@ -1,11 +1,14 @@
 /**
- * Soft CSS-only atmosphere. Use behind the home hero/composer and empty states only.
+ * Soft CSS-only atmosphere. Use behind the empty home column and empty states only.
  */
+import type { HTMLAttributes } from 'react';
 import { classNames } from '~/utils/classNames';
 
-export function Aurora({ className }: { className?: string }) {
+type AuroraProps = HTMLAttributes<HTMLDivElement>;
+
+export function Aurora({ className, ...rest }: AuroraProps) {
   return (
-    <div className={classNames('hype-aurora', className)} aria-hidden="true">
+    <div className={classNames('hype-aurora', className)} aria-hidden="true" {...rest}>
       <div className="hype-aurora__layer" />
     </div>
   );

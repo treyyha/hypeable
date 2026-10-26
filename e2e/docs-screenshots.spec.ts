@@ -21,7 +21,7 @@ test.describe('docs screenshots', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
-    await expect(page.getByRole('combobox').first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('button', { name: 'Model and key' })).toBeVisible({ timeout: 20_000 });
 
     await setTheme(page, 'dark');
     await page.waitForTimeout(200);
