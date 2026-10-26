@@ -256,6 +256,7 @@
   },
   "packageManager": "pnpm@9.15.9",
   "lint-staged": {
-    "*.{js,jsx,mjs,cjs,ts,tsx}": "eslint --cache --cache-location ./node_modules/.cache/eslint"
+    "app/**/*.{js,jsx,mjs,cjs,ts,tsx}": "eslint --cache --cache-location ./node_modules/.cache/eslint",
+    "scripts/**/*.{js,jsx,mjs,cjs,ts,tsx}": "eslint --cache --cache-location ./node_modules/.cache/eslint"
   }
 }
