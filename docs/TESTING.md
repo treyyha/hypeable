@@ -79,7 +79,7 @@ pnpm e2e:hosted
 
 ## CI
 
-`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, **unit tests**, build, **first-load JS budget** (`docs/first-load-budget.json`), and **e2e** (including hosted + axe) are blocking unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
+`.github/workflows/ci.yml` runs gitleaks on every change. `.gitleaks.toml` sets `useDefault = true` so default rules still run; the only allowlists are the sequential-alphabet GitLab PAT fixture in `app/lib/security/redact.spec.ts` (`gitlab-pat`) and the `@webcontainer/api` semver in `package.json` (`generic-api-key`). Typecheck, lint, **unit tests**, build, **first-load JS budget** (`docs/first-load-budget.json`), and **e2e** (including hosted + axe) are blocking unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
 
 Wall-clock performance (`pnpm test:perf`) is a separate `perf` job with `continue-on-error`. jsdom frame-budget and Shiki timing are not merge gates. See [KNOWN-ISSUES.md](./KNOWN-ISSUES.md).
 

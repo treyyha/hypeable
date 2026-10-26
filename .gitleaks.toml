@@ -1,7 +1,34 @@
 title = "Hypeable"
 
-[allowlist]
-description = "Fake connector tokens in unit tests, never real credentials"
-paths = [
-  '''(^|/)app/lib/security/redact\.spec\.ts$''',
-]
+[extend]
+# A custom .gitleaks.toml without this replaces the default rule set with an
+# empty one, so CI would report "no leaks found" without scanning anything.
+useDefault = true
+
+[[rules]]
+id = "gitlab-pat"
+
+    [[rules.allowlists]]
+    description = "Sequential-alphabet GitLab PAT fixture in redact unit tests, never a live credential"
+    condition = "AND"
+    paths = [
+      '''(^|/)app/lib/security/redact\.spec\.ts$''',
+    ]
+    regexTarget = "line"
+    regexes = [
+      '''glpat-abcdefghijklmnopqrstuvwx''',
+    ]
+
+[[rules]]
+id = "generic-api-key"
+
+    [[rules.allowlists]]
+    description = "npm semver for @webcontainer/api, not a credential"
+    condition = "AND"
+    paths = [
+      '''(^|/)package\.json$''',
+    ]
+    regexTarget = "line"
+    regexes = [
+      '''"@webcontainer/api":\s+"[0-9]''',
+    ]
