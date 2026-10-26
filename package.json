@@ -56,17 +56,6 @@
     "preview": "pnpm run build && pnpm run start",
     "prepare": "husky",
     "clean": "node scripts/clean.js",
-    "electron:dev": "node scripts/electron-dev.mjs",
-    "electron:dev:inspect": "NODE_ENV=development electron --inspect=9229 build/electron/main/index.mjs",
-    "electron:build:deps": "concurrently \"pnpm electron:build:main\" \"pnpm electron:build:preload\" --kill-others-on-fail",
-    "electron:build:main": "vite build --config ./electron/main/vite.config.ts",
-    "electron:build:preload": "vite build --config ./electron/preload/vite.config.ts",
-    "electron:build:renderer": "react-router build --config vite-electron.config.ts",
-    "electron:build:unpack": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --dir",
-    "electron:build:mac": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mac",
-    "electron:build:win": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --win",
-    "electron:build:linux": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --linux",
-    "electron:build:dist": "rimraf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl",
     "setup": "node scripts/setup.mjs",
     "ship": "node scripts/ship.mjs",
     "finish": "node scripts/finish.mjs",
@@ -139,9 +128,6 @@
     "date-fns": "^4.4.0",
     "diff": "^9.0.0",
     "dotenv": "^18.0.5",
-    "electron-log": "^5.4.4",
-    "electron-store": "^11.0.2",
-    "electron-updater": "^6.8.9",
     "file-saver": "^2.0.5",
     "framer-motion": "^14.0.0",
     "ignore": "^7.0.12",
@@ -183,7 +169,6 @@
     "@blitz/eslint-plugin": "0.1.5",
     "@cloudflare/vite-plugin": "^1.63.0",
     "@cloudflare/workers-types": "^5.20261006.1",
-    "@electron/notarize": "^3.1.1",
     "@iconify-json/ph": "^1.2.1",
     "@iconify/types": "^2.0.0",
     "@playwright/test": "^1.64.0",
@@ -201,10 +186,7 @@
     "@types/unist": "^3.0.3",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.3",
-    "concurrently": "^10.0.5",
     "crypto-browserify": "^3.12.1",
-    "electron": "^44.5.1",
-    "electron-builder": "^26.15.3",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.5.6",
     "fast-glob": "^3.3.2",
@@ -213,7 +195,6 @@
     "lint-staged": "15.5.2",
     "node-fetch": "^3.3.2",
     "prettier": "^3.9.9",
-    "rimraf": "^6.1.3",
     "ripgrep": "^0.3.1",
     "sass-embedded": "^1.105.1",
     "stream-browserify": "^3.0.0",
@@ -229,12 +210,10 @@
   "pnpm": {
     "overrides": {
       "@typescript-eslint/utils": "^8.0.0-alpha.30",
-      "app-builder-lib": "^26.15.3",
       "bn.js@^4": "^4.12.3",
       "bn.js@^5": "^5.2.3",
       "brace-expansion@^2": "^2.1.7",
       "body-parser": "^2.4.0",
-      "builder-util-runtime": "^9.7.0",
       "dompurify": "^3.4.17",
       "zod": "^4.6.6",
       "js-yaml@^4": "^4.3.2",
@@ -253,8 +232,7 @@
     },
     "peerDependencyRules": {
       "allowedVersions": {
-        "@cloudflare/workers-types": ">=4.0.0",
-        "electron-builder-squirrel-windows": ">=26.0.0"
+        "@cloudflare/workers-types": ">=4.0.0"
       }
     }
   },

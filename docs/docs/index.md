@@ -592,15 +592,6 @@ All templates are pre-configured with modern tooling, linting, and build process
 - `pnpm run dockerrun`: Runs the Docker container
 - `docker compose --profile development up`: Runs with Docker Compose (development)
 
-### Electron Scripts
-- `pnpm run electron:dev`: Starts the Electron desktop application in development mode
-- `pnpm run electron:dev:inspect`: Starts Electron with Node inspector enabled on port 9229
-- `pnpm electron:build:win`: Builds the Windows installer
-- `pnpm electron:build:mac`: Builds for macOS
-- `pnpm electron:build:linux`: Builds for Linux
-- `pnpm electron:build:dist`: Builds for all platforms (Mac, Windows, Linux)
-- `pnpm electron:build:unpack`: Creates unpacked build for testing
-
 ### Deployment Scripts
 - `pnpm run deploy`: Builds and deploys to Cloudflare Workers
 - `npm run dockerbuild`: Alternative Docker build command

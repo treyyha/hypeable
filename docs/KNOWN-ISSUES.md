@@ -54,4 +54,4 @@ Left unpatched on purpose (moderate/low, or no non-major fix):
 | low | `fast-uri` | `3.1.8` | same as above (additional low advisories) |
 | low | `elliptic` | `6.6.1` | advisory lists patched versions as `<0.0.0` (no real patch) |
 
-GitHub Dependabot still reports more alerts than `pnpm audit --prod` because it includes devDependencies (Electron, etc.). Those are out of scope for this pass.
+GitHub Dependabot still reports more alerts than `pnpm audit --prod` because it includes transitives and the unused MkDocs `docs/poetry.lock`. The Electron desktop tree has been removed.
