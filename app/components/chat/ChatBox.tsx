@@ -222,6 +222,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       )}
       <div className="relative">
         <textarea
+          id="composer"
           ref={props.textareaRef}
           className={classNames(
             'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
@@ -287,6 +288,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
+          aria-label={props.chatMode === 'build' ? 'Describe your app' : 'Discuss with the model'}
           placeholder={
             props.chatMode === 'build'
               ? 'Describe your app, e.g. a habit tracker with streaks and dark mode'

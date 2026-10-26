@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react';
+import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Panel, type PanelImperativeHandle } from 'react-resizable-panels';
 import { Terminal, type TerminalRef } from './Terminal';
@@ -27,6 +28,18 @@ export const TerminalTabs = memo(() => {
   const [activeTerminal, setActiveTerminal] = useState(0);
   const [terminalCount, setTerminalCount] = useState(0);
   const [isMinimized, setIsMinimized] = useState(!showTerminal);
+
+  useEffect(() => {
+    if (document.querySelector('link[data-hypeable-xterm]')) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = xtermStyles;
+    link.setAttribute('data-hypeable-xterm', 'true');
+    document.head.appendChild(link);
+  }, []);
 
   const addTerminal = () => {
     if (terminalCount < MAX_TERMINALS) {
@@ -195,7 +208,15 @@ export const TerminalTabs = memo(() => {
                 </React.Fragment>
               );
             })}
-            {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
+            {terminalCount < MAX_TERMINALS && (
+              <IconButton
+                icon="i-ph:plus"
+                size="md"
+                title="Add terminal"
+                aria-label="Add terminal"
+                onClick={addTerminal}
+              />
+            )}
             <IconButton
               icon="i-ph:arrow-clockwise"
               title="Reset Terminal"

@@ -110,7 +110,7 @@ export const Dialog = memo(
         <RadixDialog.Content asChild>
           <motion.div
             className={classNames(
-              'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-hype-surface rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] focus:outline-none',
+              'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-hype-surface rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] max-w-[calc(100vw-2rem)] focus:outline-none',
               className,
             )}
             initial="closed"
@@ -124,6 +124,8 @@ export const Dialog = memo(
                 <RadixDialog.Close asChild onClick={onClose}>
                   <IconButton
                     icon="i-ph:x"
+                    title="Close dialog"
+                    aria-label="Close dialog"
                     className="absolute top-3 right-3 text-bolt-elements-textTertiary hover:text-bolt-elements-textSecondary"
                   />
                 </RadixDialog.Close>

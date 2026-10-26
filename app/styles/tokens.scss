@@ -621,4 +621,10 @@ samp,
   .hype-aurora__layer {
     animation: none;
   }
+
+  .animated,
+  .Toastify__toast {
+    animation: none !important;
+    transition: none !important;
+  }
 }

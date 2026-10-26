@@ -42,6 +42,7 @@
     "perf:test": "vitest --run --config vitest.perf.config.ts",
     "perf:analyze": "node scripts/analyze-bundle.js",
     "perf:check": "node scripts/check-performance-budgets.js",
+    "perf:first-load": "node scripts/check-first-load-budget.mjs",
     "perf:report": "pnpm run perf:test && pnpm run perf:analyze",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app",
     "lint:fix": "npm run lint -- --fix && prettier app --write",
@@ -162,6 +163,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@blitz/eslint-plugin": "0.1.5",
     "@cloudflare/vite-plugin": "^1.63.0",
     "@cloudflare/workers-types": "^5.20261006.1",

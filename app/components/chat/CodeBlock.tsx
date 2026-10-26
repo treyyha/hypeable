@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import { bundledLanguages, codeToHtml, type BundledLanguage } from 'shiki';
+import type { BundledLanguage } from 'shiki';
 import styles from './CodeBlock.module.scss';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger } from '~/utils/logger';
@@ -79,20 +79,21 @@ export const CodeBlock = memo(
         return;
       }
 
-      let effectiveLanguage = language;
-
-      if (language && !isSpecialLanguage(language) && !(language in bundledLanguages)) {
-        logger.warn(`Unsupported language '${language}', falling back to plaintext`);
-        effectiveLanguage = 'plaintext';
-      }
-
-      logger.trace(`Language = ${effectiveLanguage}`);
-
       const processCode = async () => {
+        const { bundledLanguages, codeToHtml } = await import('shiki');
+
+        let effectiveLanguage = language;
+
+        if (language && !isSpecialLanguage(language) && !(language in bundledLanguages)) {
+          logger.warn(`Unsupported language '${language}', falling back to plaintext`);
+          effectiveLanguage = 'plaintext';
+        }
+
+        logger.trace(`Language = ${effectiveLanguage}`);
         setHTML(await codeToHtml(code, { lang: effectiveLanguage, theme }));
       };
 
-      processCode();
+      void processCode();
     }, [code, language, theme, isStreaming]);
 
     return (
@@ -116,6 +117,7 @@ export const CodeBlock = memo(
                 },
               )}
               title="Copy Code"
+              aria-label="Copy code"
               onClick={() => copyToClipboard()}
             >
               <div className="i-ph:clipboard-text-duotone"></div>

@@ -276,7 +276,7 @@ export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignS
 
       <DialogRoot open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog>
-          <div className="py-4 px-4 min-w-[480px] max-w-[90vw] max-h-[85vh] flex flex-col gap-6 overflow-hidden">
+          <div className="flex max-h-[85vh] w-full max-w-[90vw] flex-col gap-6 overflow-hidden px-4 py-4 min-w-0">
             <div className="">
               <DialogTitle className="text-2xl font-bold text-bolt-elements-textPrimary">
                 Design Palette & Features
