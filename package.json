@@ -138,7 +138,7 @@
     "diff": "^9.0.0",
     "dotenv": "^18.0.5",
     "electron-log": "^5.4.4",
-    "electron-store": "^11.0.2",
+    "electron-store": "^12.0.0",
     "electron-updater": "^6.8.9",
     "file-saver": "^2.0.5",
     "framer-motion": "^14.0.0",
