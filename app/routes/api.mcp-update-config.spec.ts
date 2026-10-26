@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { action } from './api.mcp-update-config';
+
+const originalHosted = process.env.HYPEABLE_HOSTED;
 
 function post(body: unknown) {
   return action({
@@ -14,6 +16,14 @@ function post(body: unknown) {
 }
 
 describe('POST /api/mcp-update-config', () => {
+  beforeEach(() => {
+    delete process.env.HYPEABLE_HOSTED;
+  });
+
+  afterEach(() => {
+    process.env.HYPEABLE_HOSTED = originalHosted;
+  });
+
   it('returns 404 in hosted mode', async () => {
     const response = await action({
       request: new Request('https://example.com/api/mcp-update-config', {
