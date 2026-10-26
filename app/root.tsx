@@ -54,8 +54,8 @@ const inlineThemeCode = stripIndents`
       colorTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
-    const mode = colorTheme === 'dark' || colorTheme.startsWith('dark-') ? 'dark' : 'light';
-    document.querySelector('html')?.setAttribute('data-theme', mode);
+    colorTheme = colorTheme === 'light' || colorTheme.startsWith('light') ? 'light' : 'dark';
+    document.querySelector('html')?.setAttribute('data-theme', colorTheme);
     document.querySelector('html')?.setAttribute('data-color-theme', colorTheme);
   }
 `;
@@ -64,20 +64,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
 
   useEffect(() => {
-    const mode = theme === 'dark' || theme.startsWith('dark-') ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', mode);
+    document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('data-color-theme', theme);
   }, [theme]);
 
   // The theme script applies saved browser preferences before hydration.
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      data-theme={theme === 'dark' || theme.startsWith('dark-') ? 'dark' : 'light'}
-      data-color-theme={theme}
-      className="w-full h-full"
-    >
+    <html lang="en" suppressHydrationWarning data-theme={theme} data-color-theme={theme} className="w-full h-full">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

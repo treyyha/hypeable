@@ -27,6 +27,10 @@ These assert a 16.67ms (60fps) wall-clock budget against `render()` in jsdom. Th
 
 `tests/performance/syntax-highlighting.perf.test.ts` asserts wall-clock budgets (`< 600ms` small, `< 1000ms` large, `< 200ms` for 10 incremental highlights). Under CI load `createHighlighter()` / `codeToHtml()` can exceed those budgets even when highlighting is correct. `tests/unit/syntax-highlighter-client.test.ts` can also flake if the worker is slow to start. Do not treat a timing miss as a highlighter regression.
 
+## Started chat is not mobile-friendly (533px min width)
+
+Once a chat has started, the transcript column uses `--chat-min-width: 533px` (`app/styles/variables.scss`, applied as `lg:min-w-[var(--chat-min-width)]` in `app/components/chat/BaseChat.tsx`). Home/empty states were designed down to 390px; the started-chat + workbench shell was not. Do not treat a squeezed started-chat layout under 533px as a regression of the home screenshots.
+
 ## Logger null (fixed)
 
 `app/utils/logger.spec.ts` `should handle null and undefined as strings` used to throw `TypeError: Cannot read properties of undefined (reading 'replace')` in `app/lib/security/redact.ts` because `JSON.stringify(undefined)` is not a string. `redactUnknown` now stringifies `null` / `undefined` first. Keep it off this list unless it regresses.

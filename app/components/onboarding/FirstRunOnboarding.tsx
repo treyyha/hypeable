@@ -6,7 +6,7 @@ import type { MCPConfig } from '~/lib/services/mcpService';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { DEFAULT_AVATARS, DEFAULT_AVATAR, updateProfile } from '~/lib/stores/profile';
 import { setTheme, themeStore } from '~/lib/stores/theme';
-import { THEMES, type Theme } from '~/types/theme';
+import { THEMES, normalizeTheme, type Theme } from '~/types/theme';
 import { PROVIDER_LIST } from '~/utils/constants';
 
 const COMPLETED_KEY = 'bolt_onboarding_completed';
@@ -20,7 +20,7 @@ export function FirstRunOnboarding() {
   const [providerName, setProviderName] = useState(PROVIDER_LIST[0]?.name ?? '');
   const [apiKey, setApiKey] = useState('');
   const [mcpText, setMcpText] = useState(JSON.stringify(EMPTY_MCP_CONFIG, null, 2));
-  const [selectedTheme, setSelectedTheme] = useState<Theme>(() => themeStore.get());
+  const [selectedTheme, setSelectedTheme] = useState<Theme>(() => normalizeTheme(themeStore.get()));
 
   const [interfaceOptions, setInterfaceOptions] = useState(() => {
     try {
@@ -354,17 +354,13 @@ export function FirstRunOnboarding() {
               <select
                 id="onboarding-theme"
                 value={selectedTheme}
-                onChange={(event) => setSelectedTheme(event.target.value as Theme)}
+                onChange={(event) => setSelectedTheme(normalizeTheme(event.target.value))}
                 className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text"
               >
-                {(['light', 'dark'] as const).map((mode) => (
-                  <optgroup key={mode} label={`${mode[0].toUpperCase()}${mode.slice(1)} themes`}>
-                    {THEMES.filter((theme) => theme.mode === mode).map((theme) => (
-                      <option key={theme.id} value={theme.id}>
-                        {theme.name}
-                      </option>
-                    ))}
-                  </optgroup>
+                {THEMES.map((theme) => (
+                  <option key={theme.id} value={theme.id}>
+                    {theme.name}
+                  </option>
                 ))}
               </select>
             </div>
