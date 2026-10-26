@@ -133,7 +133,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { journeys, observeWebVitals } from './lib/performance/metrics';
 import { prebootWebContainer } from './lib/performance/webcontainer-optimizer';
 import { isHostedFromContext } from './lib/security/hosted';
-import { setHostedMode } from './lib/stores/hosted';
+import { hostedModeStore, setHostedMode } from './lib/stores/hosted';
 import { logStore } from './lib/stores/logs';
 import { themeStore } from './lib/stores/theme';
 import globalStyles from './styles/index.scss?url';
@@ -150,9 +150,9 @@ export default function App() {
   const theme = useStore(themeStore);
   const { hosted } = useLoaderData<typeof loader>();
 
-  useEffect(() => {
+  if (hostedModeStore.get() !== hosted) {
     setHostedMode(hosted);
-  }, [hosted]);
+  }
 
   useEffect(() => {
     // Mark app launch start

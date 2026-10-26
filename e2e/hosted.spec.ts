@@ -1,10 +1,17 @@
 import { expect, test } from '@playwright/test';
+import { ONBOARDING_COMPLETED_KEY } from './seed';
 
 const CUSTOM_ENDPOINT_MESSAGE = 'Run Hypeable locally to use custom endpoints';
 
 test.describe('hosted mode', () => {
   test('shows a run-locally hint and rejects custom endpoints', async ({ page, request }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, ONBOARDING_COMPLETED_KEY);
+
     await page.goto('/');
+    await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Model and key' }).click();
     await expect(page.getByTestId('run-locally-hint').first()).toBeVisible({ timeout: 20_000 });
 
     const llmcall = await request.post('/api/llmcall', {

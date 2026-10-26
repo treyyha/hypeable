@@ -1,10 +1,14 @@
+import { useStore } from '@nanostores/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
+import { RunLocallyHint } from '~/components/ui/RunLocallyHint';
 import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { getAll, openDatabase } from '~/lib/persistence/db';
 import type { MCPConfig } from '~/lib/services/mcpService';
+import { hostedModeStore } from '~/lib/stores/hosted';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { DEFAULT_AVATARS, DEFAULT_AVATAR, updateProfile } from '~/lib/stores/profile';
+import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import { setTheme, themeStore } from '~/lib/stores/theme';
 import { THEMES, normalizeTheme, type Theme } from '~/types/theme';
 import { PROVIDER_LIST } from '~/utils/constants';
@@ -13,11 +17,18 @@ const COMPLETED_KEY = 'bolt_onboarding_completed';
 const EMPTY_MCP_CONFIG = { mcpServers: {} };
 
 export function FirstRunOnboarding() {
+  const hosted = useStore(hostedModeStore);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState<string>(DEFAULT_AVATAR);
-  const [providerName, setProviderName] = useState(PROVIDER_LIST[0]?.name ?? '');
+
+  const hostedProviders = useMemo(
+    () => (hosted ? PROVIDER_LIST.filter((provider) => !LOCAL_PROVIDERS.includes(provider.name)) : PROVIDER_LIST),
+    [hosted],
+  );
+
+  const [providerName, setProviderName] = useState(hostedProviders[0]?.name ?? '');
   const [apiKey, setApiKey] = useState('');
   const [mcpText, setMcpText] = useState(JSON.stringify(EMPTY_MCP_CONFIG, null, 2));
   const [selectedTheme, setSelectedTheme] = useState<Theme>(() => normalizeTheme(themeStore.get()));
@@ -42,7 +53,16 @@ export function FirstRunOnboarding() {
   const initializeMcp = useMCPStore((store) => store.initialize);
   const updateMcpSettings = useMCPStore((store) => store.updateSettings);
   const mcpInitialized = useMCPStore((store) => store.isInitialized);
-  const stepTitles = useMemo(() => ['Your profile', 'Connect an AI provider', 'MCP servers', 'Appearance'], []);
+
+  const stepTitles = useMemo(
+    () =>
+      hosted
+        ? ['Your profile', 'Connect an AI provider', 'Appearance']
+        : ['Your profile', 'Connect an AI provider', 'MCP servers', 'Appearance'],
+    [hosted],
+  );
+
+  const displayStep = hosted && step === 3 ? 2 : step;
 
   useEffect(() => {
     let active = true;
@@ -94,10 +114,10 @@ export function FirstRunOnboarding() {
   }, []);
 
   useEffect(() => {
-    if (open && !mcpInitialized) {
+    if (open && !mcpInitialized && !hosted) {
       void initializeMcp();
     }
-  }, [open, mcpInitialized, initializeMcp]);
+  }, [open, mcpInitialized, initializeMcp, hosted]);
 
   const finish = () => {
     localStorage.setItem(COMPLETED_KEY, 'true');
@@ -158,6 +178,8 @@ export function FirstRunOnboarding() {
 
     if (step >= 3) {
       finish();
+    } else if (step === 1 && hosted) {
+      setStep(3);
     } else {
       setStep((current) => current + 1);
     }
@@ -183,13 +205,13 @@ export function FirstRunOnboarding() {
       >
         <div className="mb-5">
           <div className="mb-2 text-xs font-medium text-hype-muted">
-            Step {step + 1} of {stepTitles.length}
+            Step {displayStep + 1} of {stepTitles.length}
           </div>
           <div className="mb-3 flex gap-1" aria-hidden="true">
             {stepTitles.map((title, index) => (
               <span
                 key={title}
-                className={`h-1 flex-1 rounded-full ${index <= step ? 'bg-hype-accent' : 'bg-hype-surface-2'}`}
+                className={`h-1 flex-1 rounded-full ${index <= displayStep ? 'bg-hype-accent' : 'bg-hype-surface-2'}`}
               />
             ))}
           </div>
@@ -291,6 +313,7 @@ export function FirstRunOnboarding() {
               to your provider, never stored or logged. Verify it in app/routes/api.chat.ts. Want zero trust? Run
               Hypeable locally: pnpm dev.
             </p>
+            {hosted ? <RunLocallyHint /> : null}
             <label className="block text-sm font-medium" htmlFor="onboarding-provider">
               AI provider
             </label>
@@ -300,7 +323,7 @@ export function FirstRunOnboarding() {
               onChange={(event) => setProviderName(event.target.value)}
               className="w-full rounded-md border border-hype-border bg-hype-bg px-3 py-2 text-sm text-hype-text"
             >
-              {PROVIDER_LIST.map((provider) => (
+              {hostedProviders.map((provider) => (
                 <option key={provider.name} value={provider.name}>
                   {provider.name}
                 </option>
@@ -431,7 +454,7 @@ export function FirstRunOnboarding() {
             {step > 0 && (
               <button
                 type="button"
-                onClick={() => setStep((current) => current - 1)}
+                onClick={() => setStep((current) => (current === 3 && hosted ? 1 : current - 1))}
                 className="appearance-none rounded-md border border-hype-border bg-hype-surface-2 px-4 py-2 text-sm text-hype-text hover:bg-hype-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
               >
                 Back

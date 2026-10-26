@@ -28,6 +28,7 @@ export default defineConfig({
     env: {
       ...process.env,
       HYPEABLE_HOSTED: '1',
+      CLOUDFLARE_INCLUDE_PROCESS_ENV: 'true',
     },
   },
 });

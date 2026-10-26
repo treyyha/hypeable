@@ -70,6 +70,11 @@ const fetchConfiguredProviders = async (): Promise<ConfiguredProvider[]> => {
     const response = await fetch('/api/configured-providers');
 
     if (!response.ok) {
+      // Hosted mode 404s this route; it is not a misconfiguration.
+      if (response.status === 404) {
+        return [];
+      }
+
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 

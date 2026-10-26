@@ -171,7 +171,24 @@ export default defineConfig((config) => {
        * package is CommonJS and exposes no named `Buffer` export.
        */
       browserPolyfills(),
-      config.mode !== 'test' && cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      config.mode !== 'test' &&
+        cloudflare({
+          viteEnvironment: { name: 'ssr' },
+          // workerd does not inherit the host process env. Forward hosted mode
+          // so `pnpm dev` / e2e with HYPEABLE_HOSTED=1 match production bindings.
+          config: (workerConfig) => {
+            const hosted = process.env.HYPEABLE_HOSTED;
+
+            if (!hosted) {
+              return workerConfig;
+            }
+
+            return {
+              ...workerConfig,
+              vars: { ...workerConfig.vars, HYPEABLE_HOSTED: hosted },
+            };
+          },
+        }),
       config.mode !== 'test' && reactRouter(),
       UnoCSS(),
       chrome129IssuePlugin(),
