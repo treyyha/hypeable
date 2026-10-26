@@ -42,15 +42,18 @@ export function ProgressCard({ title, subtitle, value, status, amount, className
         </Badge>
       </div>
       {subtitle ? <p className="mt-1 text-xs text-hype-muted">{subtitle}</p> : null}
-      <div className="mt-3 space-y-1.5">
+      <div className="mt-3 flex items-center gap-3">
         <Progress
           value={value}
-          className={classNames({
+          className={classNames('flex-1', {
             '[&>div]:bg-hype-ok': status === 'ok',
             '[&>div]:bg-hype-warn': status === 'warn',
             '[&>div]:bg-hype-danger': status === 'hit',
           })}
         />
+        <span className="w-10 shrink-0 text-right text-xs tabular-nums text-hype-muted">
+          {subtitle ? '—' : `${Math.round(value)}%`}
+        </span>
       </div>
       {amount ? <div className="mt-3 text-sm font-medium tabular-nums text-hype-text">{amount}</div> : null}
     </div>

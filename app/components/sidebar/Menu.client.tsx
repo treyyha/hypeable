@@ -362,6 +362,20 @@ export const Menu = () => {
                 />
               </div>
             ) : null}
+            <a
+              href="/spend"
+              className={classNames(
+                'flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
+                onSpend
+                  ? 'bg-hype-surface-2 text-hype-text'
+                  : 'text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text',
+                !showLabels && 'justify-center px-0',
+              )}
+              aria-current={onSpend ? 'page' : undefined}
+            >
+              <span className="i-ph:receipt h-4 w-4 shrink-0" />
+              {showLabels ? <span>Spend</span> : <span className="sr-only">Spend</span>}
+            </a>
           </div>
           {showLabels && selectionMode ? (
             <div className="flex items-center justify-end gap-2 px-3 pb-2">
@@ -491,19 +505,6 @@ export const Menu = () => {
             </DialogRoot>
           </div>
           <nav className="mt-auto space-y-3 border-t border-hype-border p-2">
-            <a
-              href="/spend"
-              className={classNames(
-                'flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
-                onSpend
-                  ? 'bg-hype-surface-2 text-hype-text'
-                  : 'text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text',
-              )}
-              aria-current={onSpend ? 'page' : undefined}
-            >
-              <span className="i-ph:receipt h-4 w-4 shrink-0" />
-              {showLabels ? <span>Spend</span> : <span className="sr-only">Spend</span>}
-            </a>
             <SidebarSection label={showLabels ? 'Account' : undefined}>
               <button
                 type="button"

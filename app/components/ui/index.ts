@@ -16,6 +16,7 @@ export * from './Input';
 export * from './Label';
 export * from './ListRow';
 export * from './ProgressCard';
+export * from './ProviderChip';
 export * from './ScrollArea';
 export * from './SidebarSection';
 export * from './StatCard';

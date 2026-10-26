@@ -10,6 +10,7 @@ export function Aurora({ className, ...rest }: AuroraProps) {
   return (
     <div className={classNames('hype-aurora', className)} aria-hidden="true" {...rest}>
       <div className="hype-aurora__layer" />
+      <div className="hype-aurora__grain" />
     </div>
   );
 }

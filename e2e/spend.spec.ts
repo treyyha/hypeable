@@ -22,6 +22,16 @@ const seededLedger = {
 };
 
 test.describe('Spend page', () => {
+  test('shows the empty state when this browser has no ledger', async ({ page }) => {
+    await seedOpenAILikeMock(page);
+    await page.goto('/spend');
+    await expect(page.getByTestId('spend-page')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Nothing spent yet')).toBeVisible();
+    await expect(page.getByText('Your first build will show up here.')).toBeVisible();
+    await expect(page.getByText('Habit tracker')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Spend' })).toBeVisible();
+  });
+
   test('opens /spend after seeding a ledger', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.addInitScript(

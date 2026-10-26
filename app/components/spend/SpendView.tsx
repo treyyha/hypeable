@@ -4,16 +4,19 @@
  */
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { SevenDayChart } from './SevenDayChart';
 import { CostAmount } from '~/components/cost/CostAmount';
 import { ActionButton, ActionRow } from '~/components/ui/ActionRow';
 import { EmptyState } from '~/components/ui/EmptyState';
-import { ListPanel, ListRow, RowAvatar } from '~/components/ui/ListRow';
+import { ListPanel, ListRow } from '~/components/ui/ListRow';
 import { ProgressCard } from '~/components/ui/ProgressCard';
+import { ProviderChip } from '~/components/ui/ProviderChip';
 import { StatCard } from '~/components/ui/StatCard';
 import { formatTokenCount } from '~/lib/cost/calc';
 import {
   aggregateByModel,
   capProgress,
+  last7Days,
   ledgerToCsv,
   monthToDateTotal,
   type LedgerEntry,
@@ -44,10 +47,6 @@ function modelRows(entries: LedgerEntry[], snapshot: CostSnapshot): ModelSpendRo
       unverified: Boolean(row.unverified),
     }))
     .sort((a, b) => b.dollars - a.dollars || a.model.localeCompare(b.model));
-}
-
-function toneFor(index: number): 'lime' | 'mint' | 'cyan' {
-  return index % 3 === 0 ? 'lime' : index % 3 === 1 ? 'mint' : 'cyan';
 }
 
 function formatWhen(timestamp: number): string {
@@ -84,6 +83,7 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
   const mtd = Math.max(monthToDateTotal(entries, now), snapshot.dailyTotal);
   const sessionCap = capProgress(snapshot.sessionTotal, snapshot.caps.session);
   const dailyCap = capProgress(snapshot.dailyTotal, snapshot.caps.daily);
+  const week = last7Days(entries, now);
 
   const copyReceipt = async () => {
     try {
@@ -99,6 +99,7 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
       <StatCard
         label="Spent today"
         value={<CostAmount dollars={snapshot.dailyTotal} digits={2} className="text-3xl sm:text-4xl" />}
+        aside={<SevenDayChart days={week} />}
         footer={
           <ActionRow columns={3} className="w-full">
             <ActionButton icon="i-ph:sliders-horizontal" onClick={openCostSettings}>
@@ -149,10 +150,10 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
             ) : undefined
           }
         >
-          {models.map((row, index) => (
+          {models.map((row) => (
             <ListRow
               key={row.model}
-              leading={<RowAvatar label={row.provider || row.model} tone={toneFor(index)} />}
+              leading={<ProviderChip provider={row.provider || row.model} />}
               title={row.model}
               subtitle={row.provider}
               trailing={
@@ -195,7 +196,7 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
           {visibleBuilds.map((row) => (
             <ListRow
               key={row.id}
-              leading={<RowAvatar label={row.model} tone="cyan" />}
+              leading={<ProviderChip provider={row.provider || row.model} />}
               title={row.chatName || 'Untitled build'}
               subtitle={`${formatWhen(row.timestamp)} · ${row.model} · ${formatTokenCount(row.promptTokens + row.completionTokens)}`}
               trailing={

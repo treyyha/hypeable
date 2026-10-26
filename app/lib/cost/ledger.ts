@@ -176,6 +176,59 @@ export function monthToDateTotal(entries: LedgerEntry[], now: Date): number {
   return sumLedgerDollars(entries, startOfLocalMonth(now).getTime());
 }
 
+export type DaySpend = {
+  /** Local calendar day as YYYY-MM-DD. */
+  date: string;
+
+  /** Short weekday label for the axis. */
+  label: string;
+  dollars: number;
+  unverified: boolean;
+};
+
+function localDayKeyFromDate(day: Date): string {
+  const year = day.getFullYear();
+  const month = String(day.getMonth() + 1).padStart(2, '0');
+  const date = String(day.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${date}`;
+}
+
+/** Seven local calendar days ending on `now`, including empty days. */
+export function last7Days(entries: LedgerEntry[], now: Date): DaySpend[] {
+  const days: DaySpend[] = [];
+
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset);
+    const start = day.getTime();
+    const end = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1).getTime();
+
+    let dollars = 0;
+    let unverified = false;
+
+    for (const entry of entries) {
+      if (entry.timestamp < start || entry.timestamp >= end) {
+        continue;
+      }
+
+      dollars += entry.dollars;
+
+      if (entry.verified === false) {
+        unverified = true;
+      }
+    }
+
+    days.push({
+      date: localDayKeyFromDate(day),
+      label: day.toLocaleDateString(undefined, { weekday: 'short' }),
+      dollars,
+      unverified,
+    });
+  }
+
+  return days;
+}
+
 export function aggregateByModel(entries: LedgerEntry[]): ModelSpendRow[] {
   const totals = new Map<string, ModelSpendRow>();
 

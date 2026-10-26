@@ -7,6 +7,7 @@ import {
   capBadgeLabel,
   capProgress,
   emptyLedger,
+  last7Days,
   ledgerToCsv,
   loadLedger,
   monthToDateTotal,
@@ -113,6 +114,30 @@ describe('spend aggregation', () => {
       tokens: 1250,
       unverified: true,
     });
+  });
+
+  it('buckets the last seven local days including empty and unverified days', () => {
+    const entries = [
+      entry({ id: 'today', timestamp: noon.getTime(), dollars: 1.5, verified: false }),
+      entry({
+        id: 'yesterday',
+        timestamp: new Date('2026-10-25T18:00:00').getTime(),
+        dollars: 0.4,
+      }),
+      entry({
+        id: 'old',
+        timestamp: new Date('2026-10-18T12:00:00').getTime(),
+        dollars: 9,
+      }),
+    ];
+
+    const days = last7Days(entries, noon);
+
+    expect(days).toHaveLength(7);
+    expect(days[0].date).toBe('2026-10-20');
+    expect(days[0].dollars).toBe(0);
+    expect(days[5]).toMatchObject({ date: '2026-10-25', dollars: 0.4, unverified: false });
+    expect(days[6]).toMatchObject({ date: '2026-10-26', dollars: 1.5, unverified: true });
   });
 
   it('sums month-to-date from the ledger', () => {

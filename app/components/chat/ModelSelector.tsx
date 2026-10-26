@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
+import { ProviderChip } from '~/components/ui/ProviderChip';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import type { ProviderInfo } from '~/types/model';
@@ -467,6 +468,7 @@ export const ModelSelector = ({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 truncate">
+              {provider?.name ? <ProviderChip provider={provider.name} size="sm" /> : null}
               {provider?.name && LOCAL_PROVIDERS.includes(provider.name) && (
                 <span
                   className={classNames(
@@ -609,6 +611,7 @@ export const ModelSelector = ({
                     tabIndex={focusedProviderIndex === index ? 0 : -1}
                   >
                     <div className="flex items-center gap-2">
+                      <ProviderChip provider={providerOption.name} size="sm" />
                       {LOCAL_PROVIDERS.includes(providerOption.name) && (
                         <span
                           className={classNames(

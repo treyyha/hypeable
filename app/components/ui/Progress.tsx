@@ -12,7 +12,10 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(({ className, v
     aria-valuemin={0}
     aria-valuemax={100}
     aria-valuenow={Math.round(value || 0)}
-    className={classNames('relative h-1.5 w-full overflow-hidden rounded-full bg-hype-surface-2', className)}
+    className={classNames(
+      'relative h-1.5 w-full overflow-hidden rounded-full border border-hype-border bg-hype-surface-2',
+      className,
+    )}
     {...props}
   >
     <div

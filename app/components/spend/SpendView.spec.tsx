@@ -13,6 +13,8 @@ describe('SpendView', () => {
     expect(screen.getByText('Nothing spent yet')).toBeTruthy();
     expect(screen.getByText('Your first build will show up here.')).toBeTruthy();
     expect(screen.getAllByText('$0.00').length).toBeGreaterThan(0);
+    expect(screen.getByRole('figure', { name: /Spend over the last 7 days/i })).toBeTruthy();
+    expect(screen.queryByText('Habit tracker')).toBeNull();
   });
 
   it('renders real totals, per-model rows, and cap badges', () => {
@@ -46,5 +48,9 @@ describe('SpendView', () => {
     expect(screen.getByText('Reached')).toBeTruthy();
     expect(screen.getAllByText('≈$1.600').length).toBeGreaterThan(0);
     expect(screen.queryByText('Nothing spent yet')).toBeNull();
+    expect(screen.getByText('80%')).toBeTruthy();
+    expect(screen.getByText('100%')).toBeTruthy();
+    expect(screen.getAllByText('OA').length).toBeGreaterThan(0);
+    expect(screen.getByRole('figure', { name: /Spend over the last 7 days/i })).toBeTruthy();
   });
 });
