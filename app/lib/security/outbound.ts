@@ -167,9 +167,9 @@ export function assertHostedGitLabUrl(
   }
 
   const url = parseHttpsUrl(gitlabUrl);
-  const host = url.hostname.toLowerCase();
+  const gitlabHost = url.hostname.toLowerCase();
 
-  if (host !== 'gitlab.com' && host !== 'www.gitlab.com') {
+  if (gitlabHost !== 'gitlab.com' && gitlabHost !== 'www.gitlab.com') {
     throw new HostedOutboundError(HOSTED_CUSTOM_ENDPOINT_MESSAGE);
   }
 }
