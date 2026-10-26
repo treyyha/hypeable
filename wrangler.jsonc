@@ -1,5 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
+  // Worker + static assets. The Vite Cloudflare plugin emits assets.directory
+  // as build/client. Do not put secrets, API keys, or tokens in this file.
   "name": "hypeable",
   "main": "./workers/app.ts",
   "compatibility_date": "2026-10-01",
