@@ -55,4 +55,15 @@ test.describe('hosted mode', () => {
     expect((await request.get('/og.png')).status()).toBe(200);
     expect((await request.get('/apple-touch-icon.png')).status()).toBe(200);
   });
+
+  test('OpenRouter callback route is served hosted', async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, ONBOARDING_COMPLETED_KEY);
+
+    const response = await page.goto('/auth/openrouter/callback');
+    expect(response?.ok()).toBe(true);
+    await expect(page.getByRole('alert').or(page.getByRole('status'))).toBeVisible({ timeout: 20_000 });
+    expect(page.url()).not.toContain('code=');
+  });
 });

@@ -17,6 +17,8 @@ import { MoreWaysToStart } from '~/components/home/MoreWaysToStart';
 import { RecentProjects } from '~/components/home/RecentProjects';
 import { SpendCard } from '~/components/home/SpendCard';
 import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
+import { OpenRouterToastHost } from '~/components/onboarding/OpenRouterToastHost';
+import { StartInSixty } from '~/components/onboarding/StartInSixty';
 import { PlanHost } from '~/components/plan/PlanHost';
 import { Aurora } from '~/components/ui/Aurora';
 import { BrandFooter } from '~/components/ui/BrandFooter';
@@ -400,6 +402,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               )}
             >
               {!chatStarted && <HomeHero />}
+              <OpenRouterToastHost />
+              {!chatStarted && Object.keys(apiKeys).length === 0 && (
+                <div className="relative z-[1] mx-auto mt-6 w-full px-4">
+                  <StartInSixty />
+                </div>
+              )}
               <StickToBottom
                 className={classNames('relative z-[1] px-2 pt-6 sm:px-6', {
                   'h-full flex flex-col modern-scrollbar': chatStarted,

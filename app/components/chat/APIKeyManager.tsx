@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { OpenRouterConnection } from '~/components/onboarding/OpenRouterConnection';
 import { IconButton } from '~/components/ui/IconButton';
 import {
   getForgetKeysOnTabClose,
@@ -92,6 +93,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
 
   return (
     <div className="py-3 px-1 space-y-2">
+      {provider?.name === 'OpenRouter' && <OpenRouterConnection compact />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-1">
           <div className="flex items-center gap-2">

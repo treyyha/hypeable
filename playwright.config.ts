@@ -28,6 +28,12 @@ export default defineConfig({
       timeout: 30_000,
     },
     {
+      command: 'node scripts/dev/mock-openrouter.mjs',
+      url: 'http://127.0.0.1:8788/health',
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+    {
       command: preview ? 'pnpm run preview' : 'pnpm run dev',
       url: 'http://localhost:5173',
       reuseExistingServer: false,

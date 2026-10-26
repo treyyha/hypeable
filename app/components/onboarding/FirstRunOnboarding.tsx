@@ -1,8 +1,10 @@
 import { useStore } from '@nanostores/react';
 import { useEffect, useMemo, useState } from 'react';
+import { Button } from '~/components/ui/Button';
 import { Dialog, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { RunLocallyHint } from '~/components/ui/RunLocallyHint';
 import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
+import { startOpenRouterConnect } from '~/lib/openrouter/connect';
 import { getAll, openDatabase } from '~/lib/persistence/db';
 import type { MCPConfig } from '~/lib/services/mcpService';
 import { hostedModeStore } from '~/lib/stores/hosted';
@@ -313,6 +315,10 @@ export function FirstRunOnboarding() {
               to your provider, never stored or logged. Verify it in app/routes/api.chat.ts. Want zero trust? Run
               Hypeable locally: pnpm dev.
             </p>
+            <Button type="button" className="w-full" onClick={() => void startOpenRouterConnect()}>
+              Connect with OpenRouter
+            </Button>
+            <p className="text-xs text-hype-muted">Or paste a key you already have:</p>
             {hosted ? <RunLocallyHint /> : null}
             <label className="block text-sm font-medium" htmlFor="onboarding-provider">
               AI provider

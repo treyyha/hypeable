@@ -7,6 +7,7 @@ import { FaCloud, FaBrain } from 'react-icons/fa';
 import { SiGoogle, SiGithub, SiHuggingface, SiPerplexity } from 'react-icons/si';
 import { TbBrain, TbCloudComputing } from 'react-icons/tb';
 import { toast } from 'react-toastify';
+import { OpenRouterConnection } from '~/components/onboarding/OpenRouterConnection';
 import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { logStore } from '~/lib/stores/logs';
@@ -170,6 +171,8 @@ const CloudProvidersTab = () => {
             <Switch checked={categoryEnabled} onCheckedChange={handleToggleCategory} />
           </div>
         </div>
+
+        <OpenRouterConnection />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredProviders.map((provider, index) => (

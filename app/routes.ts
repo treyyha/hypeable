@@ -15,6 +15,7 @@ export default [
     ],
   },
   { file: 'routes/spend.tsx', path: '/spend' },
+  { file: 'routes/auth.openrouter.callback.tsx', path: '/auth/openrouter/callback' },
   { file: 'routes/git.tsx', path: '/git' },
   { file: 'routes/starter.tsx', path: '/starter' },
   { file: 'routes/webcontainer.connect.$id.tsx', path: '/webcontainer/connect/:id' },

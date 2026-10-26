@@ -72,6 +72,21 @@ const inlineThemeCode = stripIndents`
   }
 `;
 
+const inlineOpenRouterCallbackStrip = stripIndents`
+  (function () {
+    try {
+      if (location.pathname !== '/auth/openrouter/callback') return;
+      var params = new URLSearchParams(location.search);
+      window.__HYPEABLE_OR_CB = {
+        code: params.get('code'),
+        state: params.get('state'),
+        error: params.get('error'),
+      };
+      history.replaceState({}, '', location.pathname);
+    } catch (e) {}
+  })();
+`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
 
@@ -89,6 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
+        <script dangerouslySetInnerHTML={{ __html: inlineOpenRouterCallbackStrip }} />
       </head>
       <body className="w-full h-full">
         {/*

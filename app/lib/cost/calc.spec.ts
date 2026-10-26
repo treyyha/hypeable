@@ -126,6 +126,18 @@ describe('cost calculator', () => {
     expect(result.source).toBe('provider');
   });
 
+  it('prices the OpenRouter GLM 5.3 Flash default from the verified table', () => {
+    const result = cost('z-ai/glm-5.3-flash', 1_000_000, 0, { provider: 'OpenRouter' });
+    expect(result.unknown).toBe(false);
+
+    if (result.unknown) {
+      return;
+    }
+
+    expect(result.dollars).toBe(0.0413);
+    expect(result.verified).toBe(true);
+  });
+
   it('returns unknown for a model with no table or custom price', () => {
     const result = cost('mystery-model-xyz', 1000, 50);
     expect(result).toMatchObject({
