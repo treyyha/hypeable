@@ -142,7 +142,7 @@ export function CostMeter() {
             data-testid="cost-pill"
             className={classNames(
               'hype-cost-pill group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold tracking-tight',
-              'transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
+              'transition-colors duration-[var(--hype-duration-med)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
               {
                 'hype-cost-pill--ok': tone === 'ok',
                 'hype-cost-pill--warn': tone === 'warn',

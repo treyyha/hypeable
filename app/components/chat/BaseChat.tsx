@@ -393,125 +393,130 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             data-testid="home-main"
           >
             {!chatStarted && <Aurora data-testid="home-aurora" />}
-            {!chatStarted && <HomeHero />}
-            <StickToBottom
-              className={classNames('relative z-[1] px-2 pt-6 sm:px-6', {
-                'h-full flex flex-col modern-scrollbar': chatStarted,
-              })}
-              resize="smooth"
-              initial="smooth"
+            <div
+              className={classNames(
+                'relative z-[1] flex flex-col',
+                !chatStarted && 'min-h-[calc(100dvh-var(--header-height))]',
+              )}
             >
-              <StickToBottom.Content className="flex flex-col gap-4 relative ">
-                <ClientOnly>
-                  {() => {
-                    return chatStarted ? (
-                      <Messages
-                        className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
-                        messages={messages}
-                        isStreaming={isStreaming}
-                        append={append}
-                        chatMode={chatMode}
-                        setChatMode={setChatMode}
-                        provider={provider}
-                        model={model}
-                        addToolResult={addToolOutput}
-                      />
-                    ) : null;
-                  }}
-                </ClientOnly>
-                <ScrollToBottom />
-              </StickToBottom.Content>
-              <div
-                className={classNames('z-prompt mx-auto my-auto mb-6 flex w-full flex-col gap-2', {
-                  'sticky bottom-2': chatStarted,
-                  'max-w-chat': chatStarted,
-                  'max-w-[520px]': !chatStarted,
+              {!chatStarted && <HomeHero />}
+              <StickToBottom
+                className={classNames('relative z-[1] px-2 pt-6 sm:px-6', {
+                  'h-full flex flex-col modern-scrollbar': chatStarted,
                 })}
+                resize="smooth"
+                initial="smooth"
               >
-                <div className="flex flex-col gap-2">
-                  <LoopBreakerHost
-                    sendMessage={(text) => sendMessage?.({} as never, text)}
-                    currentModel={model}
-                    currentProvider={provider?.name}
-                    models={modelList}
+                <StickToBottom.Content className="flex flex-col gap-4 relative ">
+                  <ClientOnly>
+                    {() => {
+                      return chatStarted ? (
+                        <Messages
+                          className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                          messages={messages}
+                          isStreaming={isStreaming}
+                          append={append}
+                          chatMode={chatMode}
+                          setChatMode={setChatMode}
+                          provider={provider}
+                          model={model}
+                          addToolResult={addToolOutput}
+                        />
+                      ) : null;
+                    }}
+                  </ClientOnly>
+                  <ScrollToBottom />
+                </StickToBottom.Content>
+                <div
+                  className={classNames('z-prompt mx-auto my-auto mb-6 flex w-full flex-col gap-2', {
+                    'sticky bottom-2': chatStarted,
+                    'max-w-chat': chatStarted,
+                    'max-w-[520px]': !chatStarted,
+                  })}
+                >
+                  <div className="flex flex-col gap-2">
+                    <LoopBreakerHost
+                      sendMessage={(text) => sendMessage?.({} as never, text)}
+                      currentModel={model}
+                      currentProvider={provider?.name}
+                      models={modelList}
+                      apiKeys={apiKeys}
+                    />
+                    <PlanHost
+                      sendMessage={(text) => sendMessage?.({} as never, text)}
+                      model={model ?? ''}
+                      provider={provider?.name}
+                    />
+                    {deployAlert && (
+                      <DeployChatAlert
+                        alert={deployAlert}
+                        clearAlert={() => _clearDeployAlert?.()}
+                        postMessage={(message: string | undefined) => {
+                          sendMessage?.({} as any, message);
+                        }}
+                      />
+                    )}
+                    {actionAlert && (
+                      <ChatAlert
+                        alert={actionAlert}
+                        clearAlert={() => clearAlert?.()}
+                        postMessage={(message) => {
+                          sendMessage?.({} as any, message);
+                          clearAlert?.();
+                        }}
+                      />
+                    )}
+                    {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
+                  </div>
+                  <ToolApprovalTray messages={messages} addToolOutput={addToolOutput} />
+                  {incomingProgressAnnotations && <ProgressCompilation data={incomingProgressAnnotations} />}
+                  <ChatBox
+                    provider={provider}
+                    setProvider={setProvider}
+                    providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+                    model={model}
+                    setModel={setModel}
+                    modelList={modelList}
                     apiKeys={apiKeys}
+                    isModelLoading={isModelLoading}
+                    onApiKeysChange={onApiKeysChange}
+                    uploadedFiles={uploadedFiles}
+                    setUploadedFiles={setUploadedFiles}
+                    imageDataList={imageDataList}
+                    setImageDataList={setImageDataList}
+                    textareaRef={textareaRef}
+                    input={input}
+                    handleInputChange={handleInputChange}
+                    handlePaste={handlePaste}
+                    TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
+                    TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
+                    isStreaming={isStreaming}
+                    handleStop={handleStop}
+                    handleSendMessage={handleSendMessage}
+                    enhancingPrompt={enhancingPrompt}
+                    enhancePrompt={enhancePrompt}
+                    isListening={isListening}
+                    startListening={startListening}
+                    stopListening={stopListening}
+                    chatStarted={chatStarted}
+                    exportChat={exportChat}
+                    qrModalOpen={qrModalOpen}
+                    setQrModalOpen={setQrModalOpen}
+                    handleFileUpload={handleFileUpload}
+                    chatMode={chatMode}
+                    setChatMode={setChatMode}
+                    agentMode={agentMode}
+                    setAgentMode={setAgentMode}
+                    designScheme={designScheme}
+                    setDesignScheme={setDesignScheme}
+                    selectedElement={selectedElement}
+                    setSelectedElement={setSelectedElement}
                   />
-                  <PlanHost
-                    sendMessage={(text) => sendMessage?.({} as never, text)}
-                    model={model ?? ''}
-                    provider={provider?.name}
-                  />
-                  {deployAlert && (
-                    <DeployChatAlert
-                      alert={deployAlert}
-                      clearAlert={() => _clearDeployAlert?.()}
-                      postMessage={(message: string | undefined) => {
-                        sendMessage?.({} as any, message);
-                      }}
-                    />
-                  )}
-                  {actionAlert && (
-                    <ChatAlert
-                      alert={actionAlert}
-                      clearAlert={() => clearAlert?.()}
-                      postMessage={(message) => {
-                        sendMessage?.({} as any, message);
-                        clearAlert?.();
-                      }}
-                    />
-                  )}
-                  {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
                 </div>
-                <ToolApprovalTray messages={messages} addToolOutput={addToolOutput} />
-                {incomingProgressAnnotations && <ProgressCompilation data={incomingProgressAnnotations} />}
-                <ChatBox
-                  provider={provider}
-                  setProvider={setProvider}
-                  providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
-                  model={model}
-                  setModel={setModel}
-                  modelList={modelList}
-                  apiKeys={apiKeys}
-                  isModelLoading={isModelLoading}
-                  onApiKeysChange={onApiKeysChange}
-                  uploadedFiles={uploadedFiles}
-                  setUploadedFiles={setUploadedFiles}
-                  imageDataList={imageDataList}
-                  setImageDataList={setImageDataList}
-                  textareaRef={textareaRef}
-                  input={input}
-                  handleInputChange={handleInputChange}
-                  handlePaste={handlePaste}
-                  TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
-                  TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
-                  isStreaming={isStreaming}
-                  handleStop={handleStop}
-                  handleSendMessage={handleSendMessage}
-                  enhancingPrompt={enhancingPrompt}
-                  enhancePrompt={enhancePrompt}
-                  isListening={isListening}
-                  startListening={startListening}
-                  stopListening={stopListening}
-                  chatStarted={chatStarted}
-                  exportChat={exportChat}
-                  qrModalOpen={qrModalOpen}
-                  setQrModalOpen={setQrModalOpen}
-                  handleFileUpload={handleFileUpload}
-                  chatMode={chatMode}
-                  setChatMode={setChatMode}
-                  agentMode={agentMode}
-                  setAgentMode={setAgentMode}
-                  designScheme={designScheme}
-                  setDesignScheme={setDesignScheme}
-                  selectedElement={selectedElement}
-                  setSelectedElement={setSelectedElement}
-                />
-              </div>
-            </StickToBottom>
-            <div className="relative z-[1] flex flex-col justify-center">
-              <div className="flex flex-col gap-4">
-                {!chatStarted &&
-                  ExamplePrompts((event, messageInput) => {
+              </StickToBottom>
+              {!chatStarted && (
+                <div className="flex flex-col gap-4 pb-6">
+                  {ExamplePrompts((event, messageInput) => {
                     if (isStreaming) {
                       handleStop?.();
                       return;
@@ -519,16 +524,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                     handleSendMessage?.(event, messageInput);
                   })}
-                {!chatStarted && <MoreWaysToStart importChat={importChat} />}
-                {!chatStarted && (
-                  <div className="mx-auto grid w-full max-w-chat gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
-                    <RecentProjects />
-                    <SpendCard />
-                  </div>
-                )}
-                {!chatStarted && <BrandFooter className="mt-4 mb-4" />}
-              </div>
+                  <MoreWaysToStart importChat={importChat} />
+                </div>
+              )}
             </div>
+            {!chatStarted && (
+              <div className="relative z-[1] flex flex-col gap-4">
+                <div className="mx-auto grid w-full max-w-chat gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
+                  <RecentProjects />
+                  <SpendCard />
+                </div>
+                <BrandFooter className="mt-4 mb-4" />
+              </div>
+            )}
           </div>
           <ClientOnly>
             {() => (

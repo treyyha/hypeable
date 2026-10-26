@@ -389,9 +389,14 @@ function PlanEstimateChip({ model, provider, input }: { model: string; provider?
     completionHint: 'A structured plan with pages, data, features, and a cost range.',
   });
 
+  const amount = estimate.unknown ? 'set a price' : formatDollars(estimate.dollars, 2);
+
   return (
-    <Chip tone="default" disabled>
-      {estimate.unknown ? 'set a price to estimate' : `about ${formatDollars(estimate.dollars, 2)} to plan`}
+    <Chip tone="default" disabled className="whitespace-nowrap">
+      <span className="sm:hidden">{amount}</span>
+      <span className="hidden sm:inline">
+        {estimate.unknown ? 'set a price to estimate' : `about ${amount} to plan`}
+      </span>
     </Chip>
   );
 }

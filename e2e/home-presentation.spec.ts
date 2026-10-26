@@ -11,7 +11,7 @@ async function setTheme(page: Page, theme: 'dark' | 'light') {
   }, theme);
 }
 
-async function pillContrast(pill: Locator): Promise<number> {
+async function pillContrast(pill: Locator): Promise<{ ratio: number; detail: string }> {
   const styles = await pill.evaluate((element) => {
     const computed = getComputedStyle(element);
     const header = element.closest('header');
@@ -25,15 +25,21 @@ async function pillContrast(pill: Locator): Promise<number> {
   });
 
   const fg = parseCssColor(styles.color);
-  const bg = composite(parseCssColor(styles.backgroundColor), parseCssColor(styles.headerBg));
+  const rawBg = parseCssColor(styles.backgroundColor);
+  const header = parseCssColor(styles.headerBg);
+  const bg = composite(rawBg, header);
 
-  return contrastRatio(fg, bg);
+  return {
+    ratio: contrastRatio(fg, bg),
+    detail: `${styles.color} on ${styles.backgroundColor} over ${styles.headerBg}`,
+  };
 }
 
 test.describe('home presentation', () => {
   test('cost pill text is visible and meets AA contrast in dark and light', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.setViewportSize({ width: 1440, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
 
     const pill = page.getByTestId('cost-pill');
@@ -41,13 +47,16 @@ test.describe('home presentation', () => {
 
     for (const theme of ['dark', 'light'] as const) {
       await setTheme(page, theme);
+      await expect
+        .poll(async () => pill.evaluate((el) => getComputedStyle(el).color))
+        .toMatch(theme === 'light' ? /77,\s*122,\s*0|0\.30[0-9].*0\.47[0-9]/ : /200,\s*255,\s*61|0\.78[0-9].*\s1(\.0+)?\s/);
       await expect(pill).toHaveText(/\$0\.00/);
 
       const text = (await pill.innerText()).trim();
       expect(text.length, `${theme} pill text`).toBeGreaterThan(0);
 
-      const ratio = await pillContrast(pill);
-      expect(ratio, `${theme} pill contrast ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+      const { ratio, detail } = await pillContrast(pill);
+      expect(ratio, `${theme} pill contrast ${ratio.toFixed(2)} (${detail})`).toBeGreaterThanOrEqual(4.5);
     }
   });
 

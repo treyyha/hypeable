@@ -1,12 +1,12 @@
 import React from 'react';
 
 const EXAMPLE_PROMPTS = [
-  { text: 'Build a personal portfolio' },
   { text: 'Make a recipe finder' },
   { text: 'Build a markdown blog' },
-  { text: 'Create a Kanban board in react' },
   { text: 'Make a Pomodoro timer' },
   { text: 'Make a simple landing page' },
+  { text: 'Build a personal portfolio' },
+  { text: 'Create a Kanban board in react' },
   { text: 'Make a slide deck about dogs' },
 ];
 
@@ -21,8 +21,8 @@ export function ExamplePrompts(
   limit = 4,
 ) {
   return (
-    <div id="examples" className="relative mx-auto mt-4 flex w-full max-w-[520px] justify-center">
-      <div className="flex flex-nowrap justify-center gap-2 overflow-x-auto px-1">
+    <div id="examples" className="relative mx-auto mt-4 flex w-full max-w-2xl justify-center">
+      <div className="flex flex-wrap justify-center gap-2 px-1 sm:flex-nowrap">
         {EXAMPLE_PROMPTS.slice(0, limit).map((examplePrompt, index: number) => {
           return (
             <button
@@ -30,7 +30,7 @@ export function ExamplePrompts(
               onClick={(event) => {
                 sendMessage?.(event, examplePrompt.text);
               }}
-              className="rounded-full border border-hype-border bg-hype-surface px-3 py-1 text-xs text-hype-muted transition-theme hover:border-hype-accent/40 hover:text-hype-text"
+              className="appearance-none rounded-full border border-hype-border bg-hype-surface px-3 py-1 text-xs text-hype-muted transition-theme hover:text-hype-text"
             >
               {examplePrompt.text}
             </button>

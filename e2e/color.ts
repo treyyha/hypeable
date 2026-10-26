@@ -39,6 +39,24 @@ export function parseCssColor(value: string): Rgba {
     return { r: Number.parseFloat(rgb[1]), g: Number.parseFloat(rgb[2]), b: Number.parseFloat(rgb[3]), a };
   }
 
+  const srgb = value.match(/color\(\s*srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/i);
+
+  if (srgb) {
+    const alphaRaw = srgb[4];
+    let a = 1;
+
+    if (alphaRaw) {
+      a = alphaRaw.endsWith('%') ? Number.parseFloat(alphaRaw) / 100 : Number.parseFloat(alphaRaw);
+    }
+
+    return {
+      r: Number.parseFloat(srgb[1]) * 255,
+      g: Number.parseFloat(srgb[2]) * 255,
+      b: Number.parseFloat(srgb[3]) * 255,
+      a,
+    };
+  }
+
   throw new Error(`unsupported CSS color: ${value}`);
 }
 

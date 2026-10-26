@@ -24,7 +24,7 @@ export function MoreWaysToStart({ importChat }: MoreWaysToStartProps) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className="text-xs text-hype-muted hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+        className="appearance-none border-0 bg-transparent px-1 py-0.5 text-xs text-hype-muted hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
       >
         More ways to start: Templates . Import folder . Import ZIP . Clone repo
       </button>
