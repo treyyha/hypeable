@@ -1,5 +1,8 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Hypeable repository
-    url: https://github.com/treyyha/hypeable
-    about: Source, docs, and discussion for Hypeable.
+  - name: Discussions
+    url: https://github.com/treyyha/hypeable/discussions
+    about: Questions, ideas, and show-and-tell. Not for bugs or security reports.
+  - name: Security policy
+    url: https://github.com/treyyha/hypeable/security/policy
+    about: Report a vulnerability privately. Do not open a public issue.

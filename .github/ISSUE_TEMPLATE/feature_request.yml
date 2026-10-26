@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an idea for Hypeable
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests for [Hypeable](https://github.com/treyyha/hypeable). Questions belong in [Discussions](https://github.com/treyyha/hypeable/discussions).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing or painful today?
+      placeholder: I want to… because…
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should Hypeable do instead?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you thought about, including running locally.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, related issues, or links.

@@ -1,0 +1,46 @@
+name: Wrong price
+description: A list price in prices.json is wrong or stale
+labels: [pricing]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `app/lib/cost/prices.json` is community-maintained list prices (dollars per 1M tokens). The meter uses it when the provider does not report a billed cost. See [CONTRIBUTING.md](https://github.com/treyyha/hypeable/blob/main/CONTRIBUTING.md).
+
+        Do not invent prices. Link the official page.
+  - type: input
+    id: model
+    attributes:
+      label: Model pattern
+      description: The `prices.json` pattern, for example `gpt-4o*` or `claude-sonnet-4*`.
+      placeholder: gpt-4o-mini*
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Official pricing URL
+      description: The provider page that lists this model.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the official page says
+      description: Input / output / cached, dollars per 1M tokens, and the date you checked.
+      placeholder: |
+        input: 0.15
+        output: 0.60
+        cachedInput: 0.075
+        checkedAt: 2026-10-26
+    validations:
+      required: true
+  - type: dropdown
+    id: verified
+    attributes:
+      label: Is the figure on that official page?
+      options:
+        - 'Yes — set verified: true'
+        - 'No / inferred — keep verified: false (UI shows ≈)'
+    validations:
+      required: true
