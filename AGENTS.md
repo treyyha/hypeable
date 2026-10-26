@@ -32,6 +32,7 @@ Read `docs/ORIENTATION.md` only if needed. Prefer targeted reads of the files be
 | Feature | Where it lives |
 |---|---|
 | Cost meter | `app/lib/cost/` (`calc.ts`, `caps.ts`, `prices.json`), `app/lib/stores/cost.ts`, `app/components/cost/`, `docs/COST-METER.md` |
+| Spend page | `app/routes/spend.tsx`, `app/components/spend/`, `app/lib/cost/ledger.ts`, `app/lib/stores/ledger.ts` |
 | Loop breaker | `app/lib/loop/`, `app/lib/stores/loop.ts`, `app/lib/hooks/useLoopBreaker.ts`, `app/components/loop/`, `docs/LOOP-BREAKER.md` |
 | Plan-first | `app/lib/plan/`, `app/lib/stores/plan.ts`, `app/components/plan/` (`PlanCard.tsx`, `PlanFirstChip.tsx`, `PlanSettings.tsx`), `docs/PLAN-MODE.md` |
 | Keys / security | `app/lib/api/api-key-storage.ts`, `app/lib/api/request-keys.ts`, `app/lib/security/`, `templates/security/`, `scripts/secret-scan.mjs`, `docs/SECURITY.md`, `docs/KEY-FLOW.md` |

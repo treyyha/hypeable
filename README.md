@@ -10,7 +10,7 @@
 
 ## Live cost meter
 
-The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too.
+The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too. The **Spend** page (`/spend`, also linked from the home “Your spend” card) shows today, session, month-to-date, per-model share, recent builds, and cap progress from this browser only.
 
 Unknown models show tokens plus a prompt to set a price in Settings. Copy receipt produces a shareable line such as `Built with Hypeable: $0.42 | 38k tokens | claude-x, gpt-y | hypeable.dev`.
 

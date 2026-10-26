@@ -25,6 +25,7 @@ import {
 } from '~/lib/cost/persist';
 import { formatReceipt } from '~/lib/cost/receipt';
 import { extractTokenUsage } from '~/lib/cost/usage';
+import { recordLedgerFromUsage } from '~/lib/stores/ledger';
 
 const browserStorage = (): Storage | undefined => {
   if (typeof window === 'undefined') {
@@ -99,6 +100,22 @@ function commit(snapshot: CostSnapshot, decision?: CapDecision): CostSnapshot {
 export function recordUsage(entry: UsageEntry): CapDecision {
   const { snapshot, decision } = applyUsage(current(), entry, now());
   commit(snapshot, decision);
+
+  if (!entry.pending) {
+    const record = snapshot.messages[entry.id];
+
+    if (record) {
+      recordLedgerFromUsage({
+        id: entry.id,
+        model: record.model,
+        provider: record.provider,
+        promptTokens: record.promptTokens,
+        completionTokens: record.completionTokens,
+        dollars: record.dollars,
+        verified: record.verified,
+      });
+    }
+  }
 
   return decision;
 }

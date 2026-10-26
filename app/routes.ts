@@ -14,6 +14,7 @@ export default [
       { file: 'routes/chat.$id.tsx', path: 'chat/:id' },
     ],
   },
+  { file: 'routes/spend.tsx', path: '/spend' },
   { file: 'routes/git.tsx', path: '/git' },
   { file: 'routes/starter.tsx', path: '/starter' },
   { file: 'routes/webcontainer.connect.$id.tsx', path: '/webcontainer/connect/:id' },

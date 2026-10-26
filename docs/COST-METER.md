@@ -40,6 +40,7 @@ flowchart LR
 2. `app/lib/cost/calc.ts` multiplies tokens by list prices in `prices.json` (per 1M input / output, optional cached input). Local providers (Ollama, LM Studio) are $0.
 3. Unknown models stay unknown: the UI shows tokens plus **price unknown, set it**. Custom per-model prices live in settings.
 4. Totals persist in `localStorage` key `hypeable:cost:v1`. Corrupted or missing storage falls back to zeros.
+5. A compact build ledger (last 200 settled usages: time, chat, model, tokens, cost) lives in `hypeable:spend-ledger:v1` with the same corruption fallback. The **Spend** page (`/spend`) reads the meter and this ledger in the browser only.
 
 ## Caps
 

@@ -3,6 +3,7 @@ import { atom } from 'nanostores';
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { useLoaderData, useNavigate, useParams, useSearchParams, type NavigateFunction } from 'react-router';
 import { toast } from 'react-toastify';
+import { chatId, description } from './chat-meta';
 import { getCachedMessages, getCachedSnapshot, invalidateChatCache } from './chatCache';
 import {
   getMessagesByIdRaw,
@@ -37,8 +38,8 @@ const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 
 export const db = persistenceEnabled ? await openDatabase() : undefined;
 
-export const chatId = atom<string | undefined>(undefined);
-export const description = atom<string | undefined>(undefined);
+export { chatId, description };
+
 export const chatMetadata = atom<IChatMetadata | undefined>(undefined);
 
 let filesystemTransitionQueue: Promise<void> = Promise.resolve();

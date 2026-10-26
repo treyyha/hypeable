@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 import { HistoryItem } from './HistoryItem';
 import { binDates, groupHistoryBins } from './date-binning';
@@ -15,6 +16,7 @@ const LazyControlPanel = lazy(() =>
 import { Button } from '~/components/ui/Button';
 import { Dialog, DialogButton, DialogDescription, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
 import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
+import { SidebarSection } from '~/components/ui/SidebarSection';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
 import {
@@ -35,6 +37,8 @@ export const Menu = () => {
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const collapsed = useStore(sidebarCollapsedStore);
   const mobileOpen = useStore(sidebarMobileOpenStore);
+  const location = useLocation();
+  const onSpend = location.pathname === '/spend';
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
@@ -486,32 +490,47 @@ export const Menu = () => {
               </Dialog>
             </DialogRoot>
           </div>
-          <nav className="mt-auto space-y-0.5 border-t border-hype-border p-2">
-            <button
-              type="button"
-              onClick={handleSettingsClick}
-              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
-            >
-              <span className="i-ph:gear h-4 w-4 shrink-0" />
-              {showLabels ? <span>Settings</span> : <span className="sr-only">Settings</span>}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsDocumentationOpen(true)}
-              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
-            >
-              <span className="i-ph:book-open h-4 w-4 shrink-0" />
-              {showLabels ? <span>Docs</span> : <span className="sr-only">Docs</span>}
-            </button>
+          <nav className="mt-auto space-y-3 border-t border-hype-border p-2">
             <a
-              href={APP_REPO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+              href="/spend"
+              className={classNames(
+                'flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
+                onSpend
+                  ? 'bg-hype-surface-2 text-hype-text'
+                  : 'text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text',
+              )}
+              aria-current={onSpend ? 'page' : undefined}
             >
-              <span className="i-ph:github-logo h-4 w-4 shrink-0" />
-              {showLabels ? <span>GitHub</span> : <span className="sr-only">GitHub</span>}
+              <span className="i-ph:receipt h-4 w-4 shrink-0" />
+              {showLabels ? <span>Spend</span> : <span className="sr-only">Spend</span>}
             </a>
+            <SidebarSection label={showLabels ? 'Account' : undefined}>
+              <button
+                type="button"
+                onClick={handleSettingsClick}
+                className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+              >
+                <span className="i-ph:gear h-4 w-4 shrink-0" />
+                {showLabels ? <span>Settings</span> : <span className="sr-only">Settings</span>}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsDocumentationOpen(true)}
+                className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] bg-transparent px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+              >
+                <span className="i-ph:book-open h-4 w-4 shrink-0" />
+                {showLabels ? <span>Docs</span> : <span className="sr-only">Docs</span>}
+              </button>
+              <a
+                href={APP_REPO_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="flex w-full items-center gap-2 rounded-[var(--hype-radius-sm)] px-2 py-2 text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+              >
+                <span className="i-ph:github-logo h-4 w-4 shrink-0" />
+                {showLabels ? <span>GitHub</span> : <span className="sr-only">GitHub</span>}
+              </a>
+            </SidebarSection>
           </nav>
         </div>
       </aside>

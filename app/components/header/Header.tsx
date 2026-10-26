@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react';
+import { useLocation } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { CostMeter } from '~/components/cost/CostMeter';
@@ -27,6 +28,8 @@ function HeaderChatTitle() {
 export function Header() {
   const chat = useStore(chatStore);
   const mobileOpen = useStore(sidebarMobileOpenStore);
+  const location = useLocation();
+  const isSpend = location.pathname === '/spend';
 
   return (
     <header
@@ -51,7 +54,13 @@ export function Header() {
           /
         </span>
         <span className="min-w-0 truncate text-hype-text">
-          {chat.started ? <ClientOnly fallback="new build">{() => <HeaderChatTitle />}</ClientOnly> : 'new build'}
+          {isSpend ? (
+            'spend'
+          ) : chat.started ? (
+            <ClientOnly fallback="new build">{() => <HeaderChatTitle />}</ClientOnly>
+          ) : (
+            'new build'
+          )}
         </span>
       </nav>
 

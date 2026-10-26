@@ -50,7 +50,12 @@ export function SpendCard() {
     <Card className="flex h-full flex-col">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-xs font-semibold uppercase tracking-[var(--hype-tracking-label)] text-hype-muted">
-          Your spend
+          <a
+            href="/spend"
+            className="rounded-[var(--hype-radius-sm)] hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+          >
+            Your spend
+          </a>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-2">
