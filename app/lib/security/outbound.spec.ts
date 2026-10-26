@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  FIRST_PARTY_PROVIDER_HOSTS,
   HOSTED_CUSTOM_ENDPOINT_MESSAGE,
   HostedOutboundError,
   assertGitProxyTarget,
@@ -20,6 +21,10 @@ afterEach(() => {
 });
 
 describe('hosted outbound allowlist', () => {
+  it('lists openrouter.ai as a first-party OpenRouter host', () => {
+    expect(FIRST_PARTY_PROVIDER_HOSTS.OpenRouter).toContain('openrouter.ai');
+  });
+
   it('is a no-op when self-hosted', () => {
     delete process.env.HYPEABLE_HOSTED;
     expect(() => assertHostedProviderAccess(undefined, 'Ollama', 'http://127.0.0.1:11434')).not.toThrow();
@@ -43,6 +48,7 @@ describe('hosted outbound allowlist', () => {
   it('allows first-party hosts and rejects a forged base URL', () => {
     expect(() => assertHostedProviderAccess(hosted, 'OpenAI', 'https://api.openai.com/v1')).not.toThrow();
     expect(() => assertHostedProviderAccess(hosted, 'Anthropic', 'https://api.anthropic.com')).not.toThrow();
+    expect(() => assertHostedProviderAccess(hosted, 'OpenRouter', 'https://openrouter.ai/api/v1')).not.toThrow();
     expect(() => assertHostedProviderAccess(hosted, 'OpenAI', 'https://evil.example/v1')).toThrow(
       HOSTED_CUSTOM_ENDPOINT_MESSAGE,
     );

@@ -10,6 +10,8 @@
  * - Code Preview: Time to render WebContainer preview
  */
 
+import { redactUnknown } from '~/lib/security/redact';
+
 interface PerformanceMetric {
   name: string;
   duration: number;
@@ -106,7 +108,7 @@ class PerformanceMonitor {
 
     // Log to console in development
     if (import.meta.env.DEV) {
-      console.log(`[PERF] ${name}: ${duration.toFixed(2)}ms`, metadata || '');
+      console.log(`[PERF] ${name}: ${duration.toFixed(2)}ms`, redactUnknown(metadata || ''));
     }
 
     // Hypeable never phones home. Keep metrics in-memory only.

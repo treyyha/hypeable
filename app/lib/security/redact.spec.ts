@@ -11,6 +11,18 @@ describe('redact', () => {
     expect(redact('gho_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
   });
 
+  it('strips OpenRouter sk-or- keys constructed at runtime', () => {
+    const openRouterKey = `sk-or-v1-${'a'.repeat(24)}`;
+    expect(redact(`provider failed for ${openRouterKey}`)).not.toContain(openRouterKey);
+    expect(redact(`provider failed for ${openRouterKey}`)).toContain('[REDACTED]');
+  });
+
+  it('strips OAuth code query params from URLs', () => {
+    const url = 'http://localhost:5173/auth/openrouter/callback?code=auth_code_abc&state=csrf';
+    expect(redact(url)).not.toContain('auth_code_abc');
+    expect(redact(url)).toContain('state=csrf');
+  });
+
   it('strips x-hypeable-key header dumps and apiKeys cookies', () => {
     expect(redact(`x-hypeable-key: ${FAKE_KEY}`)).not.toContain(FAKE_KEY);
     expect(redact(`Cookie: theme=dark; apiKeys=%7B%22OpenAI%22%3A%22${FAKE_KEY}%22%7D`)).not.toContain(FAKE_KEY);

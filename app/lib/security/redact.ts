@@ -7,11 +7,13 @@
 
 const PATTERNS: RegExp[] = [
   /sk-ant-[A-Za-z0-9_-]+/g,
+  /sk-or-(?:v1-)?[A-Za-z0-9_-]{20,}/g,
   /sk-[A-Za-z0-9_-]{20,}/g,
   /gh[pousr]_[A-Za-z0-9]{20,}/g,
   /Bearer\s+[A-Za-z0-9._-]+/gi,
   /(?:x-hypeable-key|x-api-key|authorization)\s*[:=]\s*[^\s,;]+/gi,
   /(?:apiKeys|githubToken|gitlabToken|netlifyToken|VITE_VERCEL_ACCESS_TOKEN)=([^;]+)/gi,
+  /(?:\?|&)(?:code|code_verifier)=[^&\s"']+/gi,
 ];
 
 export const redact = (s: string): string => {
