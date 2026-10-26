@@ -65,9 +65,9 @@ export function RowAvatar({ label, tone = 'mint' }: { label: string; tone?: 'lim
   const initial = (label.trim()[0] || '?').toUpperCase();
 
   const tones = {
-    lime: 'bg-hype-accent/15 text-hype-accent-text',
-    mint: 'bg-hype-mint/15 text-hype-mint',
-    cyan: 'bg-hype-cyan/15 text-hype-cyan',
+    lime: 'hype-avatar-lime',
+    mint: 'hype-avatar-mint',
+    cyan: 'hype-avatar-cyan',
   };
 
   return (

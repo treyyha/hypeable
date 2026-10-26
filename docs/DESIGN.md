@@ -54,3 +54,7 @@ AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation,
 - Home light desktop: [assets/home-light-1440.png](assets/home-light-1440.png)
 - Home dark mobile: [assets/home-dark-390.png](assets/home-dark-390.png)
 - Home light mobile: [assets/home-light-390.png](assets/home-light-390.png)
+- Spend dark desktop: [assets/spend-dark-1440.png](assets/spend-dark-1440.png)
+- Spend light desktop: [assets/spend-light-1440.png](assets/spend-light-1440.png)
+- Spend dark mobile: [assets/spend-dark-390.png](assets/spend-dark-390.png)
+- Spend light mobile: [assets/spend-light-390.png](assets/spend-light-390.png)

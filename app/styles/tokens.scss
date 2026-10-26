@@ -307,9 +307,9 @@ samp,
   inset: 0;
   mix-blend-mode: screen;
   background:
-    radial-gradient(38% 32% at 50% 44%, var(--hype-aurora-lime) 0%, transparent 70%),
-    radial-gradient(55% 48% at 22% 58%, var(--hype-aurora-mint) 0%, transparent 72%),
-    radial-gradient(50% 46% at 82% 50%, var(--hype-aurora-cyan) 0%, transparent 72%);
+    radial-gradient(28% 24% at 50% 46%, var(--hype-aurora-lime) 0%, transparent 68%),
+    radial-gradient(58% 50% at 16% 64%, var(--hype-aurora-mint) 0%, transparent 74%),
+    radial-gradient(52% 48% at 86% 48%, var(--hype-aurora-cyan) 0%, transparent 74%);
   -webkit-mask-image:
     linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%),
     linear-gradient(to bottom, transparent 0%, #000 8%, #000 76%, transparent 100%),
@@ -374,6 +374,69 @@ samp,
     cursor: not-allowed;
     opacity: 0.45;
   }
+}
+
+.hype-action-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--hype-surface-2);
+  border: 1px solid var(--hype-border);
+  color: var(--hype-text);
+  border-radius: var(--hype-radius-md);
+  font-size: var(--hype-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--hype-duration-fast) var(--hype-ease),
+    color var(--hype-duration-fast) var(--hype-ease);
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--hype-text) 8%, var(--hype-surface-2));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hype-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.hype-badge-ok {
+  background-color: color-mix(in srgb, var(--hype-ok) 16%, transparent);
+  color: var(--hype-ok);
+}
+
+.hype-badge-warn {
+  background-color: color-mix(in srgb, var(--hype-warn) 16%, transparent);
+  color: var(--hype-warn);
+}
+
+.hype-badge-danger {
+  background-color: color-mix(in srgb, var(--hype-danger) 16%, transparent);
+  color: var(--hype-danger);
+}
+
+.hype-avatar-lime {
+  background-color: color-mix(in srgb, var(--hype-lime) 18%, transparent);
+  color: var(--hype-accent-text);
+}
+
+.hype-avatar-mint {
+  background-color: color-mix(in srgb, var(--hype-mint) 18%, transparent);
+  color: var(--hype-mint);
+}
+
+.hype-avatar-cyan {
+  background-color: color-mix(in srgb, var(--hype-cyan) 18%, transparent);
+  color: var(--hype-cyan);
 }
 
 /*
