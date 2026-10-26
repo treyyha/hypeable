@@ -30,6 +30,19 @@ if (!hasRemote) {
   die('no "origin" remote. Add one, then re-run npm run finish.');
 }
 
+function originRepo() {
+  const url = out('remote', 'get-url', 'origin').replace(/\.git$/, '');
+  const match = url.match(/github\.com[:/]([^/]+\/[^/]+)$/i);
+
+  if (!match) {
+    die('origin is not a GitHub remote');
+  }
+
+  return match[1];
+}
+
+const repo = originRepo();
+
 if (run('git', ['pull', '--rebase', '--autostash']).status !== 0) {
   die('rebase conflict. Resolve it, then: git rebase --continue && npm run finish');
 }
@@ -49,7 +62,7 @@ let runId = '';
 for (let attempt = 0; attempt < 24; attempt += 1) {
   const listed = execFileSync(
     'gh',
-    ['run', 'list', '--workflow', 'CI', '--limit', '10', '--json', 'databaseId,headSha,status,url'],
+    ['run', 'list', '--repo', repo, '--workflow', 'CI', '--limit', '10', '--json', 'databaseId,headSha,status,url'],
     { encoding: 'utf8' },
   );
 
@@ -68,7 +81,7 @@ if (!runId) {
   die('no CI run appeared for this commit. Check GitHub Actions.');
 }
 
-const watch = run('gh', ['run', 'watch', runId, '--exit-status']);
+const watch = run('gh', ['run', 'watch', runId, '--repo', repo, '--exit-status']);
 
 if (watch.status !== 0) {
   die('CI red. Fix it before anything else, then npm run finish.');
