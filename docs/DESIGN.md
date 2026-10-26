@@ -46,14 +46,24 @@ Plan Card, loop panel, cap modal, cost popover, settings, and onboarding consume
 
 ## Quality
 
-AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation, usable down to 390px, reduced motion respected.
+AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation, usable at 375×812 / 768×1024 / 1440×900 (Chat | Preview | Code tabs below 1024px), reduced motion respected.
 
 ## Screenshots
 
 - Home dark desktop: [assets/home-dark-1440.png](assets/home-dark-1440.png)
 - Home light desktop: [assets/home-light-1440.png](assets/home-light-1440.png)
+- Home dark 375: [assets/home-dark-375.png](assets/home-dark-375.png)
+- Home light 375: [assets/home-light-375.png](assets/home-light-375.png)
+- Home dark 768: [assets/home-dark-768.png](assets/home-dark-768.png)
+- Home light 768: [assets/home-light-768.png](assets/home-light-768.png)
 - Home dark mobile: [assets/home-dark-390.png](assets/home-dark-390.png)
 - Home light mobile: [assets/home-light-390.png](assets/home-light-390.png)
+- Started chat dark 375: [assets/chat-dark-375.png](assets/chat-dark-375.png)
+- Started chat light 375: [assets/chat-light-375.png](assets/chat-light-375.png)
+- Started chat dark 768: [assets/chat-dark-768.png](assets/chat-dark-768.png)
+- Started chat light 768: [assets/chat-light-768.png](assets/chat-light-768.png)
+- Started chat dark 1440: [assets/chat-dark-1440.png](assets/chat-dark-1440.png)
+- Started chat light 1440: [assets/chat-light-1440.png](assets/chat-light-1440.png)
 - Spend dark desktop: [assets/spend-dark-1440.png](assets/spend-dark-1440.png)
 - Spend light desktop: [assets/spend-light-1440.png](assets/spend-light-1440.png)
 - Spend dark mobile: [assets/spend-dark-390.png](assets/spend-dark-390.png)

@@ -14,6 +14,36 @@ async function setTheme(page: Page, theme: 'dark' | 'light') {
 test.describe('docs screenshots', () => {
   test.skip(!CAPTURE, 'set CAPTURE_DOCS=1 to regenerate docs/assets shots');
 
+  test('home and started chat at 375, 768, and 1440', async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedOpenAILikeMock(page);
+
+    for (const [width, height] of [
+      [375, 812],
+      [768, 1024],
+      [1440, 900],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible({ timeout: 20_000 });
+      await setTheme(page, 'dark');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/home-dark-${width}.png` });
+      await setTheme(page, 'light');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/home-light-${width}.png` });
+
+      await page.goto('/?debugStarted=1');
+      await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
+      await setTheme(page, 'dark');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/chat-dark-${width}.png` });
+      await setTheme(page, 'light');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/chat-light-${width}.png` });
+    }
+  });
+
   test('home, plan, cost, loop at desktop and mobile', async ({ page }) => {
     test.setTimeout(180_000);
     await seedOpenAILikeMock(page);
@@ -152,11 +182,15 @@ test.describe('docs screenshots', () => {
 
     await setTheme(page, 'dark');
     await page.waitForTimeout(200);
-    await page.locator('[data-testid="start-in-sixty"]').screenshot({ path: 'docs/assets/start-in-sixty-dark-1440.png' });
+    await page
+      .locator('[data-testid="start-in-sixty"]')
+      .screenshot({ path: 'docs/assets/start-in-sixty-dark-1440.png' });
 
     await setTheme(page, 'light');
     await page.waitForTimeout(200);
-    await page.locator('[data-testid="start-in-sixty"]').screenshot({ path: 'docs/assets/start-in-sixty-light-1440.png' });
+    await page
+      .locator('[data-testid="start-in-sixty"]')
+      .screenshot({ path: 'docs/assets/start-in-sixty-light-1440.png' });
   });
 
   test('predeploy modal fail, warn, and clean', async ({ page }) => {

@@ -21,9 +21,11 @@ import { IconButton } from '~/components/ui/IconButton';
 import { Slider, type SliderOptions } from '~/components/ui/Slider';
 import useViewport from '~/lib/hooks';
 import { chatStore } from '~/lib/stores/chat';
+import { setMobilePane } from '~/lib/stores/mobile-pane';
 import { usePreviewStore } from '~/lib/stores/previews';
 import { streamingState } from '~/lib/stores/streaming';
 import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
+import { bootWebContainer } from '~/lib/webcontainer';
 import type { FileHistory } from '~/types/actions';
 import { classNames } from '~/utils/classNames';
 import { debounce } from '~/utils/debounce';
@@ -369,6 +371,12 @@ export const Workbench = memo(
       workbenchStore.setDocuments(files);
     }, [files]);
 
+    useEffect(() => {
+      if (chatStarted) {
+        void bootWebContainer();
+      }
+    }, [chatStarted]);
+
     const onEditorChange = useCallback<OnEditorChange>((update) => {
       workbenchStore.setCurrentDocumentContent(update.content);
     }, []);
@@ -428,7 +436,7 @@ export const Workbench = memo(
         >
           <div
             className={classNames(
-              'fixed top-[calc(var(--header-height)+1.2rem)] bottom-6 w-[var(--workbench-inner-width)] z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
+              'fixed top-[calc(var(--header-height)+1.2rem)] bottom-14 lg:bottom-6 w-[var(--workbench-inner-width)] z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
               {
                 'w-full': isSmallViewport,
                 'left-0': showWorkbench && isSmallViewport,
@@ -441,15 +449,20 @@ export const Workbench = memo(
               <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
                 <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor gap-1.5">
                   <button
-                    className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary mr-1`}
-                    disabled={!canHideChat || isSmallViewport}
+                    type="button"
+                    aria-label={showChat ? 'Hide chat' : 'Show chat'}
+                    title={showChat ? 'Hide chat' : 'Show chat'}
+                    className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary mr-1 hidden lg:inline-flex`}
+                    disabled={!canHideChat}
                     onClick={() => {
                       if (canHideChat) {
                         chatStore.setKey('showChat', !showChat);
                       }
                     }}
                   />
-                  <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+                  <div className="hidden lg:block">
+                    <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+                  </div>
                   <div className="ml-auto" />
                   {selectedView === 'code' && (
                     <div className="flex overflow-y-auto">
@@ -507,8 +520,11 @@ export const Workbench = memo(
                     icon="i-ph:x-circle"
                     className="-mr-1"
                     size="xl"
+                    title="Close workbench"
+                    aria-label="Close workbench"
                     onClick={() => {
                       workbenchStore.showWorkbench.set(false);
+                      setMobilePane('chat');
                     }}
                   />
                 </div>

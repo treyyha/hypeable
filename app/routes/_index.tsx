@@ -16,7 +16,13 @@ export const loader = () => Response.json({});
  */
 export default function Index() {
   return (
-    <div className="flex h-full w-full bg-hype-bg">
+    <div className="flex h-full w-full min-w-0 overflow-x-clip bg-hype-bg">
+      <a
+        href="#composer"
+        className="absolute left-[-9999px] top-auto z-50 rounded-md bg-hype-surface-2 px-3 py-2 text-hype-text focus:left-3 focus:top-3"
+      >
+        Skip to composer
+      </a>
       <ClientOnly>{() => <Menu />}</ClientOnly>
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />

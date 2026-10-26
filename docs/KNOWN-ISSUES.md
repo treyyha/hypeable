@@ -23,9 +23,9 @@ Deterministic unit coverage of the same monitors stays blocking: `tests/unit/fra
 
 `e2e/docs-screenshots.spec.ts` is skipped unless `CAPTURE_DOCS=1`. That is a capture helper, not a product test. `pnpm e2e` still runs smoke, spend, predeploy, OpenRouter connect, and home presentation.
 
-## Started chat is not mobile-friendly (533px min width)
+## Started chat on narrow screens
 
-Once a chat has started, the transcript column uses `--chat-min-width: 533px` (`app/styles/variables.scss`, applied as `lg:min-w-[var(--chat-min-width)]` in `app/components/chat/BaseChat.tsx`). Home/empty states were designed down to 390px; the started-chat + workbench shell was not. Do not treat a squeezed started-chat layout under 533px as a regression of the home screenshots.
+Below 1024px the started chat uses a Chat | Preview | Code tab switch instead of the 533px split. Home and started-chat shots at 375, 768, and 1440 live in `docs/assets`.
 
 ## Production `pnpm audit --prod` leftovers
 

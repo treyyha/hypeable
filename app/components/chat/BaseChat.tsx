@@ -10,6 +10,7 @@ import LlmErrorAlert from './LLMApiAlert';
 import { Messages, type DisplayMessage } from './Messages.client';
 import ProgressCompilation from './ProgressCompilation';
 import { ToolApprovalTray } from './ToolApprovalTray';
+import { BrowserSupportBanner } from '~/components/browser/BrowserSupportBanner';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
 import { HomeHero } from '~/components/home/HomeHero';
@@ -23,6 +24,7 @@ import { PlanHost } from '~/components/plan/PlanHost';
 import { Aurora } from '~/components/ui/Aurora';
 import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+import { MobilePaneTabs } from '~/components/workbench/MobilePaneTabs';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { llmFetch, readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
@@ -30,8 +32,9 @@ import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/api
 const LazyWorkbench = lazy(() =>
   import('~/components/workbench/Workbench.client').then((m) => ({ default: m.Workbench })),
 );
-import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
+import useViewport, { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import type { ModelInfo } from '~/lib/modules/llm/types';
+import { setMobilePane } from '~/lib/stores/mobile-pane';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { workbenchStore } from '~/lib/stores/workbench';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
@@ -150,7 +153,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
     const expoUrl = useStore(expoUrlAtom);
     const showWorkbench = useStore(workbenchStore.showWorkbench);
+    const isSmallViewport = useViewport(1024);
     const [qrModalOpen, setQrModalOpen] = useState(false);
+
+    useEffect(() => {
+      if (!chatStarted || typeof window === 'undefined') {
+        return;
+      }
+
+      if (window.matchMedia('(max-width: 1023px)').matches) {
+        setMobilePane('chat');
+      }
+    }, [chatStarted]);
 
     useEffect(() => {
       if (expoUrl) {
@@ -383,10 +397,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
       >
-        {chatStarted && showChat && !showWorkbench && (
+        {chatStarted && showChat && !showWorkbench && !isSmallViewport && (
           <WorkbenchReopenButton onClick={() => workbenchStore.showWorkbench.set(true)} />
         )}
-        <div className="flex h-full w-full flex-col overflow-hidden lg:flex-row">
+        <div className="flex h-full min-w-0 w-full flex-col overflow-hidden lg:flex-row">
           <div
             className={classNames(
               styles.Chat,
@@ -395,10 +409,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             data-testid="home-main"
           >
             {!chatStarted && <Aurora data-testid="home-aurora" />}
+            <BrowserSupportBanner />
             <div
               className={classNames(
                 'relative z-[1] flex min-h-0 flex-1 flex-col',
-                chatStarted ? 'overflow-hidden' : 'overflow-y-auto',
+                chatStarted ? 'overflow-hidden pb-14 lg:pb-0' : 'overflow-y-auto',
               )}
             >
               {!chatStarted && <HomeHero />}
@@ -546,19 +561,22 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               )}
             </div>
           </div>
-          <ClientOnly>
-            {() => (
-              <Suspense fallback={null}>
-                <LazyWorkbench
-                  chatStarted={chatStarted}
-                  isStreaming={isStreaming}
-                  selectedElement={selectedElement}
-                  setSelectedElement={setSelectedElement}
-                  exportChat={exportChat}
-                />
-              </Suspense>
-            )}
-          </ClientOnly>
+          {chatStarted && (
+            <ClientOnly>
+              {() => (
+                <Suspense fallback={null}>
+                  <LazyWorkbench
+                    chatStarted={chatStarted}
+                    isStreaming={isStreaming}
+                    selectedElement={selectedElement}
+                    setSelectedElement={setSelectedElement}
+                    exportChat={exportChat}
+                  />
+                </Suspense>
+              )}
+            </ClientOnly>
+          )}
+          {chatStarted && <MobilePaneTabs />}
         </div>
       </div>
     );
