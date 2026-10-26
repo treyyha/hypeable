@@ -29,4 +29,20 @@ Measured on 2026-10-27 after the deferral pass (gzip level 9):
 | CSS | 391 KiB | 90 KiB |
 | Files in static graph | 53 | |
 
-Budget is 1250 KiB JS gzip / 120 KiB CSS gzip. Throttled Fast 4G wall-clock is recorded in the task report, not in CI (network is not deterministic).
+Budget is 1250 KiB JS gzip / 120 KiB CSS gzip.
+
+Throttled Fast 4G (Chrome DevTools: 9 Mbps down, 1.5 Mbps up, 170 ms RTT) against local `pnpm start` on 2026-10-27:
+
+| | |
+|---|---|
+| Wall clock to `networkidle` | 7.7 s |
+| Navigation duration | 4.3 s |
+| Requests | 78 |
+| Transfer (preview is uncompressed) | 6.4 MiB |
+
+`vite preview` does not gzip. Production on Cloudflare does. Use the gzip column above for CDN-sized JS/CSS. Re-run with:
+
+```bash
+pnpm start
+node scripts/measure-first-load.mjs http://localhost:5173/
+```
