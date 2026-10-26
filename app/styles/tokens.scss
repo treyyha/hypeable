@@ -12,7 +12,8 @@
   --hype-cyan: #22d3ee;
   --hype-warn: #ffb020;
   --hype-danger: #ff5a5f;
-  --hype-accent-on-light: #4d7a00;
+  --hype-danger-on-light: #b42318;
+  --hype-accent-on-light: #3c6100;
   --hype-mint-on-light: #0f7a5a;
   --hype-cyan-on-light: #0e7490;
 
@@ -101,6 +102,7 @@
   --hype-accent-text: var(--hype-accent-on-light);
   --hype-on-accent: var(--hype-lime-ink);
   --hype-ok: var(--hype-accent-on-light);
+  --hype-danger: var(--hype-danger-on-light);
   --hype-ring: color-mix(in srgb, var(--hype-accent-on-light) 45%, transparent);
   --hype-gradient-from: var(--hype-accent-on-light);
   --hype-gradient-via: var(--hype-mint-on-light);

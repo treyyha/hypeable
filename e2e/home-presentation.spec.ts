@@ -49,7 +49,7 @@ test.describe('home presentation', () => {
       await setTheme(page, theme);
       await expect
         .poll(async () => pill.evaluate((el) => getComputedStyle(el).color))
-        .toMatch(theme === 'light' ? /77,\s*122,\s*0|0\.30[0-9].*0\.47[0-9]/ : /200,\s*255,\s*61|0\.78[0-9].*\s1(\.0+)?\s/);
+        .toMatch(theme === 'light' ? /60,\s*97,\s*0|0\.2[0-4].*0\.3[7-9]/ : /200,\s*255,\s*61|0\.78[0-9].*\s1(\.0+)?\s/);
       await expect(pill).toHaveText(/\$0\.00/);
 
       const text = (await pill.innerText()).trim();

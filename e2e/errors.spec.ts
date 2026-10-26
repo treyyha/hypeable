@@ -125,7 +125,7 @@ test.describe('user-facing error states', () => {
 
     await page.goto('/');
     await sendFromHome(page);
-    await expect(page.getByText(/cap reached/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: /cap reached/i })).toBeVisible({ timeout: 20_000 });
   });
 
   test('loop breaker panel appears from debugLoop', async ({ page }) => {
@@ -139,7 +139,8 @@ test.describe('user-facing error states', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/?debugBrowser=1');
-    await expect(page.getByTestId('browser-support-banner')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Chrome or Edge/i)).toBeVisible();
+    const banner = page.getByTestId('browser-support-banner');
+    await expect(banner).toBeVisible({ timeout: 15_000 });
+    await expect(banner.getByText('Use Chrome or Edge for the in-browser preview')).toBeVisible();
   });
 });

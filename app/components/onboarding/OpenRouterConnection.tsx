@@ -65,7 +65,7 @@ export function OpenRouterConnection({ compact = false }: { compact?: boolean })
           href={OPENROUTER_KEYS_URL}
           target="_blank"
           rel="noreferrer"
-          className="text-hype-accent-text underline-offset-2 hover:underline"
+          className="text-hype-accent-text underline underline-offset-2"
         >
           openrouter.ai/settings/keys
         </a>

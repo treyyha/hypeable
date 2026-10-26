@@ -9,6 +9,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(({ className, v
   <div
     ref={ref}
     role="progressbar"
+    aria-label={props['aria-label'] ?? 'Progress'}
     aria-valuemin={0}
     aria-valuemax={100}
     aria-valuenow={Math.round(value || 0)}

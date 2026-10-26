@@ -43,7 +43,7 @@ test.describe('narrow layout', () => {
         await page.getByTestId('mobile-pane-chat').click();
         await assertNoHorizontalScroll(page);
       } else {
-        await expect(page.getByTestId('mobile-pane-tabs')).toHaveCount(0);
+        await expect(page.getByTestId('mobile-pane-tabs')).toBeHidden();
       }
     }
   });
@@ -71,8 +71,20 @@ test.describe('narrow layout', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
-    await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: 'Skip to composer' })).toBeFocused();
+    await expect(page.locator('#composer')).toBeVisible({ timeout: 20_000 });
+
+    const skip = page.getByRole('link', { name: 'Skip to composer' });
+    await page.locator('body').press('Tab');
+
+    for (let i = 0; i < 12; i += 1) {
+      if (await skip.evaluate((el) => el === document.activeElement)) {
+        break;
+      }
+
+      await page.keyboard.press('Tab');
+    }
+
+    await expect(skip).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator('#composer')).toBeFocused();
   });

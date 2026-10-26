@@ -32,6 +32,7 @@ function CapRow({ label, spent, cap }: { label: string; spent: number; cap: numb
       </div>
       <Progress
         value={off ? 0 : ratio}
+        aria-label={`${label} spend`}
         className={classNames({
           '[&>div]:bg-hype-ok': level === 'ok',
           '[&>div]:bg-hype-warn': level === 'warn',

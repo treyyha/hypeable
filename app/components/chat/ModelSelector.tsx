@@ -465,6 +465,7 @@ export const ModelSelector = ({
             }
           }}
           role="combobox"
+          aria-label="Provider"
           aria-expanded={isProviderDropdownOpen}
           aria-controls="provider-listbox"
           aria-haspopup="listbox"
@@ -666,6 +667,7 @@ export const ModelSelector = ({
             }
           }}
           role="combobox"
+          aria-label="Model"
           aria-expanded={isModelDropdownOpen}
           aria-controls="model-listbox"
           aria-haspopup="listbox"

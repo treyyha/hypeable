@@ -40,7 +40,7 @@ export function StartInSixty() {
                     href={OPENROUTER_CREDITS_URL}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-hype-accent-text underline-offset-2 hover:underline"
+                    className="text-hype-accent-text underline underline-offset-2"
                   >
                     openrouter.ai
                   </a>
@@ -62,7 +62,7 @@ export function StartInSixty() {
       </Button>
       <button
         type="button"
-        className="mt-2 appearance-none text-xs text-hype-accent-text underline-offset-2 hover:underline"
+        className="mt-2 appearance-none text-xs text-hype-accent-text underline underline-offset-2"
         onClick={() => openModelPicker({ provider: 'OpenRouter' })}
       >
         I already have a key
@@ -77,7 +77,7 @@ export function StartInSixty() {
           href={OPENROUTER_KEYS_URL}
           target="_blank"
           rel="noreferrer"
-          className="text-hype-accent-text underline-offset-2 hover:underline"
+          className="text-hype-accent-text underline underline-offset-2"
         >
           openrouter.ai/settings/keys
         </a>

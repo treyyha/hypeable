@@ -45,6 +45,7 @@ export function ProgressCard({ title, subtitle, value, status, amount, className
       <div className="mt-3 flex items-center gap-3">
         <Progress
           value={value}
+          aria-label={title}
           className={classNames('flex-1', {
             '[&>div]:bg-hype-ok': status === 'ok',
             '[&>div]:bg-hype-warn': status === 'warn',

@@ -63,8 +63,8 @@ export function ModelKeyPopover({
         <button
           type="button"
           data-testid="model-key-chip"
-          aria-label="Model and key"
-          title="Model and key"
+          aria-label={`${label}. Model and key`}
+          title={`${label}. Model and key`}
           className="inline-flex max-w-[11.5rem] items-center gap-1.5 rounded-full border border-hype-border bg-hype-surface px-2 py-1 text-xs text-hype-text hover:border-hype-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
         >
           <span
@@ -78,11 +78,10 @@ export function ModelKeyPopover({
         <Popover.Content
           align="start"
           sideOffset={8}
+          aria-label="Model and key"
           className="z-[9999] w-[min(26rem,calc(100vw-1.5rem))] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3 shadow-[var(--hype-shadow-lg)]"
         >
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-bolt-elements-textTertiary">
-            Model and key
-          </p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-hype-muted">Model and key</p>
           <ModelSelector
             key={provider?.name}
             model={model}
