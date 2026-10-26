@@ -33,13 +33,12 @@ Local production bundle:
 
 ```bash
 pnpm build
-# PowerShell
+# PowerShell — use wrangler dev (SSR Worker + static assets from build/)
 $env:HYPEABLE_HOSTED="1"
-npx wrangler pages dev ./build/client --compatibility-date=2026-10-01 --compatibility-flags=nodejs_compat --port 8788
-# also: npx wrangler dev --var HYPEABLE_HOSTED:1 --port 8788
+npx wrangler dev --var HYPEABLE_HOSTED:1 --port 8788 --ip 127.0.0.1
 ```
 
-`wrangler pages dev` serves `build/client`. The SSR Worker is `workers/app.ts`; if pages-dev does not execute it, use `wrangler dev` (same wrangler.jsonc) or `pnpm preview` with `HYPEABLE_HOSTED=1`.
+`wrangler pages dev ./build/client` currently fails on Windows: workerd cannot load `.wrangler/tmp/.../middleware-insertion-facade.js` (imported from `pages-shim.js`). This repo deploys as a Worker with assets (`main`: `workers/app.ts`, client in `build/client`), so `wrangler dev` is the matching local command. Confirm `/` is 200 with COOP `same-origin` and COEP `credentialless`, disabled routes 404, and OpenAILike/git-proxy custom hosts 403.
 
 ## Cloudflare Pages — Git integration (click these)
 
