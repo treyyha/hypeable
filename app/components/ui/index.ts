@@ -1,6 +1,7 @@
 // Export all UI components for easier imports
 
 // Core components
+export * from './ActionRow';
 export * from './Aurora';
 export * from './Badge';
 export * from './Button';
@@ -13,7 +14,11 @@ export * from './Dialog';
 export * from './IconButton';
 export * from './Input';
 export * from './Label';
+export * from './ListRow';
+export * from './ProgressCard';
 export * from './ScrollArea';
+export * from './SidebarSection';
+export * from './StatCard';
 export * from './Switch';
 export * from './Tabs';
 export * from './ThemeSwitch';
