@@ -34,7 +34,7 @@ Findings never store a full secret: each match is reduced to the first four char
 | `unsafe-html` | WARN | `dangerouslySetInnerHTML` or `eval` with a non-literal | `__html: userHtml` | Render text, or sanitize if HTML is required | Static HTML strings are allowed. **Heuristic.** |
 | `insecure-http` | WARN | `http://` API URL (not localhost) | `fetch('http://api.example.com')` | Use `https://` | `localhost` / `127.0.0.1` / w3.org schema URLs are skipped |
 | `client-admin-check` | WARN | Admin decided from localStorage / local state | `const isAdmin = localStorage.getItem('role')` | Enforce admin on the server from the session | UI-only badges: ignore. **Heuristic.** |
-| `supabase-rls-unverified` | WARN | `.from('x')` with no matching SQL migration | `supabase.from('notes')` and no `CREATE TABLE notes` | Add a migration that enables RLS | Dashboard-managed schema: verify in Supabase, then ignore. **Heuristic.** |
+| `supabase-rls-unverified` | INFO | `.from('x')` with no matching SQL migration | `supabase.from('notes')` and no `CREATE TABLE notes` | Check Authentication > Policies in your Supabase dashboard (30 seconds) | Dashboard-managed schema: the files cannot prove RLS. **Heuristic.** |
 | `unauthenticated-write` | WARN | API handler writes to a DB and never mentions a session | `db.from('items').insert(body)` in `app/api` | Check auth before insert/update/delete | **Heuristic, verify.** |
 | `client-price-trust` | WARN | Request-body price/amount used in a payment call | `stripe.charges.create({ amount: body.amount })` | Look up price on the server from a product id | **Heuristic, verify.** |
 | `unpinned-dependency` | WARN | `package.json` uses `*` or `latest` | `"react": "*"` | Pin a version you have tested | Caret/tilde ranges are allowed |
@@ -57,7 +57,7 @@ Suppressed findings still appear in the report under **Suppressed**. They do not
 
 | Outcome | Continue |
 |---|---|
-| PASS (info-only is still pass) | **Continue** |
+| PASS (info-only is still pass) | **Continue**. INFO findings sit under one collapsed **Info** section. |
 | WARN-only | **Publish anyway** (no checkbox) |
 | Any FAIL | Checkbox **I understand the risk**, then **Publish anyway** |
 

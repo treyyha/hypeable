@@ -55,6 +55,19 @@ describe('predeploy scan', () => {
     expect(report.counts.suppressed).toBeGreaterThan(0);
   });
 
+  it('treats unverifiable Supabase RLS as INFO and still passes', () => {
+    const report = scan(RULE_FIXTURES['supabase-rls-unverified']);
+    const unverified = report.findings.filter((finding) => finding.ruleId === 'supabase-rls-unverified');
+
+    expect(unverified.length).toBeGreaterThan(0);
+    expect(unverified.every((finding) => finding.severity === 'INFO')).toBe(true);
+    expect(unverified[0]?.why).toContain("Couldn't verify RLS from the files");
+    expect(unverified[0]?.why).toContain('Authentication > Policies');
+    expect(report.outcome).toBe('pass');
+    expect(report.counts.warn).toBe(0);
+    expect(report.counts.fail).toBe(0);
+  });
+
   it('skips lockfiles, node_modules, and files over 1MB', () => {
     const report = scan({
       ...cleanFixture,

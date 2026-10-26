@@ -1,6 +1,6 @@
 /**
  * FAIL: tables without RLS; anon write policies that are open.
- * WARN: `.from('x')` with no matching migration (RLS unverifiable).
+ * INFO: `.from('x')` with no matching migration (RLS unverifiable from files).
  */
 
 import { isClientPath, isSqlPath, linesOf, makeFinding } from '~/lib/predeploy/helpers';
@@ -111,7 +111,7 @@ export const supabaseRlsOpenRule: PredeployRule = {
 
 export const supabaseRlsUnverifiedRule: PredeployRule = {
   id: 'supabase-rls-unverified',
-  severity: 'WARN',
+  severity: 'INFO',
   heuristic: true,
   run(files) {
     const migrated = new Set<string>();
@@ -154,8 +154,8 @@ export const supabaseRlsUnverifiedRule: PredeployRule = {
             file,
             line,
             maskedSnippet: match[0],
-            why: `No SQL migration for ${match[1]}, so RLS cannot be verified.`,
-            fix: 'Add a migration that creates the table and enables RLS, or confirm RLS in the dashboard.',
+            why: "Couldn't verify RLS from the files. Check Authentication > Policies in your Supabase dashboard (30 seconds)",
+            fix: 'Open Authentication > Policies in the Supabase dashboard, or add a migration that creates the table and enables RLS.',
           }),
         );
       }

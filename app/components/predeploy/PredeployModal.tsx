@@ -6,6 +6,7 @@ import * as RadixDialog from '@radix-ui/react-dialog';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Badge } from '~/components/ui/Badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/Collapsible';
 import { Dialog, DialogButton, DialogDescription, DialogTitle } from '~/components/ui/Dialog';
 import { publishActionEnabled, publishActionLabel, showRiskCheckbox } from '~/lib/predeploy/gating';
 import { fixWithAiPrompt, reportToMarkdown } from '~/lib/predeploy/report';
@@ -116,7 +117,27 @@ export function PredeployModal() {
           ) : null}
 
           {grouped.map((group) =>
-            group.items.length === 0 ? null : (
+            group.items.length === 0 ? null : group.label === 'Info' ? (
+              <Collapsible key={group.label} defaultOpen={false} className="mb-4 last:mb-0">
+                <CollapsibleTrigger
+                  className="flex w-full items-center justify-between text-left text-xs font-medium uppercase tracking-[0.14em] text-hype-muted"
+                  data-testid="predeploy-info-toggle"
+                >
+                  <span>Info ({group.items.length})</span>
+                  <span className="font-normal normal-case tracking-normal">Show</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <ul className="mt-2 space-y-2">
+                    {group.items.map((finding, index) => (
+                      <FindingRow
+                        key={`${finding.ruleId}:${finding.file}:${finding.line}:${index}`}
+                        finding={finding}
+                      />
+                    ))}
+                  </ul>
+                </CollapsibleContent>
+              </Collapsible>
+            ) : (
               <section key={group.label} className="mb-4 last:mb-0">
                 <h3 className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-hype-muted">{group.label}</h3>
                 <ul className="space-y-2">
