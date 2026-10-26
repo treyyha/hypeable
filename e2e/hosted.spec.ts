@@ -42,6 +42,17 @@ test.describe('hosted mode', () => {
 
     const health = await request.get('/api/health');
     expect(health.status()).toBe(200);
-    expect(await health.json()).toMatchObject({ ok: true, hosted: true });
+
+    const healthJson = (await health.json()) as { ok: boolean; hosted: boolean; commit: string };
+    expect(healthJson).toMatchObject({ ok: true, hosted: true });
+    expect(healthJson.commit.length).toBeGreaterThan(0);
+
+    expect((await request.get('/robots.txt')).status()).toBe(200);
+    expect((await request.get('/sitemap.xml')).status()).toBe(200);
+    expect((await request.get('/llms.txt')).status()).toBe(200);
+    expect((await request.get('/site.webmanifest')).status()).toBe(200);
+    expect((await request.get('/favicon.svg')).status()).toBe(200);
+    expect((await request.get('/og.png')).status()).toBe(200);
+    expect((await request.get('/apple-touch-icon.png')).status()).toBe(200);
   });
 });

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="hypeable, worth the hype">
+  <rect width="1280" height="640" fill="#0A0A0F"/>
+  <g transform="translate(160 215)">
+    <path fill="#C8FF3D" fill-rule="evenodd" d="M24 8h80a16 16 0 0 1 16 16v80a16 16 0 0 1-16 16H24a16 16 0 0 1-16-16V24a16 16 0 0 1 16-16zm20 20h18v30.4c4.8-5.2 11.6-8 20-8 15.2 0 25.2 10 25.2 26.8V100h-18V78.8c0-8.8-4.8-14-13.2-14-7.6 0-14 5.2-14 14.4V100H44V28z"/>
+    <text x="152" y="92" fill="#F5F5F7" font-family="Geist Sans, ui-sans-serif, system-ui, sans-serif" font-size="92" font-weight="700" letter-spacing="-3">hypeable</text>
+  </g>
+  <text x="312" y="395" fill="#9A9AA6" font-family="Geist Sans, ui-sans-serif, system-ui, sans-serif" font-size="36" font-weight="600">worth the hype</text>
+  <text x="312" y="445" fill="#9A9AA6" font-family="Geist Sans, ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="500">A free, open-source AI app builder. You bring the key.</text>
+</svg>

@@ -7,7 +7,7 @@ import { SpendPage } from '~/components/spend/SpendPage';
 import { LoadingState } from '~/components/ui/LoadingState';
 import { brandMeta } from '~/utils/brand';
 
-export const meta: MetaFunction = () => brandMeta('Spend · Hypeable');
+export const meta: MetaFunction = () => brandMeta('Spend · Hypeable', '/spend');
 
 export const loader = () => Response.json({});
 

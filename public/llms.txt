@@ -1,0 +1,30 @@
+# Hypeable
+
+> Worth the hype. Free, open-source AI app builder. You bring your own model key. Hypeable hosts nothing.
+
+Hypeable is a fork of bolt.diy (MIT). Describe an app, watch it get built in a WebContainer, publish it to your own Vercel or GitHub.
+
+## How it differs
+
+- Live cost meter: tokens × list price, session and daily caps, hard stop. Estimates, not invoices.
+- Loop breaker: stop after 3 repeated identical errors, then replan / revert / switch model.
+- Plan-first mode: show a plan, the user approves, then build.
+- Pre-deploy security check: exposed keys, missing DB access rules, open CORS, debug flags — scanned in the browser before publish.
+- Spend page (`/spend`): today, session, month-to-date, and recent builds from this browser only.
+
+## Links
+
+- App: https://hypeable.dev
+- Source: https://github.com/treyyha/hypeable
+- Docs: https://github.com/treyyha/hypeable/tree/main/docs
+- Key flow: https://github.com/treyyha/hypeable/blob/main/docs/KEY-FLOW.md
+- Security: https://github.com/treyyha/hypeable/blob/main/SECURITY.md
+
+## Honest limits
+
+- Hosted at hypeable.dev cannot reach local models (Ollama, LM Studio, custom OpenAI-compatible URLs). Run locally with `pnpm dev` for those.
+- StackBlitz WebContainers is free for personal and open-source use. Commercial hosted use needs a StackBlitz license.
+- Prices marked ≈ in the UI are unverified list prices from `app/lib/cost/prices.json`.
+- Cost figures are estimates, not invoices. Set a limit on your provider too.
+- Some upstream tests are still being fixed; see docs/KNOWN-ISSUES.md.
+- Model keys take a server hop to the provider you chose. Hypeable does not store them. Direct browser-to-provider is not shipped yet.
