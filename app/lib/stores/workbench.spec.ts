@@ -1,9 +1,47 @@
-import { map } from 'nanostores';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { atom, map } from 'nanostores';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ActionCallbackData } from '~/lib/runtime/message-parser';
-import type { ArtifactState, WorkbenchStore } from '~/lib/stores/workbench';
+import type { ArtifactState } from '~/lib/stores/workbench';
 
-let workbenchStoreClass: typeof import('~/lib/stores/workbench').WorkbenchStore;
+vi.mock('~/lib/persistence', () => ({ description: atom(undefined) }));
+vi.mock('~/lib/webcontainer', () => ({ webcontainer: Promise.resolve({ workdir: '/home/project' }) }));
+vi.mock('./files', () => ({
+  FilesStore: class {
+    files = map({});
+    getFile() {
+      return undefined;
+    }
+    createFile() {
+      return Promise.resolve(true);
+    }
+    reset() {
+      return Promise.resolve();
+    }
+  },
+}));
+vi.mock('./editor', () => ({
+  EditorStore: class {
+    documents = map({});
+    currentDocument = atom(undefined);
+    selectedFile = atom(undefined);
+    updateFile = vi.fn();
+    setSelectedFile = vi.fn();
+  },
+}));
+vi.mock('./previews', () => ({
+  PreviewsStore: class {
+    previews = atom([]);
+    reset = vi.fn();
+  },
+}));
+vi.mock('./terminal', () => ({
+  TerminalStore: class {
+    boltTerminal = { executionState: atom(undefined), stop: vi.fn(async () => undefined) };
+  },
+}));
+
+import { WorkbenchStore } from '~/lib/stores/workbench';
+
 let store: WorkbenchStore;
 
 function createArtifact(actionId: string, action: unknown) {
@@ -16,14 +54,8 @@ function createArtifact(actionId: string, action: unknown) {
   return { runner } as unknown as ArtifactState;
 }
 
-beforeAll(async () => {
-  // Node exposes a global BroadcastChannel; the preview store opens real ones on construction.
-  vi.stubGlobal('BroadcastChannel', undefined);
-  ({ WorkbenchStore: workbenchStoreClass } = await import('~/lib/stores/workbench'));
-});
-
 beforeEach(() => {
-  store = new workbenchStoreClass();
+  store = new WorkbenchStore();
 });
 
 describe('WorkbenchStore._runAction', () => {

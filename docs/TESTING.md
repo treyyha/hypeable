@@ -6,7 +6,8 @@ How to prove the LLM chain without a real provider key, and what the automated s
 
 ```bash
 npm run test:related   # changed files only — default local loop
-pnpm test              # full unit suite (CI)
+pnpm test              # full unit suite (CI, blocking)
+pnpm test:perf         # wall-clock frame-budget / Shiki (CI, non-blocking)
 pnpm run typecheck     # incremental; also the pre-push hook
 pnpm run lint          # eslint --cache on app/
 ```
@@ -38,7 +39,7 @@ The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM ro
 
 ## Playwright smoke (`pnpm e2e`)
 
-Docs screenshots (skipped unless `CAPTURE_DOCS=1`): `docs/assets/home-*.png`, plan card, loop panel, cost popover. Presentation checks in `e2e/home-presentation.spec.ts` assert cost-pill contrast and that the empty-home aurora covers the main column.
+Docs screenshots (`e2e/docs-screenshots.spec.ts`) are skipped unless `CAPTURE_DOCS=1`. That job writes `docs/assets/home-*.png`, plan card, loop panel, and cost popover shots. Presentation checks in `e2e/home-presentation.spec.ts` always run: cost-pill contrast and that the empty-home aurora covers the main column.
 
 ```bash
 pnpm exec playwright install chromium
@@ -76,9 +77,9 @@ pnpm e2e:hosted
 
 ## CI
 
-`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, unit tests, build, and e2e run in parallel jobs unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
+`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, **unit tests**, build, and **e2e** are blocking unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
 
-The `e2e` job is `continue-on-error: true` until the smoke is proven stable. Unit tests stay `continue-on-error` until `docs/KNOWN-ISSUES.md` is empty.
+Wall-clock performance (`pnpm test:perf`) is a separate `perf` job with `continue-on-error`. jsdom frame-budget and Shiki timing are not merge gates. See [KNOWN-ISSUES.md](./KNOWN-ISSUES.md).
 
 Local `@cloudflare/vite-plugin` (`pnpm dev` and `vite preview`) lets workerd fetch `127.0.0.1`. A Worker on Cloudflare's edge cannot; the loopback mock only proves the local workerd path.
 

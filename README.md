@@ -108,7 +108,7 @@ Verify the path in [`docs/KEY-FLOW.md`](docs/KEY-FLOW.md), LLM keys in [`app/rou
 - **WebContainers licence.** StackBlitz WebContainers is free for personal and open-source use. Commercial hosted use needs a StackBlitz license.
 - **Prices marked ≈ are unverified.** `app/lib/cost/prices.json` is a community list-price table. Rows with `verified: false` show as estimates (`≈`) in the UI.
 - **Estimates, not invoices.** The meter multiplies tokens by list prices (or uses a provider-reported cost when one exists). It is not your provider bill. Set a limit on your provider too.
-- **Tests are still being fixed.** CI keeps gitleaks, typecheck, and lint blocking; some upstream tests are `continue-on-error` until [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md) is empty.
+- **CI unit tests and e2e are blocking.** Wall-clock frame-budget / Shiki timing runs in a non-blocking `perf` job. See [docs/TESTING.md](docs/TESTING.md) and [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
 
 ## Roadmap
 

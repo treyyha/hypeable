@@ -57,9 +57,10 @@ Times are local (Windows) after this speed pass. CI still runs gitleaks, typeche
 | `pnpm typecheck` | Incremental `tsc` (`node_modules/.cache/tsconfig.tsbuildinfo`) | ~35s first, ~12s later |
 | `pnpm lint` | eslint `--cache` on `app/` | ~43s cold, ~5s cached |
 | `npm run test:related` | Vitest related mode on files changed vs HEAD | seconds on a small diff |
-| `pnpm test` | Full unit suite. CI only, unless you need the whole picture. | ~33s |
+| `pnpm test` | Full unit suite (blocking in CI). | ~33s |
+| `pnpm test:perf` | Wall-clock frame-budget / Shiki. Non-blocking CI job. | varies |
 | `pnpm build` | Production build | ~34s |
-| `pnpm e2e` | Playwright smoke. Locally only if you touched routes, chat, or shell UI. | ~60s |
+| `pnpm e2e` | Playwright smoke. Locally only if you touched routes, chat, or shell UI. Blocking in CI. | ~60s |
 | `npm run smoke:live -- <url> [--expect-commit <sha>]` | Live deploy checks. With `--expect-commit`, poll `/api/health` up to 5 minutes until `commit` matches, then run the rest. | |
 
 ## Git hooks

@@ -55,7 +55,6 @@ const DOM_TESTS = [
   'app/lib/openrouter/connect.spec.ts',
   'app/lib/persistence/chatCache.spec.ts',
   'app/lib/services/importExportService.spec.ts',
-  'app/lib/stores/workbench.spec.ts',
 
   /*
    * tests/ — every suite here is UI-facing.
@@ -69,10 +68,6 @@ const DOM_TESTS = [
    */
   'tests/integration/layout-stability.test.tsx',
   'tests/integration/performance-monitoring.test.ts',
-  'tests/performance/chat-input.perf.test.ts',
-  'tests/performance/core-journeys.perf.test.tsx',
-  'tests/performance/streaming-performance.perf.test.tsx',
-  'tests/performance/syntax-highlighting.perf.test.ts',
   'tests/unit/frame-rate-monitor.test.ts',
   'tests/unit/performance-monitor.test.ts',
   'tests/unit/starter-template-import.test.tsx',
@@ -81,12 +76,24 @@ const DOM_TESTS = [
 ];
 
 /**
+ * Wall-clock frame-budget / Shiki timing files. They are not assertions about
+ * correctness; they flake under load. The blocking `pnpm test` suite excludes
+ * them. `pnpm test:perf` (vitest.perf.config.ts) runs them in a non-blocking
+ * CI job.
+ */
+export const PERF_TESTS = [
+  'tests/performance/chat-input.perf.test.ts',
+  'tests/performance/core-journeys.perf.test.tsx',
+  'tests/performance/streaming-performance.perf.test.tsx',
+  'tests/performance/syntax-highlighting.perf.test.ts',
+];
+
+/**
  * Shared excludes.
  *
- * `Markdown.spec.ts` and `workbench.spec.ts` pull in `import.meta.hot`, which
- * only the app config defines (`import.meta.hot: 'undefined'`). They are listed
- * in DOM_TESTS-adjacent positions but excluded here for both projects, matching
- * the previous behaviour exactly.
+ * `import.meta.hot` is defined below as `undefined`, so Markdown and workbench
+ * specs run here rather than being silently dropped. `*.perf.test.*` lives in
+ * the separate perf config so a slow machine cannot fail the blocking suite.
  */
 const EXCLUDE = [
   '**/node_modules/**',
@@ -98,8 +105,8 @@ const EXCLUDE = [
   '**/tests/e2e/**', // Exclude e2e tests that require Playwright
   '**/e2e/**', // Playwright smoke against workerd + mock OpenAI
   '**/playwright.config*.ts',
-  'app/components/chat/Markdown.spec.ts', // Exclude - imports cause issues with import.meta.hot
-  'app/lib/stores/workbench.spec.ts', // Exclude - imports cause issues with import.meta.hot
+  '**/*.perf.test.{ts,tsx,js,jsx}',
+  ...PERF_TESTS,
 ];
 
 const SHARED = {
@@ -121,7 +128,6 @@ export const NODE_PROJECT = {
     '**/*.{test,spec}.{ts,tsx,js,jsx}',
     '**/tests/unit/**/*.{test,spec}.{ts,tsx,js,jsx}',
     '**/tests/integration/**/*.{test,spec}.{ts,tsx,js,jsx}',
-    '**/tests/performance/**/*.perf.test.{ts,tsx,js,jsx}',
   ],
   /*
    * Invert the DOM list. Vitest's `exclude` wins over `include`, so subtracting
@@ -147,7 +153,7 @@ export const DOM_PROJECT = {
   exclude: EXCLUDE,
 };
 
-/** Excluded by both projects, matching the previous behaviour exactly. */
+/** Excluded by both blocking projects. Perf files are listed here too. */
 export const SHARED_EXCLUDE = EXCLUDE;
 
 export default defineConfig({

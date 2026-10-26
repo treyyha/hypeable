@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DOM_PROJECT, NODE_PROJECT, SHARED_EXCLUDE } from '../vitest.config';
+import { DOM_PROJECT, NODE_PROJECT, PERF_TESTS, SHARED_EXCLUDE } from '../vitest.config';
 
 /**
  * Guards the project split.
@@ -12,8 +12,9 @@ import { DOM_PROJECT, NODE_PROJECT, SHARED_EXCLUDE } from '../vitest.config';
  * explicit so the next edit cannot lose coverage without something failing.
  */
 
-/** Excluded by both projects, matching the previous behaviour exactly. */
-const LONG_EXCLUDED = ['app/components/chat/Markdown.spec.ts', 'app/lib/stores/workbench.spec.ts'];
+/** Previously silent excludes; both now run in the blocking suite. */
+const WORKBENCH_SPEC = 'app/lib/stores/workbench.spec.ts';
+const MARKDOWN_SPEC = 'app/components/chat/Markdown.spec.ts';
 
 describe('vitest project split', () => {
   it('defines a node and a dom project', () => {
@@ -38,15 +39,33 @@ describe('vitest project split', () => {
     }
   });
 
-  it('keeps both projects in agreement about the shared excludes', () => {
-    for (const pattern of LONG_EXCLUDED) {
-      expect(NODE_PROJECT.exclude).toContain(pattern);
-      expect(DOM_PROJECT.exclude).toContain(pattern);
+  it('runs Markdown and workbench specs in the blocking node suite', () => {
+    expect(DOM_PROJECT.include).not.toContain(WORKBENCH_SPEC);
+    expect(NODE_PROJECT.exclude).not.toContain(WORKBENCH_SPEC);
+    expect(SHARED_EXCLUDE).not.toContain(WORKBENCH_SPEC);
+
+    expect(DOM_PROJECT.include).not.toContain(MARKDOWN_SPEC);
+    expect(NODE_PROJECT.exclude).not.toContain(MARKDOWN_SPEC);
+    expect(SHARED_EXCLUDE).not.toContain(MARKDOWN_SPEC);
+  });
+
+  it('keeps wall-clock perf tests out of the blocking suite', () => {
+    expect(PERF_TESTS.length).toBe(4);
+
+    for (const pattern of PERF_TESTS) {
+      expect(DOM_PROJECT.include, `${pattern} must not be a blocking DOM test`).not.toContain(pattern);
+      expect(NODE_PROJECT.exclude, `${pattern} must be excluded from node`).toContain(pattern);
+      expect(SHARED_EXCLUDE, `${pattern} must be shared-excluded`).toContain(pattern);
     }
 
+    expect(NODE_PROJECT.include.some((pattern: string) => pattern.includes('perf.test'))).toBe(false);
+  });
+
+  it('keeps both projects in agreement about the shared excludes', () => {
     expect(SHARED_EXCLUDE).toContain('**/tests/e2e/**');
     expect(SHARED_EXCLUDE).toContain('**/tests/preview/**');
     expect(SHARED_EXCLUDE).toContain('**/e2e/**');
+    expect(SHARED_EXCLUDE).toContain('**/*.perf.test.{ts,tsx,js,jsx}');
   });
 
   it('loads the DOM-free base setup in node and both layers in dom', () => {
