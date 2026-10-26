@@ -133,8 +133,6 @@ export default defineConfig((config) => {
         'jszip',
         'file-saver',
         'path-browserify',
-        'chart.js',
-        'react-chartjs-2',
         'react-resizable-panels',
         'react-dnd',
         'react-dnd-html5-backend',
