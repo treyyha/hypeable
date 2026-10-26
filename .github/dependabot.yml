@@ -5,8 +5,13 @@ updates:
     schedule: { interval: weekly }
     open-pull-requests-limit: 5
     commit-message: { prefix: "build(deps)" }
+    # Groups need an explicit pattern. Transitive security alerts (ip-address,
+    # shell-quote) cannot unlock the lockfile without pnpm.overrides — those
+    # patched ranges live in package.json so the next Dependabot Updates job
+    # sees an already-fixed version instead of security_update_not_possible.
     groups:
       minor-and-patch:
+        patterns: ["*"]
         update-types:
           - minor
           - patch
@@ -17,6 +22,8 @@ updates:
     commit-message: { prefix: "ci" }
     groups:
       minor-and-patch:
+        patterns: ["*"]
         update-types:
           - minor
           - patch
+

@@ -30,6 +30,7 @@
     "test:coverage": "vitest --run --coverage",
     "e2e": "playwright test --config=playwright.config.ts",
     "e2e:hosted": "playwright test --config=playwright.config.hosted.ts",
+    "smoke:live": "node scripts/smoke-live.mjs",
     "e2e:preview": "playwright test --config=playwright.config.preview-smoke.ts",
     "test:e2e": "playwright test --config=playwright.config.e2e.ts",
     "test:e2e:ui": "playwright test --config=playwright.config.e2e.ts --ui",
@@ -246,7 +247,9 @@
       "tar": "^7.5.21",
       "undici": "^7.30.1",
       "tar-fs": "^2.1.4",
-      "yaml@^2": "^2.8.3"
+      "yaml@^2": "^2.8.3",
+      "ip-address": "^10.7.5",
+      "shell-quote": "^1.11.0"
     },
     "peerDependencyRules": {
       "allowedVersions": {

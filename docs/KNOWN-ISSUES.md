@@ -50,7 +50,6 @@ Left unpatched on purpose (moderate/low, or no non-major fix):
 
 | Severity | Package | Current | Notes |
 |---|---|---|---|
-| moderate | `ip-address` | `10.7.3` | patch exists at `10.7.4`; skipped because it is not critical/high |
 | moderate | `fast-uri` | `3.1.8` | patch exists at `3.1.9`; skipped because it is not critical/high |
 | low | `fast-uri` | `3.1.8` | same as above (additional low advisories) |
 | low | `elliptic` | `6.6.1` | advisory lists patched versions as `<0.0.0` (no real patch) |
