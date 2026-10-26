@@ -1,7 +1,7 @@
 {
   "name": "hypeable",
   "description": "worth the hype. A free, open-source AI app builder.",
-  "homepage": "https://github.com/treyyha/hypeable",
+  "homepage": "https://hypeable.dev",
   "repository": {
     "type": "git",
     "url": "https://github.com/treyyha/hypeable.git"
@@ -13,7 +13,7 @@
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": {
     "name": "Hypeable"
   },
