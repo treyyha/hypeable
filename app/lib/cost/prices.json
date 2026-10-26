@@ -5,154 +5,915 @@
       "id": "anthropic",
       "source": "https://platform.claude.com/docs/en/about-claude/pricing",
       "models": [
-        { "pattern": "claude-fable-5-1*", "input": 10, "output": 50, "cachedInput": 0.25, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-mythos-5-1*", "input": 10, "output": 50, "cachedInput": 0.25, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-fable-5*", "input": 10, "output": 50, "cachedInput": 1, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-mythos-5*", "input": 10, "output": 50, "cachedInput": 1, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-5-5*", "input": 4, "output": 20, "cachedInput": 0.2, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-5*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-4-8*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-4-7*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-4-6*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-opus-4-5*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-sonnet-5-5*", "input": 2, "output": 10, "cachedInput": 0.1, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-sonnet-5*", "input": 2, "output": 10, "cachedInput": 0.2, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-sonnet-4-6*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-sonnet-4-5*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-sonnet-4*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-haiku-5-5*", "input": 0.1, "output": 0.5, "cachedInput": 0.01, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "claude-haiku-4-5*", "input": 1, "output": 5, "cachedInput": 0.1, "verified": true, "source": "https://platform.claude.com/docs/en/about-claude/pricing", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "claude-fable-5-1*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 0.25,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-mythos-5-1*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 0.25,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-fable-5*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 1,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-mythos-5*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 1,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-5-5*",
+          "input": 4,
+          "output": 20,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-5*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-4-8*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-4-7*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-4-6*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-opus-4-5*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-sonnet-5-5*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-sonnet-5*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-sonnet-4-6*",
+          "input": 3,
+          "output": 15,
+          "cachedInput": 0.3,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-sonnet-4-5*",
+          "input": 3,
+          "output": 15,
+          "cachedInput": 0.3,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-sonnet-4*",
+          "input": 3,
+          "output": 15,
+          "cachedInput": 0.3,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-haiku-5-5*",
+          "input": 0.1,
+          "output": 0.5,
+          "cachedInput": 0.01,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "claude-haiku-4-5*",
+          "input": 1,
+          "output": 5,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "openai",
       "source": "https://developers.openai.com/api/docs/pricing",
       "models": [
-        { "pattern": "gpt-6-astra*", "input": 10, "output": 50, "cachedInput": 1, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-6.1-sol*", "input": 2, "output": 10, "cachedInput": 0.1, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-6-luna*", "input": 0.1, "output": 0.5, "cachedInput": 0.01, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-6-sol*", "input": 2, "output": 10, "cachedInput": 0.2, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.6-sol*", "input": 4, "output": 20, "cachedInput": 0.4, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.6-terra*", "input": 2, "output": 12, "cachedInput": 0.2, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.6-luna*", "input": 0.2, "output": 1.2, "cachedInput": 0.02, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.5-pro*", "input": 30, "output": 180, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.5*", "input": 5, "output": 30, "cachedInput": 0.5, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.4-pro*", "input": 30, "output": 180, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.4-mini*", "input": 0.75, "output": 4.5, "cachedInput": 0.075, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.4-nano*", "input": 0.2, "output": 1.25, "cachedInput": 0.02, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.4*", "input": 2.5, "output": 15, "cachedInput": 0.25, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.2-pro*", "input": 21, "output": 168, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.2*", "input": 1.75, "output": 14, "cachedInput": 0.175, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5.1*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5-pro*", "input": 15, "output": 120, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5-mini*", "input": 0.25, "output": 2, "cachedInput": 0.025, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5-nano*", "input": 0.05, "output": 0.4, "cachedInput": 0.005, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-5*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4.1-mini*", "input": 0.4, "output": 1.6, "cachedInput": 0.1, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4.1-nano*", "input": 0.1, "output": 0.4, "cachedInput": 0.025, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4.1*", "input": 2, "output": 8, "cachedInput": 0.5, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4o-mini*", "input": 0.15, "output": 0.6, "cachedInput": 0.075, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4o*", "input": 2.5, "output": 10, "cachedInput": 1.25, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o1-pro*", "input": 150, "output": 600, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o1*", "input": 15, "output": 60, "cachedInput": 7.5, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o3-pro*", "input": 20, "output": 80, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o3-mini*", "input": 1.1, "output": 4.4, "cachedInput": 0.55, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o3*", "input": 2, "output": 8, "cachedInput": 0.5, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "o4-mini*", "input": 1.1, "output": 4.4, "cachedInput": 0.275, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-4-turbo*", "input": 10, "output": 30, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gpt-3.5-turbo*", "input": 0.5, "output": 1.5, "verified": true, "source": "https://developers.openai.com/api/docs/pricing", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "gpt-6-astra*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 1,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-6.1-sol*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-6-luna*",
+          "input": 0.1,
+          "output": 0.5,
+          "cachedInput": 0.01,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-6-sol*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.6-sol*",
+          "input": 4,
+          "output": 20,
+          "cachedInput": 0.4,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.6-terra*",
+          "input": 2,
+          "output": 12,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.6-luna*",
+          "input": 0.2,
+          "output": 1.2,
+          "cachedInput": 0.02,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.5-pro*",
+          "input": 30,
+          "output": 180,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.5*",
+          "input": 5,
+          "output": 30,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.4-pro*",
+          "input": 30,
+          "output": 180,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.4-mini*",
+          "input": 0.75,
+          "output": 4.5,
+          "cachedInput": 0.075,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.4-nano*",
+          "input": 0.2,
+          "output": 1.25,
+          "cachedInput": 0.02,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.4*",
+          "input": 2.5,
+          "output": 15,
+          "cachedInput": 0.25,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.2-pro*",
+          "input": 21,
+          "output": 168,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.2*",
+          "input": 1.75,
+          "output": 14,
+          "cachedInput": 0.175,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5.1*",
+          "input": 1.25,
+          "output": 10,
+          "cachedInput": 0.125,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5-pro*",
+          "input": 15,
+          "output": 120,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5-mini*",
+          "input": 0.25,
+          "output": 2,
+          "cachedInput": 0.025,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5-nano*",
+          "input": 0.05,
+          "output": 0.4,
+          "cachedInput": 0.005,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-5*",
+          "input": 1.25,
+          "output": 10,
+          "cachedInput": 0.125,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4.1-mini*",
+          "input": 0.4,
+          "output": 1.6,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4.1-nano*",
+          "input": 0.1,
+          "output": 0.4,
+          "cachedInput": 0.025,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4.1*",
+          "input": 2,
+          "output": 8,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4o-mini*",
+          "input": 0.15,
+          "output": 0.6,
+          "cachedInput": 0.075,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4o*",
+          "input": 2.5,
+          "output": 10,
+          "cachedInput": 1.25,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o1-pro*",
+          "input": 150,
+          "output": 600,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o1*",
+          "input": 15,
+          "output": 60,
+          "cachedInput": 7.5,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o3-pro*",
+          "input": 20,
+          "output": 80,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o3-mini*",
+          "input": 1.1,
+          "output": 4.4,
+          "cachedInput": 0.55,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o3*",
+          "input": 2,
+          "output": 8,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "o4-mini*",
+          "input": 1.1,
+          "output": 4.4,
+          "cachedInput": 0.275,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-4-turbo*",
+          "input": 10,
+          "output": 30,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gpt-3.5-turbo*",
+          "input": 0.5,
+          "output": 1.5,
+          "verified": true,
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "google",
       "source": "https://ai.google.dev/gemini-api/docs/pricing",
       "models": [
-        { "pattern": "gemini-4-argon*", "input": 2, "output": 10, "cachedInput": 0.1, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3.8-flash*", "input": 0.75, "output": 3.75, "cachedInput": 0.075, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3.6-flash*", "input": 0.75, "output": 3.75, "cachedInput": 0.075, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3.5-flash-lite*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3.1-pro*", "input": 2, "output": 12, "cachedInput": 0.2, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3.1-flash-lite*", "input": 0.25, "output": 1.5, "cachedInput": 0.025, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-3-flash*", "input": 0.5, "output": 3, "cachedInput": 0.05, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-2.5-pro*", "input": 1.25, "output": 10, "cachedInput": 0.125, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-2.5-flash-lite*", "input": 0.1, "output": 0.4, "cachedInput": 0.01, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "gemini-2.5-flash*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": true, "source": "https://ai.google.dev/gemini-api/docs/pricing", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "gemini-4-argon*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3.8-flash*",
+          "input": 0.75,
+          "output": 3.75,
+          "cachedInput": 0.075,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3.6-flash*",
+          "input": 0.75,
+          "output": 3.75,
+          "cachedInput": 0.075,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3.5-flash-lite*",
+          "input": 0.3,
+          "output": 2.5,
+          "cachedInput": 0.03,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3.1-pro*",
+          "input": 2,
+          "output": 12,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3.1-flash-lite*",
+          "input": 0.25,
+          "output": 1.5,
+          "cachedInput": 0.025,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-3-flash*",
+          "input": 0.5,
+          "output": 3,
+          "cachedInput": 0.05,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-2.5-pro*",
+          "input": 1.25,
+          "output": 10,
+          "cachedInput": 0.125,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-2.5-flash-lite*",
+          "input": 0.1,
+          "output": 0.4,
+          "cachedInput": 0.01,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "gemini-2.5-flash*",
+          "input": 0.3,
+          "output": 2.5,
+          "cachedInput": 0.03,
+          "verified": true,
+          "source": "https://ai.google.dev/gemini-api/docs/pricing",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "deepseek",
       "source": "https://api-docs.deepseek.com/quick_start/pricing/",
       "models": [
-        { "pattern": "deepseek-v4-pro*", "input": 1.32, "output": 3.96, "cachedInput": 0.044, "verified": true, "source": "https://api-docs.deepseek.com/quick_start/pricing/", "checkedAt": "2026-10-27" },
-        { "pattern": "deepseek-v4-flash*", "input": 0.3, "output": 1.2, "cachedInput": 0.006, "verified": true, "source": "https://api-docs.deepseek.com/quick_start/pricing/", "checkedAt": "2026-10-27" },
-        { "pattern": "deepseek-flash*", "input": 0.3, "output": 1.2, "cachedInput": 0.006, "verified": true, "source": "https://api-docs.deepseek.com/quick_start/pricing/", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "deepseek-v4-pro*",
+          "input": 1.32,
+          "output": 3.96,
+          "cachedInput": 0.044,
+          "verified": true,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "deepseek-v4-flash*",
+          "input": 0.3,
+          "output": 1.2,
+          "cachedInput": 0.006,
+          "verified": true,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "deepseek-flash*",
+          "input": 0.3,
+          "output": 1.2,
+          "cachedInput": 0.006,
+          "verified": true,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "openrouter",
       "source": "https://openrouter.ai/api/v1/models",
       "models": [
-        { "pattern": "anthropic/claude-fable-5.1*", "input": 10, "output": 50, "cachedInput": 0.25, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-fable-5*", "input": 10, "output": 50, "cachedInput": 1, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-opus-5.5*", "input": 4, "output": 20, "cachedInput": 0.2, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-opus-5*", "input": 5, "output": 25, "cachedInput": 0.5, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-sonnet-5.5*", "input": 2, "output": 10, "cachedInput": 0.1, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-haiku-5.5*", "input": 0.1, "output": 0.5, "cachedInput": 0.01, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-sonnet-4.6*", "input": 3, "output": 15, "cachedInput": 0.3, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "anthropic/claude-haiku-4.5*", "input": 1, "output": 5, "cachedInput": 0.1, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-6-astra*", "input": 10, "output": 50, "cachedInput": 1, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-5.5-pro*", "input": 30, "output": 180, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-5.5*", "input": 5, "output": 30, "cachedInput": 0.5, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-4o-mini*", "input": 0.15, "output": 0.6, "cachedInput": 0.075, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-4o*", "input": 2.5, "output": 10, "cachedInput": 1.25, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "google/gemini-3.8-flash*", "input": 0.825, "output": 4.125, "cachedInput": 0.0825, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "google/gemini-3.5-flash-lite*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "google/gemini-3.5-flash*", "input": 1.5, "output": 9, "cachedInput": 0.15, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "google/gemini-2.5-flash*", "input": 0.3, "output": 2.5, "cachedInput": 0.03, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "z-ai/glm-5.3-flash*", "input": 0.15, "output": 0.5, "cachedInput": 0.03, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" },
-        { "pattern": "z-ai/glm-5*", "input": 1, "output": 3.2, "cachedInput": 0.2, "verified": true, "source": "https://openrouter.ai/api/v1/models", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "anthropic/claude-fable-5.1*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 0.25,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-fable-5*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 1,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-opus-5.5*",
+          "input": 4,
+          "output": 20,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-opus-5*",
+          "input": 5,
+          "output": 25,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-sonnet-5.5*",
+          "input": 2,
+          "output": 10,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-haiku-5.5*",
+          "input": 0.1,
+          "output": 0.5,
+          "cachedInput": 0.01,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-sonnet-4.6*",
+          "input": 3,
+          "output": 15,
+          "cachedInput": 0.3,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "anthropic/claude-haiku-4.5*",
+          "input": 1,
+          "output": 5,
+          "cachedInput": 0.1,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-6-astra*",
+          "input": 10,
+          "output": 50,
+          "cachedInput": 1,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-5.5-pro*",
+          "input": 30,
+          "output": 180,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-5.5*",
+          "input": 5,
+          "output": 30,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-4o-mini*",
+          "input": 0.15,
+          "output": 0.6,
+          "cachedInput": 0.075,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-4o*",
+          "input": 2.5,
+          "output": 10,
+          "cachedInput": 1.25,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "google/gemini-3.8-flash*",
+          "input": 0.825,
+          "output": 4.125,
+          "cachedInput": 0.0825,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "google/gemini-3.5-flash-lite*",
+          "input": 0.3,
+          "output": 2.5,
+          "cachedInput": 0.03,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "google/gemini-3.5-flash*",
+          "input": 1.5,
+          "output": 9,
+          "cachedInput": 0.15,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "google/gemini-2.5-flash*",
+          "input": 0.3,
+          "output": 2.5,
+          "cachedInput": 0.03,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "z-ai/glm-5.3-flash*",
+          "input": 0.15,
+          "output": 0.5,
+          "cachedInput": 0.03,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "z-ai/glm-5*",
+          "input": 1,
+          "output": 3.2,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://openrouter.ai/api/v1/models",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "groq",
       "source": "https://groq.com/pricing",
       "models": [
-        { "pattern": "llama-3.3-70b*", "input": 0.59, "output": 0.79, "verified": false, "source": "https://groq.com/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "llama-3.1-8b*", "input": 0.05, "output": 0.08, "verified": false, "source": "https://groq.com/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-oss-120b*", "input": 0.15, "output": 0.6, "verified": false, "source": "https://groq.com/pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "openai/gpt-oss-20b*", "input": 0.075, "output": 0.3, "verified": false, "source": "https://groq.com/pricing", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "llama-3.3-70b*",
+          "input": 0.59,
+          "output": 0.79,
+          "verified": false,
+          "source": "https://groq.com/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "llama-3.1-8b*",
+          "input": 0.05,
+          "output": 0.08,
+          "verified": false,
+          "source": "https://groq.com/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-oss-120b*",
+          "input": 0.15,
+          "output": 0.6,
+          "verified": false,
+          "source": "https://groq.com/pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "openai/gpt-oss-20b*",
+          "input": 0.075,
+          "output": 0.3,
+          "verified": false,
+          "source": "https://groq.com/pricing",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "xai",
       "source": "https://docs.x.ai/docs/models",
       "models": [
-        { "pattern": "grok-4.7*", "input": 2, "output": 6, "cachedInput": 0.5, "verified": true, "source": "https://docs.x.ai/docs/models", "checkedAt": "2026-10-27" },
-        { "pattern": "grok-4.6*", "input": 2, "output": 6, "cachedInput": 0.5, "verified": true, "source": "https://docs.x.ai/docs/models", "checkedAt": "2026-10-27" },
-        { "pattern": "grok-4.5*", "input": 2, "output": 6, "cachedInput": 0.3, "verified": true, "source": "https://docs.x.ai/docs/models", "checkedAt": "2026-10-27" },
-        { "pattern": "grok-4.3*", "input": 1.25, "output": 2.5, "cachedInput": 0.2, "verified": true, "source": "https://docs.x.ai/docs/models", "checkedAt": "2026-10-27" },
-        { "pattern": "grok-build*", "input": 1, "output": 2, "cachedInput": 0.2, "verified": true, "source": "https://docs.x.ai/docs/models", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "grok-4.7*",
+          "input": 2,
+          "output": 6,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://docs.x.ai/docs/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "grok-4.6*",
+          "input": 2,
+          "output": 6,
+          "cachedInput": 0.5,
+          "verified": true,
+          "source": "https://docs.x.ai/docs/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "grok-4.5*",
+          "input": 2,
+          "output": 6,
+          "cachedInput": 0.3,
+          "verified": true,
+          "source": "https://docs.x.ai/docs/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "grok-4.3*",
+          "input": 1.25,
+          "output": 2.5,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://docs.x.ai/docs/models",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "grok-build*",
+          "input": 1,
+          "output": 2,
+          "cachedInput": 0.2,
+          "verified": true,
+          "source": "https://docs.x.ai/docs/models",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "mistral",
       "source": "https://mistral.ai/products/la-plateforme#pricing",
       "models": [
-        { "pattern": "mistral-large*", "input": 2, "output": 6, "verified": false, "source": "https://mistral.ai/products/la-plateforme#pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "mistral-medium*", "input": 0.4, "output": 2, "verified": false, "source": "https://mistral.ai/products/la-plateforme#pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "mistral-small*", "input": 0.1, "output": 0.3, "verified": false, "source": "https://mistral.ai/products/la-plateforme#pricing", "checkedAt": "2026-10-27" },
-        { "pattern": "codestral*", "input": 0.3, "output": 0.9, "verified": false, "source": "https://mistral.ai/products/la-plateforme#pricing", "checkedAt": "2026-10-27" }
+        {
+          "pattern": "mistral-large*",
+          "input": 2,
+          "output": 6,
+          "verified": false,
+          "source": "https://mistral.ai/products/la-plateforme#pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "mistral-medium*",
+          "input": 0.4,
+          "output": 2,
+          "verified": false,
+          "source": "https://mistral.ai/products/la-plateforme#pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "mistral-small*",
+          "input": 0.1,
+          "output": 0.3,
+          "verified": false,
+          "source": "https://mistral.ai/products/la-plateforme#pricing",
+          "checkedAt": "2026-10-27"
+        },
+        {
+          "pattern": "codestral*",
+          "input": 0.3,
+          "output": 0.9,
+          "verified": false,
+          "source": "https://mistral.ai/products/la-plateforme#pricing",
+          "checkedAt": "2026-10-27"
+        }
       ]
     },
     {
       "id": "ollama",
       "source": "https://ollama.com",
-      "models": [{ "pattern": "*", "input": 0, "output": 0, "verified": true, "source": "https://ollama.com", "checkedAt": "2026-10-27" }]
+      "models": [
+        {
+          "pattern": "*",
+          "input": 0,
+          "output": 0,
+          "verified": true,
+          "source": "https://ollama.com",
+          "checkedAt": "2026-10-27"
+        }
+      ]
     },
     {
       "id": "lmstudio",
       "source": "https://lmstudio.ai",
-      "models": [{ "pattern": "*", "input": 0, "output": 0, "verified": true, "source": "https://lmstudio.ai", "checkedAt": "2026-10-27" }]
+      "models": [
+        {
+          "pattern": "*",
+          "input": 0,
+          "output": 0,
+          "verified": true,
+          "source": "https://lmstudio.ai",
+          "checkedAt": "2026-10-27"
+        }
+      ]
     }
   ]
 }
