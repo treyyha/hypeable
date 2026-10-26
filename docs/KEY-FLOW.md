@@ -2,6 +2,17 @@
 
 Where a user's BYO model key lives, how it reaches a provider, and where it could have been logged. Line numbers refer to `main` after the cookie removal.
 
+## Connect with OpenRouter (PKCE)
+
+One-click alternative to pasting a key. Protocol: [OpenRouter OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth) (verified 2026-10-26).
+
+1. The browser generates a PKCE verifier (`crypto.getRandomValues`, 32 bytes, base64url) and an anti-CSRF `state`. Both sit in **sessionStorage only**.
+2. The user is redirected to `https://openrouter.ai/auth` with `callback_url=<origin>/auth/openrouter/callback`, `code_challenge` (S256), `code_challenge_method=S256`, `state`, and `key_label=Hypeable`. Local runs use `http://localhost` callbacks, which OpenRouter allows on any port.
+3. `/auth/openrouter/callback` stashes `code` / `state` and immediately `history.replaceState`s them out of the URL (inline script in `app/root.tsx`, before React). It checks `state`, then POSTs `{ code, code_verifier, code_challenge_method: "S256" }` from the **browser** to `https://openrouter.ai/api/v1/auth/keys`. OpenRouter's CORS on that endpoint is `Access-Control-Allow-Origin: *`, so Hypeable's server never sees the code or the minted key.
+4. On success the key is written with `writeStoredApiKeys()` under provider `OpenRouter` — the same store as a pasted key — provider/model cookies are set to OpenRouter / `z-ai/glm-5.3-flash`, and a toast confirms it. Failure shows a plain error and the paste fallback. Disconnect removes the key from this browser; revoke the key on [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys).
+
+The user pays OpenRouter directly. Hypeable never sees their card and does not store the key on a server.
+
 ## Client storage
 
 Keys are **not** stored in a cookie. Cookies attach to every same-origin request, including static assets.
@@ -14,7 +25,7 @@ Keys are **not** stored in a cookie. Cookies attach to every same-origin request
 Implementation: `app/lib/api/api-key-storage.ts`.
 
 - Read: `readStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~64)
-- Write: `writeStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~74) from `APIKeyManager` (~69), `BaseChat` (~238), `FirstRunOnboarding` (~109)
+- Write: `writeStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~74) from `APIKeyManager`, `BaseChat`, `FirstRunOnboarding`, and OpenRouter PKCE success (`app/lib/openrouter/connect.ts`)
 - Migration: `migrateApiKeysFromCookie()` (~132). On load, if the old `apiKeys` cookie exists, it is copied into web storage and the cookie is deleted.
 
 ## Client → our server
@@ -62,7 +73,7 @@ LLM responses set `Cache-Control: no-store` (`LLM_NO_STORE_HEADERS` in `request-
 | SSR render errors | `app/entry.server.tsx` ~15 | `redactUnknown(error)` |
 | Provider credential failures | `toMissingCredentialError` | Logs `Provider credential error` without the provider's diagnostic |
 
-Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-…`, GitHub `gh*_…`, `Bearer …`, `x-hypeable-key` / `x-api-key` / `authorization` dumps, `apiKeys=` / `githubToken=` / other connector-token cookie blobs.
+Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-or-…`, `sk-…`, GitHub `gh*_…`, `Bearer …`, `x-hypeable-key` / `x-api-key` / `authorization` dumps, `apiKeys=` / `githubToken=` / other connector-token cookie blobs.
 
 ## What we do not do
 

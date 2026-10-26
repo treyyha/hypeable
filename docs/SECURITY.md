@@ -5,6 +5,7 @@
 |---|---|
 | Key leaks to GitHub | `.gitignore`, `.husky/pre-commit` secret-scan, CI gitleaks, GitHub push protection |
 | Key leaks via our server | Stored in the browser; sent over HTTPS for the request (LLM: `x-hypeable-key`; connectors: Authorization/body); never stored or logged; `app/lib/security/redact.ts` |
+| OpenRouter Connect (PKCE) | Verifier + `state` in sessionStorage; `?code=` stripped from the URL before React; exchange is browser→`openrouter.ai` (CORS `*`); key never hops our server; `sk-or-` redacted |
 | Abuse of any server route | rate limit + bot protection + origin check |
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
 | Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |

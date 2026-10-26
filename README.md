@@ -14,7 +14,7 @@
 
 ![Hypeable home](docs/assets/home-dark-1440.png)
 
-Describe an app, watch it get built, publish it to your own Vercel or GitHub. You bring the model key. Hypeable hosts nothing.
+Describe an app, watch it get built, publish it to your own Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 
@@ -67,7 +67,7 @@ npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
 
-Add your own model key in the app's settings. Stored in your browser. Sent over HTTPS for the request, never stored or logged.
+Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server — it lives in this browser. Sent over HTTPS for each model request, never stored or logged.
 
 ## Run locally
 

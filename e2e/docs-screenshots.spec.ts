@@ -140,6 +140,25 @@ test.describe('docs screenshots', () => {
     await page.screenshot({ path: 'docs/assets/spend-light-390.png' });
   });
 
+  test('start in 60 seconds panel on empty home', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, 'bolt_onboarding_completed');
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.getByTestId('start-in-sixty')).toBeVisible({ timeout: 20_000 });
+
+    await setTheme(page, 'dark');
+    await page.waitForTimeout(200);
+    await page.locator('[data-testid="start-in-sixty"]').screenshot({ path: 'docs/assets/start-in-sixty-dark-1440.png' });
+
+    await setTheme(page, 'light');
+    await page.waitForTimeout(200);
+    await page.locator('[data-testid="start-in-sixty"]').screenshot({ path: 'docs/assets/start-in-sixty-light-1440.png' });
+  });
+
   test('predeploy modal fail, warn, and clean', async ({ page }) => {
     test.setTimeout(120_000);
     await seedOpenAILikeMock(page);

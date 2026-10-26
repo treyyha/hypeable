@@ -64,3 +64,5 @@ AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation,
 - Pre-deploy WARN light: [assets/predeploy-warn-light-1440.png](assets/predeploy-warn-light-1440.png)
 - Pre-deploy clean dark: [assets/predeploy-clean-dark-1440.png](assets/predeploy-clean-dark-1440.png)
 - Pre-deploy clean light: [assets/predeploy-clean-light-1440.png](assets/predeploy-clean-light-1440.png)
+- Start in 60 seconds (no key) dark: [assets/start-in-sixty-dark-1440.png](assets/start-in-sixty-dark-1440.png)
+- Start in 60 seconds (no key) light: [assets/start-in-sixty-light-1440.png](assets/start-in-sixty-light-1440.png)
