@@ -1,7 +1,15 @@
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import type { LoaderFunctionArgs } from 'react-router';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
-export async function loader() {
+export async function loader({ context }: LoaderFunctionArgs) {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     // Check if we're in a git repository
     if (!existsSync('.git')) {

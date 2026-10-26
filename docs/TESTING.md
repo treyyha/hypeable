@@ -68,6 +68,12 @@ pnpm e2e:preview
 
 That builds, then serves `vite preview` on 5173 plus the mock. `?debugLoop=1` is skipped: the debug helper is stripped from the production client. WebContainer preview is still not asserted.
 
+Hosted-mode smoke (`HYPEABLE_HOSTED=1`, no OpenAILike mock):
+
+```bash
+pnpm e2e:hosted
+```
+
 ## CI
 
 `.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, unit tests, build, and e2e run in parallel jobs unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.

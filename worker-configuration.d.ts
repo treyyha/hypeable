@@ -1,4 +1,10 @@
+interface RateLimit {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
 interface Env {
+  HYPEABLE_HOSTED: string;
+  API_RATE_LIMITER: RateLimit;
   RUNNING_IN_DOCKER: Settings;
   DEFAULT_NUM_CTX: Settings;
   ANTHROPIC_API_KEY: string;

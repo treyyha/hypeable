@@ -1,7 +1,10 @@
+import { useStore } from '@nanostores/react';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
 import { ProviderChip } from '~/components/ui/ProviderChip';
+import { RunLocallyHint } from '~/components/ui/RunLocallyHint';
 import type { ModelInfo } from '~/lib/modules/llm/types';
+import { hostedModeStore } from '~/lib/stores/hosted';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
@@ -130,6 +133,7 @@ export const ModelSelector = ({
   const providerOptionsRef = useRef<(HTMLDivElement | null)[]>([]);
   const providerDropdownRef = useRef<HTMLDivElement>(null);
   const [showFreeModelsOnly, setShowFreeModelsOnly] = useState(false);
+  const hosted = useStore(hostedModeStore);
 
   type ConnectionStatus = 'unknown' | 'connected' | 'disconnected';
 
@@ -594,6 +598,10 @@ export const ModelSelector = ({
                     onClick={(e) => {
                       e.stopPropagation();
 
+                      if (hosted && LOCAL_PROVIDERS.includes(providerOption.name)) {
+                        return;
+                      }
+
                       if (setProvider) {
                         setProvider(providerOption);
 
@@ -629,6 +637,7 @@ export const ModelSelector = ({
                           __html: (providerOption as any).highlightedName || providerOption.name,
                         }}
                       />
+                      {hosted && LOCAL_PROVIDERS.includes(providerOption.name) ? <RunLocallyHint /> : null}
                     </div>
                   </div>
                 ))
@@ -636,6 +645,7 @@ export const ModelSelector = ({
             </div>
           </div>
         )}
+        {hosted ? <RunLocallyHint className="mt-1" /> : null}
       </div>
 
       {/* Model Combobox */}

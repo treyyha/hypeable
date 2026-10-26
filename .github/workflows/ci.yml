@@ -50,6 +50,8 @@ jobs:
         continue-on-error: true
         run: pnpm --if-present test
       - run: pnpm run --if-present build
+      - name: Scan production build for secrets
+        run: node scripts/secret-scan.mjs --dir build
       - run: pnpm audit --audit-level=high || true
 
   e2e:
@@ -74,6 +76,7 @@ jobs:
           restore-keys: playwright-${{ runner.os }}-
       - run: pnpm exec playwright install chromium --with-deps
       - run: pnpm e2e
+      - run: pnpm e2e:hosted
 
   commits:
     if: github.event_name == 'pull_request'

@@ -70,8 +70,10 @@ pnpm dev
 
 Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the only network call with the key is from your local process to the model provider you chose.
 
+The public site at [hypeable.dev](https://hypeable.dev) sets `HYPEABLE_HOSTED=1`: custom endpoints (Ollama, LM Studio, OpenAI-compatible URLs) are disabled. Run locally for those. Deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ## Testing
-Related unit tests: `npm run test:related`. Full suite: `pnpm test` (CI). To prove the workerd dev server without a real provider key, run `pnpm exec playwright install chromium` then `pnpm e2e` (starts a local OpenAI-compatible mock). Commit locally with `npm run ship -- "type(scope): summary"`; push and watch CI once with `npm run finish`. Details: [docs/TESTING.md](docs/TESTING.md).
+Related unit tests: `npm run test:related`. Full suite: `pnpm test` (CI). To prove the workerd dev server without a real provider key, run `pnpm exec playwright install chromium` then `pnpm e2e` (starts a local OpenAI-compatible mock). Hosted-mode smoke: `pnpm e2e:hosted`. Commit locally with `npm run ship -- "type(scope): summary"`; push and watch CI once with `npm run finish`. Details: [docs/TESTING.md](docs/TESTING.md).
 
 ## Contributing
 Read [CONTRIBUTING.md](CONTRIBUTING.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org).

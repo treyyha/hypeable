@@ -4,6 +4,7 @@ export const loader: LoaderFunction = async () => {
   /*
    * Keys are stored in the browser (localStorage / sessionStorage) and are
    * never sent to this route. Export is a client-side read of that storage.
+   * Hosted mode must keep 410 — this is not a 404 disable.
    */
   return Response.json(
     { error: 'API keys are stored in the browser and cannot be exported from the server.' },

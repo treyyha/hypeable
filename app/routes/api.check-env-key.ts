@@ -1,7 +1,14 @@
 import type { LoaderFunction } from 'react-router';
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
 export const loader: LoaderFunction = async ({ context, request }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   const url = new URL(request.url);
   const provider = url.searchParams.get('provider');
 

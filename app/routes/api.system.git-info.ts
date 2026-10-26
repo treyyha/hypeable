@@ -1,5 +1,6 @@
 import type { LoaderFunction, LoaderFunctionArgs } from 'react-router';
 import { getGithubAccessToken } from '~/lib/api/connector-tokens';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
 interface GitInfo {
   local: {
@@ -63,6 +64,12 @@ declare const __GIT_REPO_NAME: string;
  */
 
 export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   console.log('Git info API called with URL:', request.url);
 
   // Handle CORS preflight requests

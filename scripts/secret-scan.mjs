@@ -3,10 +3,11 @@
  * Blocks commits that contain likely secrets. Zero dependencies.
  * Usage: node scripts/secret-scan.mjs            (scans staged changes)
  *        node scripts/secret-scan.mjs --all      (scans all tracked files)
+ *        node scripts/secret-scan.mjs --dir build (walks a directory, used in CI)
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
@@ -26,12 +27,46 @@ const catalog = JSON.parse(
 const PATTERNS = catalog.patterns.map((row) => [row.label, new RegExp(row.source, row.flags || '')]);
 
 const ALLOW_LINE = /secret-scan:allow/;
+const SKIP_DIR_EXT = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|eot|mp4|webm|wasm|bin|gz|zip|pdf|map)$/i;
 const all = process.argv.includes('--all');
+const dirFlag = process.argv.indexOf('--dir');
+const scanDir = dirFlag >= 0 ? process.argv[dirFlag + 1] : '';
 const problems = [];
 
-const files = all
-  ? git('ls-files', '-z').split('\0').filter(Boolean)
-  : git('diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z').split('\0').filter(Boolean);
+function walkDir(root) {
+  const out = [];
+
+  const visit = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name === '.git') {
+          continue;
+        }
+
+        visit(full);
+        continue;
+      }
+
+      if (SKIP_DIR_EXT.test(entry.name)) {
+        continue;
+      }
+
+      out.push(relative(process.cwd(), full).replaceAll('\\', '/'));
+    }
+  };
+
+  visit(root);
+
+  return out;
+}
+
+const files = scanDir
+  ? walkDir(scanDir)
+  : all
+    ? git('ls-files', '-z').split('\0').filter(Boolean)
+    : git('diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z').split('\0').filter(Boolean);
 
 for (const f of files) {
   if (BLOCKED_FILES.some((re) => re.test(f))) {
@@ -53,9 +88,13 @@ function scan(name, text) {
   });
 }
 
-if (all) {
+if (all || scanDir) {
   for (const f of files) {
     try {
+      if (statSync(f).size > 5 * 1024 * 1024) {
+        continue;
+      }
+
       const t = readFileSync(f, 'utf8');
 
       if (!t.includes('\0')) {

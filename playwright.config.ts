@@ -5,6 +5,7 @@ const preview = process.env.E2E_PREVIEW === '1';
 export default defineConfig({
   testDir: './e2e',
   testMatch: '**/*.spec.ts',
+  testIgnore: ['hosted.spec.ts'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

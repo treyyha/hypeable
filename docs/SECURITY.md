@@ -16,10 +16,10 @@
 ## Where each snippet is
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.
 
-## Rate limiting and bots (Vercel)
-1. In app code use `rate-limit.ts` (per-IP, per-route).
-2. In the Vercel dashboard: Project -> Firewall -> add rate-limit rules for `/api/*`; enable **Bot Protection** / Attack Challenge Mode when attacked.
-3. Optional: Cloudflare Turnstile on sign-up and any expensive endpoint.
+## Rate limiting and bots
+1. In app code: in-memory limiter in `app/lib/security.ts` (per-IP, per-route). `/api/chat` and `/api/llmcall` also call the Workers `API_RATE_LIMITER` binding when present.
+2. Public Cloudflare deploy: see [DEPLOY.md](DEPLOY.md) for the dashboard WAF rate-limit rule (Pages Functions do not document the Rate Limiting binding).
+3. Optional: Cloudflare Turnstile on any expensive endpoint.
 
 ## Set the GitHub guardrails (run once, needs `gh auth login`)
 ```bash

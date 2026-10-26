@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
 import { getTrustedClientIP } from '~/lib/security';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedWebFetch, hostedOutboundResponse } from '~/lib/security/outbound';
 import { validatePublicHttpUrl, webFetch, webSearch } from '~/lib/services/webTools.server';
 
 const MAX_BODY_BYTES = 4_096;
@@ -157,7 +159,14 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     try {
       validatePublicHttpUrl(parsed.data.url);
+      assertHostedWebFetch(envFromContext(context), parsed.data.url);
     } catch (error) {
+      const rejected = hostedOutboundResponse(error);
+
+      if (rejected) {
+        return rejected;
+      }
+
       return Response.json({ error: error instanceof Error ? error.message : 'URL is not allowed' }, { status: 400 });
     }
 

@@ -2,6 +2,8 @@ import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { ProviderInfo } from '~/types/model';
 
 let cachedProviders: ProviderInfo[] | null = null;
@@ -49,6 +51,21 @@ export async function loader({
 
   const apiKeys = getApiKeysFromRequest(request);
   const providerSettings = getProviderSettingsFromRequest(request);
+
+  try {
+    if (params.provider) {
+      assertHostedProviderAccess(envFromContext(context), params.provider, providerSettings[params.provider]?.baseUrl);
+    }
+  } catch (error) {
+    const rejected = hostedOutboundResponse(error);
+
+    if (rejected) {
+      return rejected;
+    }
+
+    throw error;
+  }
+
   const enabledProviderNames = new URL(request.url).searchParams.get('providers')?.split(',').filter(Boolean);
 
   const { providers, defaultProvider } = getProviderInfo(llmManager);

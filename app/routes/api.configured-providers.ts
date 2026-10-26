@@ -1,6 +1,7 @@
 import type { LoaderFunction } from 'react-router';
 
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 
 interface ConfiguredProvider {
@@ -14,6 +15,12 @@ interface ConfiguredProvider {
  * This helps auto-enable providers that have been set up by the user
  */
 export const loader: LoaderFunction = async ({ context }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     const llmManager = LLMManager.getInstance(context?.cloudflare?.env as any);
     const configuredProviders: ConfiguredProvider[] = [];

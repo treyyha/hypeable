@@ -36,13 +36,13 @@ Read `docs/ORIENTATION.md` only if needed. Prefer targeted reads of the files be
 | Loop breaker | `app/lib/loop/`, `app/lib/stores/loop.ts`, `app/lib/hooks/useLoopBreaker.ts`, `app/components/loop/`, `docs/LOOP-BREAKER.md` |
 | Plan-first | `app/lib/plan/`, `app/lib/stores/plan.ts`, `app/components/plan/` (`PlanCard.tsx`, `PlanFirstChip.tsx`, `PlanSettings.tsx`), `docs/PLAN-MODE.md` |
 | Pre-deploy check | `app/lib/predeploy/`, `app/lib/stores/predeploy.ts`, `app/components/predeploy/`, `app/lib/security/secret-patterns.json`, `docs/PREDEPLOY-CHECK.md` |
-| Keys / security | `app/lib/api/api-key-storage.ts`, `app/lib/api/request-keys.ts`, `app/lib/security/`, `templates/security/`, `scripts/secret-scan.mjs`, `docs/SECURITY.md`, `docs/KEY-FLOW.md` |
+| Keys / security | `app/lib/api/api-key-storage.ts`, `app/lib/api/request-keys.ts`, `app/lib/security/` (`hosted.ts`, `outbound.ts`, `headers.ts`), `templates/security/`, `scripts/secret-scan.mjs`, `docs/SECURITY.md`, `docs/KEY-FLOW.md`, `docs/DEPLOY.md` |
 | Routes | `app/routes.ts` (URL table), `app/routes/` (page + `/api/*` modules), `app/root.tsx`, `app/entry.server.tsx` |
 | Stores | `app/lib/stores/` (`cost.ts`, `loop.ts`, `plan.ts`, `theme.ts`, `workbench.ts`, `settings.ts`, connector stores) |
 | Components | `app/components/chat/` (composer + messages), `app/components/header/`, `app/components/home/`, `app/components/workbench/`, `app/components/ui/`, `app/components/@settings/` |
 | Scripts | `scripts/secret-scan.mjs`, `scripts/ship.mjs`, `scripts/finish.mjs`, `scripts/typecheck.mjs`, `scripts/test-related.mjs`, `scripts/ci-docs-only.mjs` |
 | Docs | `docs/*.md` (product). Upstream mkdocs copies sit in `docs/docs/` — do not treat those as source of truth. |
-| E2E | `e2e/smoke.spec.ts`, `e2e/docs-screenshots.spec.ts`, `playwright.config.ts`. Local mock: `scripts/dev/mock-openai.mjs`. |
+| E2E | `e2e/smoke.spec.ts`, `e2e/hosted.spec.ts` (`pnpm e2e:hosted`), `e2e/docs-screenshots.spec.ts`, `playwright.config.ts`. Local mock: `scripts/dev/mock-openai.mjs`. |
 
 ## Command cheat sheet
 Times are local (Windows) after this speed pass. CI still runs gitleaks, typecheck, lint, unit tests, build, and e2e.

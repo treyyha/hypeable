@@ -94,6 +94,30 @@ export function checkRateLimit(
   return { allowed: true };
 }
 
+type CloudflareRateLimiter = {
+  limit: (options: { key: string }) => Promise<{ success: boolean }>;
+};
+
+/**
+ * Optional Workers Rate Limiting binding. Pages Functions do not document this
+ * binding; when it is absent we keep the in-memory limiter only.
+ */
+async function checkCloudflareRateLimit(context: unknown, endpoint: string, ip: string): Promise<boolean> {
+  const limiter = (context as { cloudflare?: { env?: { API_RATE_LIMITER?: CloudflareRateLimiter } } } | undefined)
+    ?.cloudflare?.env?.API_RATE_LIMITER;
+
+  if (!limiter || typeof limiter.limit !== 'function') {
+    return true;
+  }
+
+  try {
+    const { success } = await limiter.limit({ key: `${ip}:${endpoint}` });
+    return success;
+  } catch {
+    return true;
+  }
+}
+
 /**
  * Get client IP address from request
  */
@@ -278,6 +302,22 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
             'X-RateLimit-Reset': rateLimitResult.resetTime!.toString(),
           },
         });
+      }
+
+      const clientIP = getTrustedClientIP(request, args.context);
+
+      if (clientIP && (endpoint === '/api/chat' || endpoint === '/api/llmcall')) {
+        const edgeAllowed = await checkCloudflareRateLimit(args.context, endpoint, clientIP);
+
+        if (!edgeAllowed) {
+          return new Response('Rate limit exceeded', {
+            status: 429,
+            headers: {
+              ...createSecurityHeaders(),
+              'Retry-After': '60',
+            },
+          });
+        }
       }
     }
 

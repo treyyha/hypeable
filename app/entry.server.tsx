@@ -1,6 +1,7 @@
 import { isbot } from 'isbot';
 import { renderToReadableStream } from 'react-dom/server';
 import { ServerRouter, type EntryContext, type RouterContextProvider } from 'react-router';
+import { DOCUMENT_SECURITY_HEADERS } from '~/lib/security/headers';
 import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
 
 installSafeConsole();
@@ -30,9 +31,12 @@ export default async function handleRequest(
    * WebContainer requires a cross-origin-isolated document.
    * `credentialless` is used because the preview iframe and the
    * COEP header would otherwise block every third-party subresource.
+   * Extra headers + CSP-Report-Only live in DOCUMENT_SECURITY_HEADERS
+   * (keep public/_headers in sync).
    */
-  responseHeaders.set('Cross-Origin-Embedder-Policy', 'credentialless');
-  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+  for (const [name, value] of Object.entries(DOCUMENT_SECURITY_HEADERS)) {
+    responseHeaders.set(name, value);
+  }
 
   return new Response(body, {
     headers: responseHeaders,

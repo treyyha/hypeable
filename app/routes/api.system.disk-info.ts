@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunction } from 'react-router';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
 // Only import child_process if we're not in a Cloudflare environment
 let execSync: any;
@@ -264,7 +265,13 @@ const getDiskInfo = (): DiskInfo[] => {
   }
 };
 
-export const loader: LoaderFunction = async ({ request: _request }) => {
+export const loader: LoaderFunction = async ({ request: _request, context }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     return Response.json(getDiskInfo());
   } catch (error) {
@@ -287,7 +294,13 @@ export const loader: LoaderFunction = async ({ request: _request }) => {
   }
 };
 
-export const action = async ({ request: _request }: ActionFunctionArgs) => {
+export const action = async ({ request: _request, context }: ActionFunctionArgs) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     return Response.json(getDiskInfo());
   } catch (error) {

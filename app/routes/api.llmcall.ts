@@ -21,6 +21,8 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { withSecurity } from '~/lib/security';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { IProviderSetting } from '~/types/model';
 import { PROVIDER_LIST } from '~/utils/constants';
 import { createScopedLogger } from '~/utils/logger';
@@ -105,6 +107,18 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
 
   const apiKeys = getApiKeysFromRequest(request, rawBody);
   const providerSettings = getProviderSettingsFromRequest(request);
+
+  try {
+    assertHostedProviderAccess(envFromContext(context), providerName, providerSettings[providerName]?.baseUrl);
+  } catch (error) {
+    const rejected = hostedOutboundResponse(error);
+
+    if (rejected) {
+      return rejected;
+    }
+
+    throw error;
+  }
 
   if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
     return missingProviderKeyResponse(providerName);

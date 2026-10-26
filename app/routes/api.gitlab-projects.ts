@@ -1,4 +1,7 @@
+import type { ActionFunctionArgs } from 'react-router';
 import { withSecurity } from '~/lib/security';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedGitLabUrl, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { GitLabProjectInfo } from '~/types/GitLab';
 
 interface GitLabProject {
@@ -15,10 +18,22 @@ interface GitLabProject {
   visibility: string;
 }
 
-async function gitlabProjectsLoader({ request }: { request: Request }) {
+async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
   try {
     const body: any = await request.json();
     const { token, gitlabUrl = 'https://gitlab.com' } = body;
+
+    try {
+      assertHostedGitLabUrl(envFromContext(context), gitlabUrl);
+    } catch (error) {
+      const rejected = hostedOutboundResponse(error);
+
+      if (rejected) {
+        return rejected;
+      }
+
+      throw error;
+    }
 
     if (!token) {
       return Response.json({ error: 'GitLab token is required' }, { status: 400 });

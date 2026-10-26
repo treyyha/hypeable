@@ -29,6 +29,7 @@ export * from './LoadingDots';
 export * from './LoadingOverlay';
 export * from './LoadingState';
 export * from './Progress';
+export * from './RunLocallyHint';
 
 // New components
 export * from './Breadcrumbs';

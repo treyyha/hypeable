@@ -4,7 +4,17 @@ import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, type LinksFunction, type MetaFunction } from 'react-router';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+  type LinksFunction,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from 'react-router';
 import { cssTransition, ToastContainer } from 'react-toastify';
 import '@fontsource/geist-sans/400.css';
 import '@fontsource/geist-sans/500.css';
@@ -122,6 +132,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { journeys, observeWebVitals } from './lib/performance/metrics';
 import { prebootWebContainer } from './lib/performance/webcontainer-optimizer';
+import { isHostedFromContext } from './lib/security/hosted';
+import { setHostedMode } from './lib/stores/hosted';
 import { logStore } from './lib/stores/logs';
 import { themeStore } from './lib/stores/theme';
 import globalStyles from './styles/index.scss?url';
@@ -130,8 +142,17 @@ import { stripIndents } from './utils/stripIndent';
 
 export const meta: MetaFunction = () => brandMeta();
 
+export async function loader({ context }: LoaderFunctionArgs) {
+  return { hosted: isHostedFromContext(context) };
+}
+
 export default function App() {
   const theme = useStore(themeStore);
+  const { hosted } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    setHostedMode(hosted);
+  }, [hosted]);
 
   useEffect(() => {
     // Mark app launch start

@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from 'react-router';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 import { mcpConfigSchema } from '~/lib/services/mcpService';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -6,7 +7,13 @@ const logger = createScopedLogger('api.mcp-update-config');
 
 const updateConfigSchema = mcpConfigSchema.strict();
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     let body: unknown;
 

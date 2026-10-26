@@ -11,6 +11,7 @@ import { discussPrompt } from '~/lib/common/prompts/discuss-prompt';
 import { getSystemPrompt } from '~/lib/common/prompts/prompts';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { createMessage, getMessageText } from '~/lib/persistence/messageMigration';
+import { assertHostedProviderAccess } from '~/lib/security/outbound';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { IProviderSetting } from '~/types/model';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODIFICATIONS_TAG_NAME, PROVIDER_LIST, WORK_DIR } from '~/utils/constants';
@@ -393,6 +394,12 @@ export async function streamText(props: {
       },
     };
   }
+
+  assertHostedProviderAccess(
+    serverEnv as unknown as Record<string, unknown> | undefined,
+    provider.name,
+    providerSettings?.[provider.name]?.baseUrl,
+  );
 
   const selectedModel = provider.getModelInstance({
     model: modelDetails.name,

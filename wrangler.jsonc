@@ -1,11 +1,21 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "bolt",
+  "name": "hypeable",
   "main": "./workers/app.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "ratelimits": [
+    {
+      "name": "API_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
 }

@@ -9,6 +9,8 @@ import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { createMessage } from '~/lib/persistence/messageMigration';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import { stripIndents } from '~/utils/stripIndent';
 
 export async function action(args: ActionFunctionArgs) {
@@ -36,6 +38,18 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
 
   const apiKeys = getApiKeysFromRequest(request, rawBody);
   const providerSettings = getProviderSettingsFromRequest(request);
+
+  try {
+    assertHostedProviderAccess(envFromContext(context), providerName, providerSettings[providerName]?.baseUrl);
+  } catch (error) {
+    const rejected = hostedOutboundResponse(error);
+
+    if (rejected) {
+      return rejected;
+    }
+
+    throw error;
+  }
 
   if (!providerHasCredential(providerName, apiKeys, context.cloudflare?.env)) {
     return missingProviderKeyResponse(providerName);

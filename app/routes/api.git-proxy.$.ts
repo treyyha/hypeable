@@ -1,4 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
+import { envFromContext, isHostedFromContext } from '~/lib/security/hosted';
+import {
+  GIT_SMART_HTTP_MAX_BYTES,
+  GIT_SMART_HTTP_TIMEOUT_MS,
+  assertGitProxyTarget,
+  hostedOutboundResponse,
+} from '~/lib/security/outbound';
 
 // Allowed headers to forward to the target server
 const ALLOW_HEADERS = [
@@ -42,15 +49,15 @@ const EXPOSE_HEADERS = [
 ];
 
 // Handle all HTTP methods
-export async function action({ request, params }: ActionFunctionArgs) {
-  return handleProxyRequest(request, params['*']);
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  return handleProxyRequest(request, params['*'], context);
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  return handleProxyRequest(request, params['*']);
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  return handleProxyRequest(request, params['*'], context);
 }
 
-async function handleProxyRequest(request: Request, path: string | undefined) {
+async function handleProxyRequest(request: Request, path: string | undefined, context?: unknown) {
   try {
     if (!path) {
       return Response.json({ error: 'Invalid proxy URL format' }, { status: 400 });
@@ -70,19 +77,24 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       });
     }
 
-    // Extract domain and remaining path
-    const parts = path.match(/([^\/]+)\/?(.*)/);
+    const url = new URL(request.url);
 
-    if (!parts) {
+    let targetURL: string;
+    let domain: string;
+
+    try {
+      const target = assertGitProxyTarget(envFromContext(context), path, url.search);
+      targetURL = target.url;
+      domain = target.host;
+    } catch (error) {
+      const rejected = hostedOutboundResponse(error);
+
+      if (rejected) {
+        return rejected;
+      }
+
       return Response.json({ error: 'Invalid path format' }, { status: 400 });
     }
-
-    const domain = parts[1];
-    const remainingPath = parts[2] || '';
-
-    // Reconstruct the target URL with query parameters
-    const url = new URL(request.url);
-    const targetURL = `https://${domain}/${remainingPath}${url.search}`;
 
     console.log('Target URL:', targetURL);
 
@@ -110,10 +122,13 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
      * `duplex` is required by undici/Node when streaming a request body, but it is
      * absent from the Cloudflare `RequestInit` type, so widen it locally.
      */
+    const hosted = isHostedFromContext(context);
+
     const fetchOptions: RequestInit & { duplex?: 'half' } = {
       method: request.method,
       headers,
       redirect: 'follow',
+      signal: hosted ? AbortSignal.timeout(GIT_SMART_HTTP_TIMEOUT_MS) : request.signal,
     };
 
     // Add body for non-GET/HEAD requests
@@ -155,8 +170,19 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
 
     console.log('Response headers:', Object.fromEntries(responseHeaders.entries()));
 
-    // Return the response with the target's body stream piped directly
-    return new Response(response.body, {
+    let body: ReadableStream<Uint8Array> | null = response.body;
+
+    if (hosted && body) {
+      const declared = Number(response.headers.get('content-length'));
+
+      if (Number.isFinite(declared) && declared > GIT_SMART_HTTP_MAX_BYTES) {
+        return Response.json({ error: 'Git proxy response too large' }, { status: 413 });
+      }
+
+      body = limitBytes(body, GIT_SMART_HTTP_MAX_BYTES);
+    }
+
+    return new Response(body, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
@@ -172,4 +198,35 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       { status: 500 },
     );
   }
+}
+
+function limitBytes(stream: ReadableStream<Uint8Array>, maxBytes: number): ReadableStream<Uint8Array> {
+  let seen = 0;
+
+  const reader = stream.getReader();
+
+  return new ReadableStream({
+    async pull(controller) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        controller.close();
+        return;
+      }
+
+      seen += value.byteLength;
+
+      if (seen > maxBytes) {
+        await reader.cancel();
+        controller.error(new Error('Git proxy response too large'));
+
+        return;
+      }
+
+      controller.enqueue(value);
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
 }

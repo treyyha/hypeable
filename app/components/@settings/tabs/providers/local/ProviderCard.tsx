@@ -1,8 +1,11 @@
+import { useStore } from '@nanostores/react';
 import { Link, Server, Monitor, Globe } from 'lucide-react';
 import React from 'react';
 import { PROVIDER_DESCRIPTIONS } from './types';
 import { Card } from '~/components/ui/Card';
+import { RunLocallyHint } from '~/components/ui/RunLocallyHint';
 import { Switch } from '~/components/ui/Switch';
+import { hostedModeStore } from '~/lib/stores/hosted';
 import type { IProviderConfig } from '~/types/model';
 import { classNames } from '~/utils/classNames';
 
@@ -24,6 +27,8 @@ function ProviderCard({
   onStartEditing,
   onStopEditing,
 }: ProviderCardProps) {
+  const hosted = useStore(hostedModeStore);
+
   const getIcon = (providerName: string) => {
     switch (providerName) {
       case 'Ollama':
@@ -68,8 +73,9 @@ function ProviderCard({
             <p className="text-sm text-bolt-elements-textSecondary">
               {PROVIDER_DESCRIPTIONS[provider.name as keyof typeof PROVIDER_DESCRIPTIONS]}
             </p>
+            {hosted ? <RunLocallyHint className="mt-1" /> : null}
 
-            {provider.settings.enabled && (
+            {provider.settings.enabled && !hosted && (
               <div className="space-y-2">
                 <label className="text-sm font-medium text-bolt-elements-textPrimary">API Endpoint</label>
                 {isEditing ? (
@@ -111,8 +117,9 @@ function ProviderCard({
         </div>
         <div className="shrink-0">
           <Switch
-            checked={provider.settings.enabled}
+            checked={hosted ? false : provider.settings.enabled}
             onCheckedChange={onToggle}
+            disabled={hosted}
             aria-label={`Toggle ${provider.name} provider`}
           />
         </div>

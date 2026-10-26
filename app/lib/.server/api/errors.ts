@@ -1,5 +1,6 @@
 import { InvalidToolInputError, NoSuchToolError, ToolChoiceViolationError } from 'ai';
 import { LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
+import { hostedOutboundResponse } from '~/lib/security/outbound';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('api.errors');
@@ -271,6 +272,12 @@ function isTypedFailure(error: unknown): boolean {
  * carry their own vetted message; anything else becomes a generic string.
  */
 export function toApiErrorResponse(error: unknown, fallbackProvider = 'unknown'): Response {
+  const hosted = hostedOutboundResponse(error);
+
+  if (hosted) {
+    return hosted;
+  }
+
   if (error instanceof ApiError) {
     return Response.json(
       {

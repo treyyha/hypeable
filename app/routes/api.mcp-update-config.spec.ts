@@ -14,6 +14,20 @@ function post(body: unknown) {
 }
 
 describe('POST /api/mcp-update-config', () => {
+  it('returns 404 in hosted mode', async () => {
+    const response = await action({
+      request: new Request('https://example.com/api/mcp-update-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mcpServers: {} }),
+      }),
+      params: {},
+      context: { cloudflare: { env: { HYPEABLE_HOSTED: '1' } } },
+    } as never);
+
+    expect(response.status).toBe(404);
+  });
+
   it('accepts the empty onboarding default without loading MCP clients', async () => {
     const response = await post({ mcpServers: {} });
 

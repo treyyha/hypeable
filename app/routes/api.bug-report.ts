@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest';
 import type { ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
 import { getTrustedClientIP } from '~/lib/security';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -134,6 +135,12 @@ function formatIssueBody(data: z.infer<typeof bugReportSchema>): string {
 }
 
 export async function action({ request, context }: ActionFunctionArgs) {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   // Only allow POST requests
   if (request.method !== 'POST') {
     return Response.json({ error: 'Method not allowed' }, { status: 405 });

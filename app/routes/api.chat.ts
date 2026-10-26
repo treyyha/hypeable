@@ -39,6 +39,8 @@ import { PLAN_INSTRUCTION } from '~/lib/plan';
 import { getPluginToolDescriptions, getPluginTools } from '~/lib/plugins/adapters';
 import { getProjectToolNames, projectToolDefinitions } from '~/lib/runtime/projectMcp.shared';
 import { withSecurity } from '~/lib/security';
+import { envFromContext } from '~/lib/security/hosted';
+import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import { MCPService } from '~/lib/services/mcpService';
 import type { ContextAnnotation, ProgressAnnotation, ToolCallAnnotation } from '~/types/context';
 import type { IProviderSetting } from '~/types/model';
@@ -102,6 +104,24 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   const lastUserMessage = messages.filter((message) => message.role === 'user').at(-1);
   const requestModel = lastUserMessage ? extractPropertiesFromMessage(lastUserMessage) : undefined;
+
+  try {
+    if (requestModel?.provider) {
+      assertHostedProviderAccess(
+        envFromContext(context),
+        requestModel.provider,
+        providerSettings[requestModel.provider]?.baseUrl,
+      );
+    }
+  } catch (error) {
+    const rejected = hostedOutboundResponse(error);
+
+    if (rejected) {
+      return rejected;
+    }
+
+    throw error;
+  }
 
   const cumulativeUsage = {
     completionTokens: 0,

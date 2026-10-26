@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getEnv } from './env';
 import type { ProviderInfo, ProviderConfig, ModelInfo } from './types';
+import { assertHostedProviderAccess } from '~/lib/security/outbound';
 import type { IProviderSetting } from '~/types/model';
 
 /** Default timeout for model listing API calls (5 seconds) */
@@ -96,6 +97,8 @@ export abstract class BaseProvider implements ProviderInfo {
 
     const apiKey =
       apiKeys?.[this.name] || serverEnv?.[apiTokenKey] || process?.env?.[apiTokenKey] || managerEnv?.[apiTokenKey];
+
+    assertHostedProviderAccess(serverEnv, this.name, baseUrl);
 
     return {
       baseUrl,

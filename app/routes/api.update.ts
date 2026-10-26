@@ -1,6 +1,13 @@
 import type { ActionFunction } from 'react-router';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, context }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   if (request.method !== 'POST') {
     return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }

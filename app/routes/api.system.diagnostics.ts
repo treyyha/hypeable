@@ -1,4 +1,5 @@
 import type { LoaderFunction, LoaderFunctionArgs } from 'react-router';
+import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
 
 /**
  * Diagnostic API for troubleshooting connection issues
@@ -12,6 +13,12 @@ interface AppContext {
 }
 
 export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+  const blocked = hostedNotFoundIfEnabled(context);
+
+  if (blocked) {
+    return blocked;
+  }
+
   // Get environment variables
   const envVars = {
     hasGithubToken: Boolean(process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN),
