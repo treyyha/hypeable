@@ -13,14 +13,14 @@ const ALIAS = { '~': fileURLToPath(new URL('./app', import.meta.url)) };
 
 export default defineConfig({
   resolve: { alias: ALIAS },
+  define: {
+    'import.meta.hot': 'undefined',
+  },
   test: {
     name: 'perf',
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup-base.ts', './tests/setup-dom.ts'],
     include: PERF_TESTS,
-    define: {
-      'import.meta.hot': 'undefined',
-    },
   },
 });
