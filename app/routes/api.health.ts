@@ -1,8 +1,9 @@
 import type { LoaderFunctionArgs } from 'react-router';
+import { isHostedFromContext } from '~/lib/security/hosted';
 
-export const loader = async ({ request: _request }: LoaderFunctionArgs) => {
+export const loader = async ({ context }: LoaderFunctionArgs) => {
   return Response.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
+    ok: true,
+    hosted: isHostedFromContext(context),
   });
 };

@@ -39,5 +39,9 @@ test.describe('hosted mode', () => {
     expect((await request.get('/api/check-env-key?provider=OpenAI')).status()).toBe(404);
     expect((await request.get('/api/configured-providers')).status()).toBe(404);
     expect((await request.get('/api/export-api-keys')).status()).toBe(410);
+
+    const health = await request.get('/api/health');
+    expect(health.status()).toBe(200);
+    expect(await health.json()).toMatchObject({ ok: true, hosted: true });
   });
 });
