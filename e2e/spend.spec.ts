@@ -35,7 +35,7 @@ test.describe('Spend page', () => {
     await expect(page.getByTestId('spend-page')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText('Spent today')).toBeVisible();
     await expect(page.getByText('Habit tracker')).toBeVisible();
-    await expect(page.getByText('mock-model')).toBeVisible();
+    await expect(page.getByText('mock-model', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Spend' })).toBeVisible();
   });
 });
