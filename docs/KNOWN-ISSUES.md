@@ -39,4 +39,4 @@ Left unpatched on purpose:
 |---|---|---|---|
 | low | `elliptic` `6.6.1` | Yes — client, via `vite-plugin-node-polyfills` → `crypto-browserify` (WebContainer Node shims). | Advisory patched versions are `<0.0.0` (no real patch). |
 
-GitHub Dependabot also lists pip alerts on `docs/poetry.lock` (upstream MkDocs). Those packages are **not** in the Workers/client production bundle. See [SECURITY.md](SECURITY.md).
+GitHub Dependabot previously listed pip alerts on `docs/poetry.lock` (unused upstream MkDocs). That lockfile is gone. See [SECURITY.md](SECURITY.md).

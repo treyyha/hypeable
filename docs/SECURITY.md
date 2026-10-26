@@ -11,7 +11,7 @@
 | Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |
 | Missing auth | check inside every server handler |
 | XSS / clickjacking | CSP, X-Frame-Options, no inline eval |
-| Supply chain | Dependabot, lockfile, CI audit. Remaining open alerts: `elliptic` (low, client polyfill, no patch) and unused MkDocs `docs/poetry.lock` pip transitives (not shipped). |
+| Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
 
 ## Where each snippet is
@@ -43,9 +43,8 @@ Then ask GitHub Support to purge cached views if the repo was public, and tell c
 Add secrets in Project -> Settings -> Environment Variables (never in git). Mark as Sensitive.
 
 ## Remaining Dependabot alerts
-GitHub Dependabot counts more than `pnpm audit` because it also scans `docs/poetry.lock`. After dropping Electron and pinning `fast-uri@3.1.9`, npm production audit is one low finding.
+After dropping Electron, unused MkDocs/`docs/poetry.lock`, and pinning `fast-uri@3.1.9`, npm production audit is one low finding.
 
 | Package | Ships in prod bundle? | Action |
 |---|---|---|
 | `elliptic` 6.6.1 (low) | Yes — client, via `vite-plugin-node-polyfills` → `crypto-browserify` for WebContainer Node shims. | No real patch (`<0.0.0`). Keep until the polyfill stack replaces it. |
-| `docs/poetry.lock` pip packages (`certifi`, `urllib3`, `requests`, `Jinja2`, `pymdown-extensions`, `mkdocs-material`, `idna`, `Markdown`, `Pygments`) | No — MkDocs-only lockfile for unused upstream docs copies in `docs/docs/`. | Not shipped with the Worker. Leave until that docs tree is dropped. |
