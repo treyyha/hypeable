@@ -1,5 +1,5 @@
 {
-  "jsGzipBytes": 1800000,
-  "cssGzipBytes": 200000,
-  "notes": "Home document JS/CSS only (entry + modulepreload + stylesheets). Measured gzip level 9. Ratchet down after a real first-load measurement."
+  "jsGzipBytes": 1250000,
+  "cssGzipBytes": 120000,
+  "notes": "Home route static JS/CSS graph (entry.client + root + _index + Chat.client and their static imports). Gzip level 9. Workbench, Shiki grammars, and xterm CSS must stay out of this graph. Measured 2026-10-27: JS gzip 1033 KiB, CSS gzip 90 KiB, 53 files."
 }

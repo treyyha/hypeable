@@ -19,6 +19,14 @@ pnpm build
 node scripts/check-first-load-budget.mjs
 ```
 
-CI runs that after `pnpm build`. It fails if the JS or CSS referenced from `build/client/index.html` exceeds the gzip byte caps.
+CI runs that after `pnpm build`. This app is SSR, so there is no `build/client/index.html`. The checker walks static imports from `entry.client`, `root`, `_index`, and `Chat.client`. Dynamic `import()` (Workbench, Shiki, xterm CSS, `@webcontainer/api`) stays out of the graph or the job fails.
 
-Throttled Fast 4G wall-clock is recorded in the task report, not in CI (network is not deterministic).
+Measured on 2026-10-27 after the deferral pass (gzip level 9):
+
+| | Raw | Gzip |
+|---|---|---|
+| JS | 3648 KiB | 1033 KiB |
+| CSS | 391 KiB | 90 KiB |
+| Files in static graph | 53 | |
+
+Budget is 1250 KiB JS gzip / 120 KiB CSS gzip. Throttled Fast 4G wall-clock is recorded in the task report, not in CI (network is not deterministic).
