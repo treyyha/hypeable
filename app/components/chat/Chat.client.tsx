@@ -12,6 +12,7 @@ import { getLlmRequestHeaders, readStoredApiKeys } from '~/lib/api/api-key-stora
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
 import { isServerAgentTool } from '~/lib/common/agentLoop';
 import { STARTER_BUILD_FLAG } from '~/lib/common/starterBuild';
+import { classifyUserError } from '~/lib/errors/user-facing';
 import { useCostGuard, useLoopBreaker, useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { description, useChatHistory } from '~/lib/persistence';
@@ -40,6 +41,7 @@ import { usePluginStore } from '~/lib/stores/plugins';
 import { streamingState } from '~/lib/stores/streaming';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { bootWebContainer } from '~/lib/webcontainer';
 import type { LlmErrorAlertType } from '~/types/actions';
 import type { ProgressAnnotation } from '~/types/context';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
@@ -754,6 +756,19 @@ export const ChatImpl = memo(
     }, []);
 
     useEffect(() => {
+      if (!import.meta.env.DEV) {
+        return;
+      }
+
+      if (new URLSearchParams(window.location.search).get('debugStarted') !== '1') {
+        return;
+      }
+
+      setChatStarted(true);
+      chatStore.setKey('started', true);
+    }, []);
+
+    useEffect(() => {
       processSampledMessages({
         messages,
         initialMessages,
@@ -842,22 +857,31 @@ export const ChatImpl = memo(
           }
         }
 
-        let errorType: LlmErrorAlertType['errorType'] = 'unknown';
-        let title = 'Request Failed';
+        const classified = classifyUserError({
+          statusCode: errorInfo.statusCode,
+          message: errorInfo.message,
+          online: typeof navigator === 'undefined' ? true : navigator.onLine,
+        });
 
-        if (errorInfo.statusCode === 401 || errorInfo.message.toLowerCase().includes('api key')) {
+        let errorType: LlmErrorAlertType['errorType'] = 'unknown';
+
+        const title = classified.title;
+
+        if (classified.kind === 'no_key' || classified.kind === 'invalid_key') {
           errorType = 'authentication';
-          title = 'Authentication Error';
-        } else if (errorInfo.statusCode === 429 || errorInfo.message.toLowerCase().includes('rate limit')) {
+        } else if (classified.kind === 'rate_limit') {
           errorType = 'rate_limit';
-          title = 'Rate Limit Exceeded';
-        } else if (errorInfo.message.toLowerCase().includes('quota')) {
+        } else if (classified.kind === 'no_credit') {
           errorType = 'quota';
-          title = 'Quota Exceeded';
-        } else if (errorInfo.statusCode >= 500) {
+        } else if (
+          classified.kind === 'offline' ||
+          classified.kind === 'provider_down' ||
+          classified.kind === 'timeout'
+        ) {
           errorType = 'network';
-          title = 'Server Error';
         }
+
+        errorInfo.message = classified.message;
 
         logStore.logError(`${context} request failed`, error, {
           component: 'Chat',
@@ -979,6 +1003,32 @@ export const ChatImpl = memo(
         return;
       }
 
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        const copy = classifyUserError({ online: false });
+        setLlmErrorAlert({
+          type: 'error',
+          title: copy.title,
+          description: copy.message,
+          provider: provider.name,
+          errorType: 'network',
+        });
+
+        return;
+      }
+
+      if (Object.keys(readStoredApiKeys()).length === 0) {
+        const copy = classifyUserError({ message: 'Add an API key' });
+        setLlmErrorAlert({
+          type: 'error',
+          title: copy.title,
+          description: copy.message,
+          provider: provider.name,
+          errorType: 'authentication',
+        });
+
+        return;
+      }
+
       if (isLoading) {
         abort();
         return;
@@ -996,6 +1046,7 @@ export const ChatImpl = memo(
       }
 
       costBypassRef.current = false;
+      void bootWebContainer();
       noteUserMessage(messageContent, messages.at(-1)?.id);
 
       const { skipThisTurn, forcePlan } = consumePlanTurnFlags();

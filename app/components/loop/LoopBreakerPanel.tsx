@@ -4,6 +4,7 @@
  */
 import { useState } from 'react';
 import { formatDollars } from '~/lib/cost/calc';
+import { stripStackTrace } from '~/lib/errors/user-facing';
 import { classNames } from '~/utils/classNames';
 
 const PREVIEW_LINES = 4;
@@ -30,9 +31,10 @@ export function LoopBreakerPanel({
   canRevert = true,
 }: LoopBreakerPanelProps) {
   const [expanded, setExpanded] = useState(false);
-  const lines = displayError.split('\n');
+  const lines = stripStackTrace(displayError).split('\n');
   const truncated = lines.length > PREVIEW_LINES;
-  const shown = expanded || !truncated ? displayError : lines.slice(0, PREVIEW_LINES).join('\n');
+  const cleaned = lines.join('\n');
+  const shown = expanded || !truncated ? cleaned : lines.slice(0, PREVIEW_LINES).join('\n');
 
   return (
     <section

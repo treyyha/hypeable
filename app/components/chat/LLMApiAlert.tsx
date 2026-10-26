@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { classifyUserError } from '~/lib/errors/user-facing';
 import type { LlmErrorAlertType } from '~/types/actions';
 import { classNames } from '~/utils/classNames';
 
@@ -24,15 +25,19 @@ export default function LlmErrorAlert({ alert, clearAlert }: Props) {
   };
 
   const getErrorMessage = () => {
+    const classified = classifyUserError({
+      message: [title, description].filter(Boolean).join(' '),
+    });
+
     switch (errorType) {
       case 'authentication':
-        return `Authentication failed with ${provider}. Please check your API key.`;
+        return classified.kind === 'no_key' ? classified.message : classifyUserError({ statusCode: 401 }).message;
       case 'rate_limit':
-        return `Rate limit exceeded for ${provider}. Please wait before retrying.`;
+        return classifyUserError({ statusCode: 429 }).message;
       case 'quota':
-        return `Quota exceeded for ${provider}. Please check your account limits.`;
+        return classifyUserError({ statusCode: 402 }).message;
       default:
-        return 'An error occurred while processing your request.';
+        return classified.message;
     }
   };
 
@@ -43,6 +48,8 @@ export default function LlmErrorAlert({ alert, clearAlert }: Props) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
+        role="alert"
+        data-testid="llm-error-alert"
         className="rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 p-4 mb-2"
       >
         <div className="flex items-start">
@@ -73,11 +80,7 @@ export default function LlmErrorAlert({ alert, clearAlert }: Props) {
             >
               <p>{getErrorMessage()}</p>
 
-              {description && (
-                <div className="text-xs text-bolt-elements-textSecondary p-2 bg-bolt-elements-background-depth-3 rounded mt-4 mb-4">
-                  Error Details: {description}
-                </div>
-              )}
+              {provider && <p className="mt-2 text-xs text-bolt-elements-textSecondary">Provider: {provider}</p>}
             </motion.div>
 
             <motion.div
