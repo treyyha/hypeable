@@ -5,12 +5,15 @@
  *   npm run ship                       auto-generates a conventional commit message
  *   npm run ship -- "feat(meter): live cost meter"
  *   npm run ship -- "feat(hooks): cut commit time (windows)"
+ *   npm run ship -- "fix(cost): show spend" --body "why paragraph"
+ *   npm run ship -- "fix(cost): show spend" --body-file notes/why.txt
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { parseShipArgs } from './ship-lib.mjs';
+import { gitCommitArgs, parseShipArgs, resolveShipBody } from './ship-lib.mjs';
 
-const { message: userMsg } = parseShipArgs(process.argv.slice(2));
+const parsed = parseShipArgs(process.argv.slice(2));
+const userMsg = parsed.message;
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', ...opts });
 const out = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 
@@ -82,8 +85,9 @@ function autoMessage() {
 }
 
 const msg = userMsg || autoMessage();
+const body = resolveShipBody(parsed);
 
-if (run('git', ['commit', '-m', msg]).status !== 0) {
+if (run('git', gitCommitArgs(msg, body)).status !== 0) {
   die('commit failed (hook rejected it?). Fix and re-run.');
 }
 
