@@ -178,14 +178,19 @@ export default defineConfig((config) => {
           // so `pnpm dev` / e2e with HYPEABLE_HOSTED=1 match production bindings.
           config: (workerConfig) => {
             const hosted = process.env.HYPEABLE_HOSTED;
+            const selfHosted = process.env.HYPEABLE_SELF_HOSTED;
 
-            if (!hosted) {
+            if (!hosted && !selfHosted) {
               return workerConfig;
             }
 
             return {
               ...workerConfig,
-              vars: { ...workerConfig.vars, HYPEABLE_HOSTED: hosted },
+              vars: {
+                ...workerConfig.vars,
+                ...(hosted ? { HYPEABLE_HOSTED: hosted } : {}),
+                ...(selfHosted ? { HYPEABLE_SELF_HOSTED: selfHosted } : {}),
+              },
             };
           },
         }),

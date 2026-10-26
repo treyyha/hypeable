@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { withSecurity } from '~/lib/security';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedGitLabUrl, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { GitLabProjectInfo } from '~/types/GitLab';
 
@@ -24,7 +24,7 @@ async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
     const { token, gitlabUrl = 'https://gitlab.com' } = body;
 
     try {
-      assertHostedGitLabUrl(envFromContext(context), gitlabUrl);
+      assertHostedGitLabUrl(envFromContext(context), gitlabUrl, hostFromContext(context));
     } catch (error) {
       const rejected = hostedOutboundResponse(error);
 

@@ -2,7 +2,7 @@ import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { ProviderInfo } from '~/types/model';
 
@@ -54,7 +54,12 @@ export async function loader({
 
   try {
     if (params.provider) {
-      assertHostedProviderAccess(envFromContext(context), params.provider, providerSettings[params.provider]?.baseUrl);
+      assertHostedProviderAccess(
+        envFromContext(context),
+        params.provider,
+        providerSettings[params.provider]?.baseUrl,
+        hostFromContext(context),
+      );
     }
   } catch (error) {
     const rejected = hostedOutboundResponse(error);

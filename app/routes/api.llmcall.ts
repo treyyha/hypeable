@@ -21,7 +21,7 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { withSecurity } from '~/lib/security';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { IProviderSetting } from '~/types/model';
 import { PROVIDER_LIST } from '~/utils/constants';
@@ -109,7 +109,12 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
   const providerSettings = getProviderSettingsFromRequest(request);
 
   try {
-    assertHostedProviderAccess(envFromContext(context), providerName, providerSettings[providerName]?.baseUrl);
+    assertHostedProviderAccess(
+      envFromContext(context),
+      providerName,
+      providerSettings[providerName]?.baseUrl,
+      hostFromContext(context),
+    );
   } catch (error) {
     const rejected = hostedOutboundResponse(error);
 

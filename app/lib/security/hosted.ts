@@ -1,6 +1,6 @@
 /**
- * Hosted-mode switch. Set HYPEABLE_HOSTED=1 only on the public deployment.
- * Self-hosted (unset / any other value) must behave exactly as today.
+ * Hosted-mode switch. Fail closed on a public Host even if HYPEABLE_HOSTED
+ * was forgotten. Loopback / private-LAN and HYPEABLE_SELF_HOSTED=1 stay open.
  */
 
 export const HOSTED_CUSTOM_ENDPOINT_MESSAGE = 'Run Hypeable locally to use custom endpoints';
@@ -9,20 +9,140 @@ function truthyFlag(value: unknown): boolean {
   return value === '1' || value === 'true' || value === true;
 }
 
-export function isHostedMode(env?: Record<string, unknown> | null): boolean {
-  if (truthyFlag(env?.HYPEABLE_HOSTED)) {
+function flagFrom(env: Record<string, unknown> | null | undefined, name: string): boolean {
+  return truthyFlag(env?.[name]) || truthyFlag(process.env[name]);
+}
+
+function stripPort(host: string): string {
+  const trimmed = host.trim().toLowerCase();
+
+  if (trimmed.startsWith('[')) {
+    const end = trimmed.indexOf(']');
+
+    if (end > 0) {
+      return trimmed.slice(1, end);
+    }
+  }
+
+  const colon = trimmed.lastIndexOf(':');
+
+  if (colon > -1 && trimmed.indexOf(':') === colon && /^\d+$/.test(trimmed.slice(colon + 1))) {
+    return trimmed.slice(0, colon);
+  }
+
+  return trimmed;
+}
+
+function ipv4Octets(host: string): number[] | undefined {
+  const parts = host.split('.');
+
+  if (parts.length !== 4) {
+    return undefined;
+  }
+
+  const octets = parts.map((part) => Number(part));
+
+  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+    return undefined;
+  }
+
+  return octets;
+}
+
+function isMappedIpv4Loopback(host: string): boolean {
+  return host.startsWith('::ffff:') && isPrivateOrLoopbackHost(host.slice('::ffff:'.length));
+}
+
+/** Loopback, link-local, RFC1918, unique-local IPv6, localhost, *.local */
+export function isPrivateOrLoopbackHost(rawHost: string | null | undefined): boolean {
+  if (!rawHost) {
     return true;
   }
 
-  return truthyFlag(process.env.HYPEABLE_HOSTED);
+  const host = stripPort(rawHost);
+
+  if (!host) {
+    return true;
+  }
+
+  if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '0.0.0.0') {
+    return true;
+  }
+
+  if (host.includes(':')) {
+    if (host === '::1' || host === '::' || host.startsWith('fe80:') || host.startsWith('fc') || host.startsWith('fd')) {
+      return true;
+    }
+  }
+
+  if (isMappedIpv4Loopback(host)) {
+    return true;
+  }
+
+  const ipv4 = ipv4Octets(host);
+
+  if (!ipv4) {
+    return false;
+  }
+
+  const [a, b] = ipv4;
+
+  if (a === 127 || a === 10 || a === 0) {
+    return true;
+  }
+
+  if (a === 192 && b === 168) {
+    return true;
+  }
+
+  if (a === 169 && b === 254) {
+    return true;
+  }
+
+  if (a === 172 && b >= 16 && b <= 31) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * HOSTED when HYPEABLE_HOSTED=1, or when Host is not loopback/private-LAN.
+ * HYPEABLE_SELF_HOSTED=1 wins (operator-run public URL). No host and no env
+ * stays open so unit tests and Electron keep today's behaviour.
+ */
+export function isHostedMode(env?: Record<string, unknown> | null, host?: string | null): boolean {
+  if (flagFrom(env, 'HYPEABLE_SELF_HOSTED')) {
+    return false;
+  }
+
+  if (flagFrom(env, 'HYPEABLE_HOSTED')) {
+    return true;
+  }
+
+  if (!host) {
+    return false;
+  }
+
+  return !isPrivateOrLoopbackHost(host);
 }
 
 export function envFromContext(context?: unknown): Record<string, unknown> | undefined {
   return (context as { cloudflare?: { env?: Record<string, unknown> } } | undefined)?.cloudflare?.env;
 }
 
+export function hostFromContext(context?: unknown): string | undefined {
+  const hostname = (context as { hostname?: string } | undefined)?.hostname;
+
+  if (hostname) {
+    return hostname;
+  }
+
+  return undefined;
+}
+
 export function isHostedFromContext(context?: unknown): boolean {
-  return isHostedMode(envFromContext(context));
+  return isHostedMode(envFromContext(context), hostFromContext(context));
 }
 
 /** Empty 404 so disabled admin/debug routes do not leak that they exist. */

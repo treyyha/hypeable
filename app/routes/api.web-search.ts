@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
 import { getTrustedClientIP } from '~/lib/security';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedWebFetch, hostedOutboundResponse } from '~/lib/security/outbound';
 import { validatePublicHttpUrl, webFetch, webSearch } from '~/lib/services/webTools.server';
 
@@ -159,7 +159,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     try {
       validatePublicHttpUrl(parsed.data.url);
-      assertHostedWebFetch(envFromContext(context), parsed.data.url);
+      assertHostedWebFetch(envFromContext(context), parsed.data.url, hostFromContext(context));
     } catch (error) {
       const rejected = hostedOutboundResponse(error);
 

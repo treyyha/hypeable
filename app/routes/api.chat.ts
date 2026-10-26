@@ -39,7 +39,7 @@ import { PLAN_INSTRUCTION } from '~/lib/plan';
 import { getPluginToolDescriptions, getPluginTools } from '~/lib/plugins/adapters';
 import { getProjectToolNames, projectToolDefinitions } from '~/lib/runtime/projectMcp.shared';
 import { withSecurity } from '~/lib/security';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import { MCPService } from '~/lib/services/mcpService';
 import type { ContextAnnotation, ProgressAnnotation, ToolCallAnnotation } from '~/types/context';
@@ -111,6 +111,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         envFromContext(context),
         requestModel.provider,
         providerSettings[requestModel.provider]?.baseUrl,
+        hostFromContext(context),
       );
     }
   } catch (error) {

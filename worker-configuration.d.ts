@@ -4,6 +4,7 @@ interface RateLimit {
 
 interface Env {
   HYPEABLE_HOSTED: string;
+  HYPEABLE_SELF_HOSTED: string;
   API_RATE_LIMITER: RateLimit;
   RUNNING_IN_DOCKER: Settings;
   DEFAULT_NUM_CTX: Settings;

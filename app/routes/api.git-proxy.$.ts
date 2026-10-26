@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { envFromContext, isHostedFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext, isHostedFromContext } from '~/lib/security/hosted';
 import {
   GIT_SMART_HTTP_MAX_BYTES,
   GIT_SMART_HTTP_TIMEOUT_MS,
@@ -83,7 +83,7 @@ async function handleProxyRequest(request: Request, path: string | undefined, co
     let domain: string;
 
     try {
-      const target = assertGitProxyTarget(envFromContext(context), path, url.search);
+      const target = assertGitProxyTarget(envFromContext(context), path, url.search, hostFromContext(context));
       targetURL = target.url;
       domain = target.host;
     } catch (error) {

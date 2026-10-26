@@ -1,5 +1,6 @@
 import { createRequestHandler, type ServerBuild } from 'react-router';
 import { BoltRouterContext } from '../app/lib/cloudflare-context';
+import { isHostedMode } from '../app/lib/security/hosted';
 
 declare global {
   interface CloudflareEnvironment extends Env {}
@@ -21,7 +22,31 @@ export default {
      */
     const cfIp = request.headers.get('cf-connecting-ip')?.trim();
     const clientAddress = cfIp || '127.0.0.1';
-    const context = new BoltRouterContext({ env, ctx }, clientAddress);
+    let hostname: string | undefined;
+
+    try {
+      hostname = new URL(request.url).hostname;
+    } catch {
+      hostname = request.headers.get('host') ?? undefined;
+    }
+
+    /*
+     * Fail closed: a public Host is hosted even if HYPEABLE_HOSTED was
+     * forgotten. Proxy the binding so every isHostedMode(env) call sees it.
+     */
+    const hosted = isHostedMode(env as unknown as Record<string, unknown>, hostname);
+    const workerEnv = hosted
+      ? new Proxy(env, {
+          get(target, prop, receiver) {
+            if (prop === 'HYPEABLE_HOSTED') {
+              return '1';
+            }
+
+            return Reflect.get(target, prop, receiver);
+          },
+        })
+      : env;
+    const context = new BoltRouterContext({ env: workerEnv, ctx }, clientAddress, hostname);
 
     return requestHandler(request, context);
   },

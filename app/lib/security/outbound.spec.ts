@@ -70,4 +70,12 @@ describe('hosted outbound allowlist', () => {
     expect(() => assertHostedGitLabUrl(hosted, 'https://gitlab.mycompany.com')).toThrow(HOSTED_CUSTOM_ENDPOINT_MESSAGE);
     expect(() => assertHostedWebFetch(hosted, 'https://example.com/page')).toThrow(HOSTED_CUSTOM_ENDPOINT_MESSAGE);
   });
+
+  it('fail-closes on a public Host even without HYPEABLE_HOSTED', () => {
+    delete process.env.HYPEABLE_HOSTED;
+    expect(() => assertHostedProviderAccess(undefined, 'OpenAILike', undefined, 'hypeable.dev')).toThrow(
+      HOSTED_CUSTOM_ENDPOINT_MESSAGE,
+    );
+    expect(() => assertHostedProviderAccess(undefined, 'OpenAILike', undefined, 'localhost')).not.toThrow();
+  });
 });

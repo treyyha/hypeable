@@ -1,7 +1,7 @@
 /**
  * Hosted-mode egress allowlist. Custom LLM base URLs, Ollama, LM Studio,
  * and non-git hosts are rejected so the public deployment cannot be used as
- * an open proxy. Self-hosted (HYPEABLE_HOSTED unset) skips every check.
+ * an open proxy. Self-hosted (loopback / HYPEABLE_SELF_HOSTED=1) skips every check.
  */
 
 import { HOSTED_CUSTOM_ENDPOINT_MESSAGE, isHostedMode } from '~/lib/security/hosted';
@@ -126,8 +126,9 @@ export function assertHostedProviderAccess(
   env: Record<string, unknown> | undefined,
   providerName: string,
   baseUrl?: string,
+  host?: string | null,
 ): void {
-  if (!isHostedMode(env)) {
+  if (!isHostedMode(env, host)) {
     return;
   }
 
@@ -156,8 +157,12 @@ export function assertHostedProviderAccess(
  * GitLab API origin: gitlab.com only when hosted. Self-hosted GitLab URLs
  * stay allowed locally.
  */
-export function assertHostedGitLabUrl(env: Record<string, unknown> | undefined, gitlabUrl: string): void {
-  if (!isHostedMode(env)) {
+export function assertHostedGitLabUrl(
+  env: Record<string, unknown> | undefined,
+  gitlabUrl: string,
+  host?: string | null,
+): void {
+  if (!isHostedMode(env, host)) {
     return;
   }
 
@@ -181,6 +186,7 @@ export function assertGitProxyTarget(
   env: Record<string, unknown> | undefined,
   path: string,
   search = '',
+  requestHost?: string | null,
 ): GitProxyTarget {
   const parts = path.match(/([^/]+)\/?(.*)/);
 
@@ -192,7 +198,7 @@ export function assertGitProxyTarget(
   const remainingPath = parts[2] || '';
   const target = `https://${domain}/${remainingPath}${search}`;
 
-  if (!isHostedMode(env)) {
+  if (!isHostedMode(env, requestHost)) {
     return { url: target, host: domain };
   }
 
@@ -223,8 +229,12 @@ export function assertGitProxyTarget(
 }
 
 /** Arbitrary page fetch (web-search fetch). Hosted mode rejects it. */
-export function assertHostedWebFetch(env: Record<string, unknown> | undefined, url: string): void {
-  if (!isHostedMode(env)) {
+export function assertHostedWebFetch(
+  env: Record<string, unknown> | undefined,
+  url: string,
+  host?: string | null,
+): void {
+  if (!isHostedMode(env, host)) {
     return;
   }
 

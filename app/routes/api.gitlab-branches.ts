@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { withSecurity } from '~/lib/security';
-import { envFromContext } from '~/lib/security/hosted';
+import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertHostedGitLabUrl, hostedOutboundResponse } from '~/lib/security/outbound';
 
 interface GitLabBranch {
@@ -28,7 +28,7 @@ async function gitlabBranchesLoader({ request, context }: ActionFunctionArgs) {
     const { token, gitlabUrl = 'https://gitlab.com', projectId } = body;
 
     try {
-      assertHostedGitLabUrl(envFromContext(context), gitlabUrl);
+      assertHostedGitLabUrl(envFromContext(context), gitlabUrl, hostFromContext(context));
     } catch (error) {
       const rejected = hostedOutboundResponse(error);
 
