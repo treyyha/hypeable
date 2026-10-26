@@ -423,6 +423,69 @@ samp,
   }
 }
 
+/* Dialog actions: Uno `disabled:bg-*` does not beat `bg-hype-accent` on lime. */
+.hype-dialog-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: var(--hype-radius-lg);
+  font-size: var(--hype-text-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--hype-duration-fast) var(--hype-ease),
+    color var(--hype-duration-fast) var(--hype-ease),
+    opacity var(--hype-duration-fast) var(--hype-ease);
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &[data-variant='primary'] {
+    background-color: var(--hype-accent);
+    color: var(--hype-on-accent);
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      background-color: var(--hype-surface-2);
+      color: var(--hype-muted);
+      opacity: 1;
+    }
+  }
+
+  &[data-variant='secondary'] {
+    background-color: transparent;
+    color: var(--hype-muted);
+
+    &:hover:not(:disabled) {
+      background-color: var(--hype-surface-2);
+      color: var(--hype-text);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+    }
+  }
+
+  &[data-variant='danger'] {
+    background-color: transparent;
+    color: var(--hype-danger);
+
+    &:hover:not(:disabled) {
+      background-color: color-mix(in srgb, var(--hype-danger) 10%, transparent);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+    }
+  }
+}
+
 .hype-badge-ok {
   background-color: color-mix(in srgb, var(--hype-ok) 16%, transparent);
   color: var(--hype-ok);

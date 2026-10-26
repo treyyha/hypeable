@@ -20,18 +20,7 @@ interface DialogButtonProps {
 
 export const DialogButton = memo(({ type, children, onClick, disabled }: DialogButtonProps) => {
   return (
-    <button
-      className={classNames(
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors',
-        type === 'primary'
-          ? 'bg-hype-accent text-hype-on-accent hover:opacity-90'
-          : type === 'secondary'
-            ? 'bg-transparent text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text'
-            : 'bg-transparent text-hype-danger hover:bg-hype-danger/10',
-      )}
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button className="hype-dialog-btn" data-variant={type} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );

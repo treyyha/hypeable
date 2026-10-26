@@ -97,7 +97,7 @@ export function PredeployModal() {
             <Badge variant={report.counts.warn ? 'warning' : 'subtle'} size="sm">
               {report.counts.warn} warn
             </Badge>
-            <Badge variant="info" size="sm">
+            <Badge variant="subtle" size="sm">
               {report.counts.info} info
             </Badge>
             {report.counts.suppressed > 0 ? (
