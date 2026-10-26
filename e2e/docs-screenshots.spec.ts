@@ -139,4 +139,27 @@ test.describe('docs screenshots', () => {
     await page.waitForTimeout(200);
     await page.screenshot({ path: 'docs/assets/spend-light-390.png' });
   });
+
+  test('predeploy modal fail, warn, and clean', async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedOpenAILikeMock(page);
+    await page.setViewportSize({ width: 1440, height: 900 });
+
+    for (const [kind, file] of [
+      ['fail', 'predeploy-fail'],
+      ['warn', 'predeploy-warn'],
+      ['clean', 'predeploy-clean'],
+    ] as const) {
+      await page.goto(`/?debugPredeploy=${kind}`);
+      await expect(page.getByTestId('predeploy-summary')).toBeVisible({ timeout: 20_000 });
+
+      await setTheme(page, 'dark');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/${file}-dark-1440.png` });
+
+      await setTheme(page, 'light');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `docs/assets/${file}-light-1440.png` });
+    }
+  });
 });

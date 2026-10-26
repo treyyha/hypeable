@@ -9,6 +9,7 @@ import { TerminalStore } from './terminal';
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { readStoredConnection } from '~/lib/api/git-auth-storage';
 import { description } from '~/lib/persistence';
+import { withPredeployScan } from '~/lib/predeploy/intercept';
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
 import { webcontainer } from '~/lib/webcontainer';
@@ -1000,6 +1001,12 @@ export class WorkbenchStore {
 
       if (!files || Object.keys(files).length === 0) {
         throw new Error('No files found to push');
+      }
+
+      const allowed = await withPredeployScan(files, async () => true);
+
+      if (!allowed) {
+        throw new Error('Pre-deploy check was not cleared');
       }
 
       if (isGitHub) {

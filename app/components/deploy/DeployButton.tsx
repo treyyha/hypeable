@@ -9,6 +9,7 @@ import { useGitLabDeploy } from '~/components/deploy/GitLabDeploy.client';
 import { GitLabDeploymentDialog } from '~/components/deploy/GitLabDeploymentDialog';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
+import { withPredeployScan } from '~/lib/predeploy/intercept';
 import { isGitLabConnected } from '~/lib/stores/gitlabConnection';
 import { netlifyConnection } from '~/lib/stores/netlify';
 import { streamingState } from '~/lib/stores/streaming';
@@ -50,6 +51,12 @@ export const DeployButton = ({
   const [gitlabProjectName, setGitlabProjectName] = useState('');
 
   const handleVercelDeployClick = async () => {
+    const allowed = await withPredeployScan(workbenchStore.files.get(), async () => true);
+
+    if (!allowed) {
+      return;
+    }
+
     setIsDeploying(true);
     setDeployingTo('vercel');
 
@@ -66,6 +73,12 @@ export const DeployButton = ({
   };
 
   const handleNetlifyDeployClick = async () => {
+    const allowed = await withPredeployScan(workbenchStore.files.get(), async () => true);
+
+    if (!allowed) {
+      return;
+    }
+
     setIsDeploying(true);
     setDeployingTo('netlify');
 
@@ -82,6 +95,12 @@ export const DeployButton = ({
   };
 
   const handleGitHubDeployClick = async () => {
+    const allowed = await withPredeployScan(workbenchStore.files.get(), async () => true);
+
+    if (!allowed) {
+      return;
+    }
+
     setIsDeploying(true);
     setDeployingTo('github');
 
@@ -104,6 +123,12 @@ export const DeployButton = ({
   };
 
   const handleGitLabDeployClick = async () => {
+    const allowed = await withPredeployScan(workbenchStore.files.get(), async () => true);
+
+    if (!allowed) {
+      return;
+    }
+
     setIsDeploying(true);
     setDeployingTo('gitlab');
 

@@ -1150,6 +1150,23 @@ export const ChatImpl = memo(
       textareaRef.current?.blur();
     };
 
+    const sendMessageRef = useRef(sendMessage);
+    sendMessageRef.current = sendMessage;
+
+    useEffect(() => {
+      const handler = (event: Event) => {
+        const message = (event as CustomEvent<{ message?: string }>).detail?.message;
+
+        if (message?.trim()) {
+          void sendMessageRef.current({} as never, message);
+        }
+      };
+
+      document.addEventListener('hypeable-send-chat', handler);
+
+      return () => document.removeEventListener('hypeable-send-chat', handler);
+    }, []);
+
     /*
      * Builds a user message carrying its images and uploads. v5 removed
      * experimental_attachments, so file parts must be part of the message

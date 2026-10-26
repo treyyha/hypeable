@@ -4,7 +4,7 @@
 - [ ] Day 3: caps + hard stop
 - [x] Day 4: loop breaker
 - [ ] Day 5: plan-first mode
-- [ ] Day 6: pre-deploy security check
+- [x] Day 6: pre-deploy security check
 - [ ] Day 7: publish to own Vercel/GitHub
 - [ ] Day 8: polish + landing page
 - [ ] Day 9: docs + demo

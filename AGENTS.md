@@ -35,6 +35,7 @@ Read `docs/ORIENTATION.md` only if needed. Prefer targeted reads of the files be
 | Spend page | `app/routes/spend.tsx`, `app/components/spend/`, `app/lib/cost/ledger.ts`, `app/lib/stores/ledger.ts` |
 | Loop breaker | `app/lib/loop/`, `app/lib/stores/loop.ts`, `app/lib/hooks/useLoopBreaker.ts`, `app/components/loop/`, `docs/LOOP-BREAKER.md` |
 | Plan-first | `app/lib/plan/`, `app/lib/stores/plan.ts`, `app/components/plan/` (`PlanCard.tsx`, `PlanFirstChip.tsx`, `PlanSettings.tsx`), `docs/PLAN-MODE.md` |
+| Pre-deploy check | `app/lib/predeploy/`, `app/lib/stores/predeploy.ts`, `app/components/predeploy/`, `app/lib/security/secret-patterns.json`, `docs/PREDEPLOY-CHECK.md` |
 | Keys / security | `app/lib/api/api-key-storage.ts`, `app/lib/api/request-keys.ts`, `app/lib/security/`, `templates/security/`, `scripts/secret-scan.mjs`, `docs/SECURITY.md`, `docs/KEY-FLOW.md` |
 | Routes | `app/routes.ts` (URL table), `app/routes/` (page + `/api/*` modules), `app/root.tsx`, `app/entry.server.tsx` |
 | Stores | `app/lib/stores/` (`cost.ts`, `loop.ts`, `plan.ts`, `theme.ts`, `workbench.ts`, `settings.ts`, connector stores) |

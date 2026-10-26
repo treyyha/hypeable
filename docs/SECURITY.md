@@ -11,7 +11,7 @@
 | Missing auth | check inside every server handler |
 | XSS / clickjacking | CSP, X-Frame-Options, no inline eval |
 | Supply chain | Dependabot, lockfile, CI audit |
-| Generated apps shipping secrets | pre-deploy scanner |
+| Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
 
 ## Where each snippet is
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.

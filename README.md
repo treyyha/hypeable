@@ -12,7 +12,7 @@
 
 ## Live cost meter
 
-The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too. The **Spend** page (`/spend`, also linked from the home “Your spend” card) shows today, session, month-to-date, per-model share, recent builds, and cap progress from this browser only.
+The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too. The **Spend** page (`/spend`, also in the sidebar with New build / Search) shows today, session, month-to-date, a 7-day chart, per-model share, recent builds, and cap progress from this browser only. Empty browsers show the empty state — demo rows exist only in e2e fixtures.
 
 Unknown models show tokens plus a prompt to set a price in Settings. Copy receipt produces a shareable line such as `Built with Hypeable: $0.42 | 38k tokens | claude-x, gpt-y | hypeable.dev`.
 
@@ -29,6 +29,14 @@ Details: [docs/LOOP-BREAKER.md](docs/LOOP-BREAKER.md).
 On by default. The first build in an empty workspace (or every request, if you turn that on) returns a plan card — pages, data, features you can tick, and a dollar **estimate** range — before any code is written. Approve, ask for changes, or skip. Loop-breaker **Replan** uses the same flow.
 
 Details: [docs/PLAN-MODE.md](docs/PLAN-MODE.md).
+
+## Pre-deploy security check
+
+Before you publish a generated app to your own Vercel, Netlify, GitHub, or GitLab, Hypeable scans the files in this browser and shows a pass / warn / fail report. Secrets are masked (`sk-a***`). Failures need an explicit “I understand the risk” check. Nothing leaves the machine.
+
+![Pre-deploy check, dark](docs/assets/predeploy-fail-dark-1440.png)
+
+Details: [docs/PREDEPLOY-CHECK.md](docs/PREDEPLOY-CHECK.md).
 
 ## Why Hypeable
 | Problem with typical AI builders | What Hypeable does |

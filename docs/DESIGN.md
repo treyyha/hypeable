@@ -25,7 +25,7 @@ Uno classes: `bg-hype-bg`, `text-hype-text`, `border-hype-border`, `bg-hype-acce
 
 **Do**
 
-- Aurora: full-bleed layered CSS radial-gradients (lime, mint, cyan) behind the empty home column only, fading out once a chat starts. Slow drift, off under `prefers-reduced-motion`. No background box on the heading.
+- Aurora: full-bleed layered CSS radial-gradients (lime, mint, cyan) behind the empty home column only, fading out once a chat starts. Slow drift, off under `prefers-reduced-motion`. Dark theme is about 40% stronger than light, with a 2.5% inline SVG `feTurbulence` grain so compressed video does not band. No background box on the heading.
 - At most one gradient word in a heading (`hype-gradient-text`).
 - Composer: subtle lime→mint→cyan focus ring (`.hype-composer:focus-within`).
 
@@ -58,3 +58,9 @@ AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation,
 - Spend light desktop: [assets/spend-light-1440.png](assets/spend-light-1440.png)
 - Spend dark mobile: [assets/spend-dark-390.png](assets/spend-dark-390.png)
 - Spend light mobile: [assets/spend-light-390.png](assets/spend-light-390.png)
+- Pre-deploy FAIL dark: [assets/predeploy-fail-dark-1440.png](assets/predeploy-fail-dark-1440.png)
+- Pre-deploy FAIL light: [assets/predeploy-fail-light-1440.png](assets/predeploy-fail-light-1440.png)
+- Pre-deploy WARN dark: [assets/predeploy-warn-dark-1440.png](assets/predeploy-warn-dark-1440.png)
+- Pre-deploy WARN light: [assets/predeploy-warn-light-1440.png](assets/predeploy-warn-light-1440.png)
+- Pre-deploy clean dark: [assets/predeploy-clean-dark-1440.png](assets/predeploy-clean-dark-1440.png)
+- Pre-deploy clean light: [assets/predeploy-clean-light-1440.png](assets/predeploy-clean-light-1440.png)

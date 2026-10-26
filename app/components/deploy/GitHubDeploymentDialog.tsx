@@ -8,6 +8,7 @@ import { GitHubAuthDialog } from '~/components/@settings/tabs/github/components/
 import { SearchInput, EmptyState, StatusIndicator, Badge } from '~/components/ui';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
 import { chatId } from '~/lib/persistence/useChatHistory';
+import { withPredeployScanFiles } from '~/lib/predeploy/intercept';
 import { logStore } from '~/lib/stores/logs';
 import type { GitHubUserResponse, GitHubRepoInfo } from '~/types/GitHub';
 import { classNames } from '~/utils/classNames';
@@ -219,6 +220,12 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
     if (sanitizedName !== repoName) {
       setRepoName(sanitizedName);
       toast.info(`Repository name sanitized to: ${sanitizedName}`);
+    }
+
+    const allowed = await withPredeployScanFiles(files, async () => true);
+
+    if (!allowed) {
+      return;
     }
 
     setIsLoading(true);

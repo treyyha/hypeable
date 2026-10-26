@@ -7,6 +7,7 @@ import { GitLabAuthDialog } from '~/components/@settings/tabs/gitlab/components/
 import { SearchInput, EmptyState, StatusIndicator, Badge } from '~/components/ui';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
 import { chatId } from '~/lib/persistence/useChatHistory';
+import { withPredeployScanFiles } from '~/lib/predeploy/intercept';
 import { GitLabApiService } from '~/lib/services/gitlabApiService';
 import { logStore } from '~/lib/stores/logs';
 import type { GitLabUserResponse, GitLabProjectInfo } from '~/types/GitLab';
@@ -112,6 +113,12 @@ export function GitLabDeploymentDialog({ isOpen, onClose, projectName, files }: 
 
     if (!repoName.trim()) {
       toast.error('Repository name is required');
+      return;
+    }
+
+    const allowed = await withPredeployScanFiles(files, async () => true);
+
+    if (!allowed) {
       return;
     }
 

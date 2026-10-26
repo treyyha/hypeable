@@ -42,6 +42,7 @@ const DOM_TESTS = [
   'app/components/loop/LoopBreakerPanel.spec.tsx',
   'app/components/plan/PlanCard.spec.tsx',
   'app/components/spend/SpendView.spec.tsx',
+  'app/components/predeploy/PredeployModal.spec.tsx',
   'app/components/plan/PlanFirstChip.spec.tsx',
   'app/components/workbench/WorkbenchReopenButton.spec.tsx',
   'app/lib/hooks/useMessageParser.spec.ts',

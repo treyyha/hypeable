@@ -4,6 +4,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { CostMeter } from '~/components/cost/CostMeter';
 import { PlanPanel } from '~/components/plan/PlanPanel';
+import { PredeployHost } from '~/components/predeploy/PredeployHost';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { description as descriptionStore } from '~/lib/persistence';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
@@ -65,6 +66,7 @@ export function Header() {
       </nav>
 
       <ClientOnly>{() => <PlanPanel />}</ClientOnly>
+      <ClientOnly>{() => <PredeployHost />}</ClientOnly>
 
       <div className="ml-auto flex items-center gap-1.5">
         <ClientOnly>{() => <CostMeter />}</ClientOnly>
