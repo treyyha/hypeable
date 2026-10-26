@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
-import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -44,7 +43,6 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
-  { rel: 'stylesheet', href: xtermStyles },
 ];
 
 const inlineThemeCode = stripIndents`
@@ -58,7 +56,9 @@ const inlineThemeCode = stripIndents`
       root.style.setProperty('--interface-accent-strength', String(typeof options.accentIntensity === 'number' ? options.accentIntensity : 50) + '%');
       root.dataset.cornerRadius = ['sharp', 'soft', 'round'].includes(options.cornerRadius) ? options.cornerRadius : 'soft';
       root.dataset.compactMode = String(Boolean(options.compactMode));
-      root.dataset.animatedTransitions = String(options.animatedTransitions !== false);
+      root.dataset.animatedTransitions = String(
+        options.animatedTransitions !== false && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      );
     } catch {}
     let colorTheme = localStorage.getItem('bolt_theme');
 
@@ -119,7 +119,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ToastContainer
           closeButton={({ closeToast }) => {
             return (
-              <button className="Toastify__close-button" onClick={closeToast}>
+              <button className="Toastify__close-button" aria-label="Close notification" onClick={closeToast}>
                 <div className="i-ph:x text-lg" />
               </button>
             );
@@ -149,7 +149,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { journeys, observeWebVitals } from './lib/performance/metrics';
-import { prebootWebContainer } from './lib/performance/webcontainer-optimizer';
 import { isHostedFromContext } from './lib/security/hosted';
 import { hostedModeStore, setHostedMode } from './lib/stores/hosted';
 import { logStore } from './lib/stores/logs';
@@ -184,11 +183,7 @@ export default function App() {
       timestamp: new Date().toISOString(),
     });
 
-    // Start Web Vitals observation
     observeWebVitals();
-
-    // Pre-boot WebContainer in background
-    prebootWebContainer();
 
     // Initialize debug logging with improved error handling
     import('./utils/debugLogger')

@@ -110,6 +110,8 @@ Verify the path in [`docs/KEY-FLOW.md`](docs/KEY-FLOW.md), LLM keys in [`app/rou
 - **Prices marked ≈ are unverified.** `app/lib/cost/prices.json` is a community list-price table. Rows with `verified: false` show as estimates (`≈`) in the UI.
 - **Estimates, not invoices.** The meter multiplies tokens by list prices (or uses a provider-reported cost when one exists). It is not your provider bill. Set a limit on your provider too.
 - **CI unit tests and e2e are blocking.** Wall-clock frame-budget / Shiki timing runs in a non-blocking `perf` job. See [docs/TESTING.md](docs/TESTING.md) and [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
+- **Home first-load JS is budgeted.** `docs/first-load-budget.json` is checked after `pnpm build`. See [docs/FIRST-LOAD.md](docs/FIRST-LOAD.md).
+- **Started chat below 1024px** uses a Chat | Preview | Code tab switch. Shots: `docs/assets/home-*-375.png`, `chat-*-768.png`, etc.
 
 ## Roadmap
 

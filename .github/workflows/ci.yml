@@ -48,6 +48,8 @@ jobs:
       - name: Tests
         run: pnpm --if-present test
       - run: pnpm run --if-present build
+      - name: First-load JS budget
+        run: node scripts/check-first-load-budget.mjs
       - name: Scan production build for secrets
         run: node scripts/secret-scan.mjs --dir build
       - run: pnpm audit --audit-level=high || true

@@ -1,0 +1,5 @@
+{
+  "jsGzipBytes": 1800000,
+  "cssGzipBytes": 200000,
+  "notes": "Home document JS/CSS only (entry + modulepreload + stylesheets). Measured gzip level 9. Ratchet down after a real first-load measurement."
+}

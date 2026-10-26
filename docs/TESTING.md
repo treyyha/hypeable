@@ -39,7 +39,9 @@ The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM ro
 
 ## Playwright smoke (`pnpm e2e`)
 
-Docs screenshots (`e2e/docs-screenshots.spec.ts`) are skipped unless `CAPTURE_DOCS=1`. That job writes `docs/assets/home-*.png`, plan card, loop panel, and cost popover shots. Presentation checks in `e2e/home-presentation.spec.ts` always run: cost-pill contrast and that the empty-home aurora covers the main column.
+Docs screenshots (`e2e/docs-screenshots.spec.ts`) are skipped unless `CAPTURE_DOCS=1`. That job writes `docs/assets/home-*.png` and `chat-*.png` at 375, 768, and 1440, plus plan card, loop panel, and cost popover shots. Presentation checks in `e2e/home-presentation.spec.ts` always run: cost-pill contrast and that the empty-home aurora covers the main column.
+
+Always-on e2e besides smoke: `e2e/layout.spec.ts` (no horizontal scroll, mobile tabs, skip link, reduced motion), `e2e/errors.spec.ts` (mocked 401/402/429/503 plus offline/no-key/cap/loop/browser banner), `e2e/a11y.spec.ts` (axe-core on home, key dialog, Spend, started chat — zero serious/critical).
 
 ```bash
 pnpm exec playwright install chromium
@@ -77,7 +79,7 @@ pnpm e2e:hosted
 
 ## CI
 
-`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, **unit tests**, build, and **e2e** are blocking unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
+`.github/workflows/ci.yml` runs gitleaks on every change. Typecheck, lint, **unit tests**, build, **first-load JS budget** (`docs/first-load-budget.json`), and **e2e** (including hosted + axe) are blocking unless the diff is docs-only (`*.md`, `docs/`, `assets/`) — those skip the heavy jobs but still run gitleaks. Playwright browsers and the pnpm store are cached; install uses `--frozen-lockfile --prefer-offline`. A concurrency group cancels in-progress runs on the same ref.
 
 Wall-clock performance (`pnpm test:perf`) is a separate `perf` job with `continue-on-error`. jsdom frame-budget and Shiki timing are not merge gates. See [KNOWN-ISSUES.md](./KNOWN-ISSUES.md).
 

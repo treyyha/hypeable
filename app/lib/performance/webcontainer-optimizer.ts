@@ -1,5 +1,5 @@
 import type { WebContainer } from '@webcontainer/api';
-import { webcontainer } from '~/lib/webcontainer';
+import { bootWebContainer, webcontainer } from '~/lib/webcontainer';
 
 let webContainerInstance: WebContainer | null = null;
 
@@ -12,12 +12,11 @@ export function prebootWebContainer(): void {
     return;
   }
 
-  void webcontainer
+  void bootWebContainer()
     .then((instance) => {
       webContainerInstance = instance;
     })
     .catch((error) => {
-      // Observe the shared promise without creating an unhandled derived rejection.
       console.error('[WEBCONTAINER] Boot failed:', error);
     });
 }
