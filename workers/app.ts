@@ -1,6 +1,6 @@
 import { createRequestHandler, type ServerBuild } from 'react-router';
 import { BoltRouterContext } from '../app/lib/cloudflare-context';
-import { isHostedMode } from '../app/lib/security/hosted';
+import { hostnameFromRequest, isHostedMode } from '../app/lib/security/hosted';
 
 declare global {
   interface CloudflareEnvironment extends Env {}
@@ -22,17 +22,15 @@ export default {
      */
     const cfIp = request.headers.get('cf-connecting-ip')?.trim();
     const clientAddress = cfIp || '127.0.0.1';
-    let hostname: string | undefined;
-
-    try {
-      hostname = new URL(request.url).hostname;
-    } catch {
-      hostname = request.headers.get('host') ?? undefined;
-    }
+    /*
+     * URL host only. Do not read Host / X-Forwarded-Host / Forwarded — those
+     * are caller-controlled. Missing or unparseable hostname fail-closes.
+     */
+    const hostname = hostnameFromRequest(request);
 
     /*
-     * Fail closed: a public Host is hosted even if HYPEABLE_HOSTED was
-     * forgotten. Proxy the binding so every isHostedMode(env) call sees it.
+     * Fail closed: a public or missing Host is hosted even if HYPEABLE_HOSTED
+     * was forgotten. Proxy the binding so every isHostedMode(env) call sees it.
      */
     const hosted = isHostedMode(env as unknown as Record<string, unknown>, hostname);
     const workerEnv = hosted

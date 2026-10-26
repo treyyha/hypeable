@@ -78,4 +78,14 @@ describe('hosted outbound allowlist', () => {
     );
     expect(() => assertHostedProviderAccess(undefined, 'OpenAILike', undefined, 'localhost')).not.toThrow();
   });
+
+  it('fail-closes on a missing request Host', () => {
+    delete process.env.HYPEABLE_HOSTED;
+    expect(() => assertHostedProviderAccess(undefined, 'OpenAILike', undefined, '')).toThrow(
+      HOSTED_CUSTOM_ENDPOINT_MESSAGE,
+    );
+    expect(() => assertHostedProviderAccess(undefined, 'OpenAILike', undefined, null)).toThrow(
+      HOSTED_CUSTOM_ENDPOINT_MESSAGE,
+    );
+  });
 });

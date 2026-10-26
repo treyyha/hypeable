@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { hostedNotFoundIfEnabled, isHostedFromContext, isHostedMode, isPrivateOrLoopbackHost } from './hosted';
+import {
+  hostedNotFoundIfEnabled,
+  hostFromContext,
+  hostnameFromRequest,
+  hostnameFromRequestUrl,
+  isHostedFromContext,
+  isHostedMode,
+  isPrivateOrLoopbackHost,
+} from './hosted';
 
 const originalHosted = process.env.HYPEABLE_HOSTED;
 const originalSelf = process.env.HYPEABLE_SELF_HOSTED;
@@ -38,15 +46,79 @@ describe('isPrivateOrLoopbackHost', () => {
     expect(isPrivateOrLoopbackHost('example.com:443')).toBe(false);
     expect(isPrivateOrLoopbackHost('172.32.0.1')).toBe(false);
   });
+
+  it('does not treat a missing or empty Host as private (fail closed)', () => {
+    expect(isPrivateOrLoopbackHost(undefined)).toBe(false);
+    expect(isPrivateOrLoopbackHost(null)).toBe(false);
+    expect(isPrivateOrLoopbackHost('')).toBe(false);
+    expect(isPrivateOrLoopbackHost('   ')).toBe(false);
+  });
+});
+
+describe('hostnameFromRequestUrl', () => {
+  it('reads only the request URL host and ignores forwarded-host spoofing', () => {
+    const publicUrl = new Request('https://hypeable.dev/api/health', {
+      headers: {
+        Host: 'localhost',
+        'X-Forwarded-Host': 'localhost',
+        Forwarded: 'host=localhost;proto=https',
+        'X-Original-Host': 'localhost',
+        'X-Host': '127.0.0.1',
+      },
+    });
+
+    expect(hostnameFromRequest(publicUrl)).toBe('hypeable.dev');
+    expect(hostnameFromRequestUrl(publicUrl.url)).toBe('hypeable.dev');
+    expect(isHostedMode(undefined, hostnameFromRequest(publicUrl))).toBe(true);
+
+    const localUrl = new Request('http://localhost:5173/', {
+      headers: {
+        'X-Forwarded-Host': 'evil.example',
+        Host: 'hypeable.dev',
+        Forwarded: 'host=evil.example',
+      },
+    });
+
+    expect(hostnameFromRequest(localUrl)).toBe('localhost');
+    expect(isHostedMode(undefined, hostnameFromRequest(localUrl))).toBe(false);
+  });
+
+  it('returns empty string for a missing or unparseable URL', () => {
+    expect(hostnameFromRequestUrl(undefined)).toBe('');
+    expect(hostnameFromRequestUrl('')).toBe('');
+    expect(hostnameFromRequestUrl('not a url')).toBe('');
+    expect(hostnameFromRequestUrl('/relative')).toBe('');
+  });
 });
 
 describe('hosted mode flag', () => {
-  it('is off when env is unset and there is no host (tests / Electron)', () => {
+  it('fail-closes when the request Host is missing, empty, or unparseable', () => {
+    delete process.env.HYPEABLE_HOSTED;
+    delete process.env.HYPEABLE_SELF_HOSTED;
+    expect(isHostedMode(undefined, '')).toBe(true);
+    expect(isHostedMode(undefined, '   ')).toBe(true);
+    expect(isHostedMode(undefined, null)).toBe(true);
+    expect(isHostedMode(undefined, hostnameFromRequestUrl('not a url'))).toBe(true);
+    expect(isHostedFromContext({})).toBe(true);
+    expect(isHostedFromContext({ hostname: '' })).toBe(true);
+    expect(hostFromContext({})).toBe('');
+    expect(hostedNotFoundIfEnabled({})?.status).toBe(404);
+  });
+
+  it('fail-closes on a weird Host that is not loopback', () => {
+    delete process.env.HYPEABLE_HOSTED;
+    expect(isHostedMode(undefined, '!!!')).toBe(true);
+    expect(isHostedMode(undefined, '..')).toBe(true);
+    expect(isHostedMode(undefined, 'not a hostname')).toBe(true);
+    expect(isHostedMode(undefined, '*')).toBe(true);
+    expect(isHostedFromContext({ hostname: 'totally invalid host!!' })).toBe(true);
+  });
+
+  it('env-only callers (no request Host argument) stay open without the env flag', () => {
     delete process.env.HYPEABLE_HOSTED;
     delete process.env.HYPEABLE_SELF_HOSTED;
     expect(isHostedMode()).toBe(false);
-    expect(isHostedFromContext({})).toBe(false);
-    expect(hostedNotFoundIfEnabled({})).toBeUndefined();
+    expect(isHostedMode({})).toBe(false);
   });
 
   it('turns on for HYPEABLE_HOSTED=1 even on localhost', () => {
@@ -73,6 +145,7 @@ describe('hosted mode flag', () => {
     expect(isHostedMode(undefined, '127.0.0.1:5173')).toBe(false);
     expect(isHostedMode(undefined, '192.168.0.10')).toBe(false);
     expect(isHostedFromContext({ hostname: '10.1.2.3' })).toBe(false);
+    expect(isHostedFromContext({ hostname: 'localhost' })).toBe(false);
   });
 
   it('HYPEABLE_SELF_HOSTED=1 wins over env and public Host', () => {

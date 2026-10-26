@@ -93,7 +93,7 @@ describe('POST /api/chat against a local OpenAI-compatible mock', () => {
 
     const response = await action({
       request,
-      context: { clientAddress: '10.0.0.11', cloudflare: { env: {} } },
+      context: { clientAddress: '10.0.0.11', hostname: 'localhost', cloudflare: { env: {} } },
       params: {},
     } as never);
 

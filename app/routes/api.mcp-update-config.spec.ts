@@ -11,7 +11,7 @@ function post(body: unknown) {
       body: typeof body === 'string' ? body : JSON.stringify(body),
     }),
     params: {},
-    context: {},
+    context: { hostname: 'localhost' },
   } as never);
 }
 

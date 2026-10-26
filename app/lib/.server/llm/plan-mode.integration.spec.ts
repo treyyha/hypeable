@@ -94,7 +94,7 @@ describe('plan mode against the mock OpenAI server', () => {
           ],
         }),
       }),
-      context: { clientAddress: '10.0.0.12', cloudflare: { env: {} } },
+      context: { clientAddress: '10.0.0.12', hostname: 'localhost', cloudflare: { env: {} } },
       params: {},
     } as never);
 
@@ -136,7 +136,7 @@ describe('plan mode against the mock OpenAI server', () => {
           ],
         }),
       }),
-      context: { clientAddress: '10.0.0.12', cloudflare: { env: {} } },
+      context: { clientAddress: '10.0.0.12', hostname: 'localhost', cloudflare: { env: {} } },
       params: {},
     } as never);
 

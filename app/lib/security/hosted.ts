@@ -1,6 +1,8 @@
 /**
- * Hosted-mode switch. Fail closed on a public Host even if HYPEABLE_HOSTED
- * was forgotten. Loopback / private-LAN and HYPEABLE_SELF_HOSTED=1 stay open.
+ * Hosted-mode switch. Fail closed on a public, missing, empty, or unparseable
+ * Host even if HYPEABLE_HOSTED was forgotten. Loopback / private-LAN and
+ * HYPEABLE_SELF_HOSTED=1 stay open. Host comes from the request URL only —
+ * never from Host / X-Forwarded-Host / Forwarded headers.
  */
 
 export const HOSTED_CUSTOM_ENDPOINT_MESSAGE = 'Run Hypeable locally to use custom endpoints';
@@ -53,16 +55,38 @@ function isMappedIpv4Loopback(host: string): boolean {
   return host.startsWith('::ffff:') && isPrivateOrLoopbackHost(host.slice('::ffff:'.length));
 }
 
+/**
+ * Hostname from `request.url` only. Returns '' when the URL is missing,
+ * unparseable, or has an empty hostname so callers can fail closed.
+ * Ignores Host / X-Forwarded-Host / Forwarded — those are caller-controlled.
+ */
+export function hostnameFromRequestUrl(url: string | null | undefined): string {
+  if (!url) {
+    return '';
+  }
+
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return '';
+  }
+}
+
+/** Request-URL hostname. Never reads spoofable forwarded-host headers. */
+export function hostnameFromRequest(request: Request): string {
+  return hostnameFromRequestUrl(request.url);
+}
+
 /** Loopback, link-local, RFC1918, unique-local IPv6, localhost, *.local */
 export function isPrivateOrLoopbackHost(rawHost: string | null | undefined): boolean {
   if (!rawHost) {
-    return true;
+    return false;
   }
 
   const host = stripPort(rawHost);
 
   if (!host) {
-    return true;
+    return false;
   }
 
   if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '0.0.0.0') {
@@ -108,8 +132,12 @@ export function isPrivateOrLoopbackHost(rawHost: string | null | undefined): boo
 
 /**
  * HOSTED when HYPEABLE_HOSTED=1, or when Host is not loopback/private-LAN.
- * HYPEABLE_SELF_HOSTED=1 wins (operator-run public URL). No host and no env
- * stays open so unit tests and Electron keep today's behaviour.
+ * HYPEABLE_SELF_HOSTED=1 wins (operator-run public URL).
+ *
+ * A missing/empty/unparseable Host (`''` or `null`) fail-closes to hosted.
+ * `undefined` means the caller did not have a request Host (inner provider
+ * checks): only env flags apply, so localhost Ollama still works after the
+ * route already allowed it.
  */
 export function isHostedMode(env?: Record<string, unknown> | null, host?: string | null): boolean {
   if (flagFrom(env, 'HYPEABLE_SELF_HOSTED')) {
@@ -120,8 +148,12 @@ export function isHostedMode(env?: Record<string, unknown> | null, host?: string
     return true;
   }
 
-  if (!host) {
+  if (host === undefined) {
     return false;
+  }
+
+  if (host === null || !host.trim()) {
+    return true;
   }
 
   return !isPrivateOrLoopbackHost(host);
@@ -131,14 +163,14 @@ export function envFromContext(context?: unknown): Record<string, unknown> | und
   return (context as { cloudflare?: { env?: Record<string, unknown> } } | undefined)?.cloudflare?.env;
 }
 
-export function hostFromContext(context?: unknown): string | undefined {
+/**
+ * Hostname the Worker copied from `request.url`. Empty string when the
+ * loader/action has no hostname — fail closed, do not look at headers.
+ */
+export function hostFromContext(context?: unknown): string {
   const hostname = (context as { hostname?: string } | undefined)?.hostname;
 
-  if (hostname) {
-    return hostname;
-  }
-
-  return undefined;
+  return typeof hostname === 'string' ? hostname : '';
 }
 
 export function isHostedFromContext(context?: unknown): boolean {

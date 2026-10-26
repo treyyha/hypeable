@@ -55,7 +55,7 @@ describe('GET /api/models/OpenAILike', () => {
     const response = await loader({
       request,
       params: { provider: 'OpenAILike' },
-      context: { cloudflare: { env: {} } },
+      context: { hostname: 'localhost', cloudflare: { env: {} } },
     });
 
     const body = (await response.json()) as { modelList: Array<{ name: string; provider: string }> };
@@ -77,7 +77,7 @@ describe('GET /api/models/OpenAILike', () => {
     const response = await loader({
       request,
       params: { provider: 'OpenAILike' },
-      context: { cloudflare: { env: {} } },
+      context: { hostname: 'localhost', cloudflare: { env: {} } },
     });
 
     const body = (await response.json()) as { modelList: Array<{ provider: string }> };

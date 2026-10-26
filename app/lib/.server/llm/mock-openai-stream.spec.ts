@@ -142,7 +142,7 @@ describe('OpenAI-like chat pipeline against a local mock', () => {
 
     const response = await action({
       request,
-      context: { clientAddress: '10.0.0.9', cloudflare: { env: {} } },
+      context: { clientAddress: '10.0.0.9', hostname: 'localhost', cloudflare: { env: {} } },
       params: {},
     } as never);
 

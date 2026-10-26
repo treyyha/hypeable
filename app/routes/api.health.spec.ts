@@ -19,6 +19,21 @@ afterEach(() => {
 });
 
 describe('GET /api/health', () => {
+  it('reports hosted:true when the request Host is missing', async () => {
+    delete process.env.HYPEABLE_HOSTED;
+    delete process.env.HYPEABLE_SELF_HOSTED;
+
+    const response = await loader({
+      request: new Request('http://localhost:5173/api/health'),
+      params: {},
+      context: {},
+    } as never);
+
+    const body = await response.json();
+
+    expect(body).toEqual({ ok: true, hosted: true });
+  });
+
   it('reports hosted:false on loopback without env', async () => {
     delete process.env.HYPEABLE_HOSTED;
     delete process.env.HYPEABLE_SELF_HOSTED;
