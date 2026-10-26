@@ -4,6 +4,7 @@ import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { CostMeter } from '~/components/cost/CostMeter';
 import { PlanPanel } from '~/components/plan/PlanPanel';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
+import { description as descriptionStore } from '~/lib/persistence';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import { chatStore } from '~/lib/stores/chat';
 import { sidebarMobileOpenStore, toggleSidebarMobile } from '~/lib/stores/sidebar';
@@ -11,6 +12,16 @@ import { classNames } from '~/utils/classNames';
 
 function openSettings() {
   document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
+}
+
+function HeaderChatTitle() {
+  const title = useStore(descriptionStore);
+
+  if (!title) {
+    return 'new build';
+  }
+
+  return <ChatDescription />;
 }
 
 export function Header() {
@@ -33,19 +44,15 @@ export function Header() {
       </button>
 
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
-        <a href="/" className="shrink-0 font-semibold lowercase tracking-tight text-hype-text">
+        <a href="/" className="shrink-0 lowercase tracking-tight text-hype-muted">
           hypeable
         </a>
-        {chat.started ? (
-          <>
-            <span className="text-hype-muted" aria-hidden="true">
-              /
-            </span>
-            <span className="min-w-0 truncate text-hype-muted">
-              <ClientOnly>{() => <ChatDescription />}</ClientOnly>
-            </span>
-          </>
-        ) : null}
+        <span className="text-hype-muted" aria-hidden="true">
+          /
+        </span>
+        <span className="min-w-0 truncate text-hype-text">
+          {chat.started ? <ClientOnly fallback="new build">{() => <HeaderChatTitle />}</ClientOnly> : 'new build'}
+        </span>
       </nav>
 
       <ClientOnly>{() => <PlanPanel />}</ClientOnly>
