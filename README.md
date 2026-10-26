@@ -4,7 +4,7 @@
 
 ![Hypeable home, light](docs/assets/home-light-1440.png)
 
-**Worth the hype.** A free, open-source AI app builder. Describe an app, watch it get built, publish it to your own Vercel or GitHub.
+**Worth the hype.** A free, open-source AI app builder. Describe an app, watch it get built, publish it to your own Vercel or GitHub. The empty home is a heading, one composer, four starters, and a live cost pill — model, key, and extra actions stay one click away.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 

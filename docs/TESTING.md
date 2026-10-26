@@ -38,7 +38,7 @@ The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM ro
 
 ## Playwright smoke (`pnpm e2e`)
 
-Docs screenshots (skipped unless `CAPTURE_DOCS=1`): `docs/assets/home-*.png`, plan card, loop panel, cost popover.
+Docs screenshots (skipped unless `CAPTURE_DOCS=1`): `docs/assets/home-*.png`, plan card, loop panel, cost popover. Presentation checks in `e2e/home-presentation.spec.ts` assert cost-pill contrast and that the empty-home aurora covers the main column.
 
 ```bash
 pnpm exec playwright install chromium
