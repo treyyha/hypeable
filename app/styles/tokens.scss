@@ -82,10 +82,12 @@
   --hype-gradient-from: var(--hype-lime);
   --hype-gradient-via: var(--hype-mint);
   --hype-gradient-to: var(--hype-cyan);
-  --hype-aurora-lime: rgba(200, 255, 61, 0.26);
-  --hype-aurora-mint: rgba(61, 255, 180, 0.22);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.3);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.24);
   --hype-aurora-cyan: rgba(34, 211, 238, 0.2);
   --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 14%, transparent);
+  --hype-composer-bg: rgba(17, 17, 24, 0.84);
+  --hype-composer-border: #2a2a36;
 }
 
 :root[data-theme='light'] {
@@ -103,10 +105,12 @@
   --hype-gradient-from: var(--hype-accent-on-light);
   --hype-gradient-via: var(--hype-mint-on-light);
   --hype-gradient-to: var(--hype-cyan-on-light);
-  --hype-aurora-lime: rgba(77, 122, 0, 0.16);
-  --hype-aurora-mint: rgba(15, 122, 90, 0.12);
-  --hype-aurora-cyan: rgba(14, 116, 144, 0.12);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.12);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.096);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.08);
   --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 16%, transparent);
+  --hype-composer-bg: #ffffff;
+  --hype-composer-border: var(--hype-border);
   --hype-shadow-sm: 0 1px 2px rgba(10, 10, 15, 0.06);
   --hype-shadow-md: 0 8px 24px rgba(10, 10, 15, 0.08);
   --hype-shadow-lg: 0 18px 40px rgba(10, 10, 15, 0.1);
@@ -127,6 +131,11 @@
   --hype-gradient-from: var(--hype-lime);
   --hype-gradient-via: var(--hype-mint);
   --hype-gradient-to: var(--hype-cyan);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.3);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.24);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.2);
+  --hype-composer-bg: rgba(17, 17, 24, 0.84);
+  --hype-composer-border: #2a2a36;
 }
 
 @mixin bolt-from-hype {
@@ -290,19 +299,47 @@ samp,
 
 .hype-aurora__layer {
   position: absolute;
-  inset: -30%;
+  inset: 0;
   background:
-    radial-gradient(ellipse 42% 36% at 18% 28%, var(--hype-aurora-lime), transparent 70%),
-    radial-gradient(ellipse 38% 34% at 82% 18%, var(--hype-aurora-mint), transparent 68%),
-    radial-gradient(ellipse 48% 40% at 52% 86%, var(--hype-aurora-cyan), transparent 72%);
+    radial-gradient(52% 58% at 30% 72%, var(--hype-aurora-lime), transparent 70%),
+    radial-gradient(46% 54% at 64% 80%, var(--hype-aurora-mint), transparent 70%),
+    radial-gradient(44% 50% at 90% 58%, var(--hype-aurora-cyan), transparent 70%),
+    var(--hype-bg);
   animation: hype-aurora-drift var(--hype-duration-aurora) var(--hype-ease) infinite alternate;
+}
+
+/*
+ * UnoCSS `/10` on `var(--hype-ok)` cannot mix alpha, so the pill became a
+ * solid accent fill and `text-hype-ok` vanished against it. color-mix keeps
+ * the tinted fill and the accent-coloured text.
+ */
+.hype-cost-pill {
+  border: 1px solid color-mix(in srgb, var(--hype-cost-pill-accent) 38%, transparent);
+  background-color: color-mix(in srgb, var(--hype-cost-pill-accent) 8%, transparent);
+  color: var(--hype-cost-pill-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hype-cost-pill--ok {
+  --hype-cost-pill-accent: var(--hype-accent);
+  --hype-cost-pill-text: var(--hype-accent-text);
+}
+
+.hype-cost-pill--warn {
+  --hype-cost-pill-accent: var(--hype-warn);
+  --hype-cost-pill-text: var(--hype-warn);
+}
+
+.hype-cost-pill--hit {
+  --hype-cost-pill-accent: var(--hype-danger);
+  --hype-cost-pill-text: var(--hype-danger);
 }
 
 .hype-composer {
   border-radius: var(--hype-radius-lg);
-  background-color: var(--hype-surface);
-  border: 1px solid var(--hype-border);
-  box-shadow: var(--hype-shadow-sm);
+  background-color: var(--hype-composer-bg);
+  border: 1px solid var(--hype-composer-border);
+  box-shadow: var(--hype-shadow-md);
   transition:
     border-color var(--hype-duration-fast) var(--hype-ease),
     box-shadow var(--hype-duration-fast) var(--hype-ease);

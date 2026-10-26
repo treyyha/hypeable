@@ -171,6 +171,7 @@ describe('cost calculator', () => {
   it('formats the header pill and compact token counts', () => {
     expect(formatDollars(0.043)).toBe('$0.043');
     expect(formatDollars(0.42, 2)).toBe('$0.42');
+    expect(formatSpend(0, { digits: 2 })).toBe('$0.00');
     expect(formatSpend(0.043)).toBe('$0.043');
     expect(formatSpend(0.043, { verified: false })).toBe('≈$0.043');
     expect(formatPricesCheckedAt('2026-10-25')).toBe('prices checked 25 Oct 2026');

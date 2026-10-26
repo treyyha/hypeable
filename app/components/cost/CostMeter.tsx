@@ -139,20 +139,21 @@ export function CostMeter() {
         <Popover.Trigger asChild>
           <button
             type="button"
+            data-testid="cost-pill"
             className={classNames(
-              'group flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] font-semibold tabular-nums tracking-tight',
+              'hype-cost-pill group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold tracking-tight',
               'transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
               {
-                'border-hype-ok/30 bg-hype-ok/10 text-hype-ok hover:border-hype-ok/60': tone === 'ok',
-                'border-hype-warn/40 bg-hype-warn/10 text-hype-warn hover:border-hype-warn/70': tone === 'warn',
-                'border-hype-danger/50 bg-hype-danger/10 text-hype-danger hover:border-hype-danger/80': tone === 'hit',
+                'hype-cost-pill--ok': tone === 'ok',
+                'hype-cost-pill--warn': tone === 'warn',
+                'hype-cost-pill--hit': tone === 'hit',
                 'cost-meter-tick': ticking,
               },
             )}
-            aria-label={`Session spend ${unverifiedSpend ? 'about ' : ''}${formatDollars(snapshot.sessionTotal, 3)}${unverifiedSpend ? ', price unverified' : ''}`}
+            aria-label={`Session spend ${unverifiedSpend ? 'about ' : ''}${formatDollars(snapshot.sessionTotal, 2)}${unverifiedSpend ? ', price unverified' : ''}`}
           >
             <span className="i-ph:coins text-[14px] opacity-80" />
-            <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={3} />
+            <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={2} />
           </button>
         </Popover.Trigger>
         <Popover.Portal>
