@@ -10,7 +10,7 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 4. **Auth is enforced on the server**, in the route/loader/action. UI hiding is not security.
 5. **Conventional commits**: `type(scope): summary`. Types: feat fix docs style refactor perf test build ci chore security.
 6. Small commits, one idea each. Explain the *why* in the body.
-7. Run `npm run typecheck && npm run lint` before finishing a task.
+7. Locally run `npm run test:related` on the files you touched. Full typecheck runs on push. Full unit suite, lint of the tree, build, and e2e run in CI. Run e2e locally only when touching `app/routes`, the chat flow, or the shell UI.
 8. Do not add telemetry, trackers, or any network call to a domain we do not own, besides the user's chosen model provider and their own Vercel/GitHub.
 
 ## Product pillars (build in this order)
@@ -27,4 +27,4 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 - Brand: do not imitate any other product's logo, colours, or copy. Footer: "Not affiliated with Lovable, Bolt, or StackBlitz."
 
 ## Where things are
-See `docs/ARCHITECTURE.md` and `docs/SECURITY.md`. Security snippets to copy from: `templates/security/`.
+See `AGENTS.md` (repo map + command cheat sheet), `docs/ARCHITECTURE.md`, and `docs/SECURITY.md`. Security snippets to copy from: `templates/security/`.

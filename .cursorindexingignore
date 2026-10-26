@@ -1,0 +1,10 @@
+# Indexing only. Secrets belong in .cursorignore, not here.
+node_modules/
+build/
+.wrangler/
+playwright-report/
+test-results/
+pnpm-lock.yaml
+changelog.md
+docs/docs/
+docs/assets/

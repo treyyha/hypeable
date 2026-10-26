@@ -4,4 +4,4 @@ alwaysApply: true
 ---
 - Conventional commits: type(scope): summary, with a body that explains why.
 - Update README/docs in the same commit as behaviour changes.
-- Prefer `npm run ship` to commit and push.
+- Prefer `npm run ship` to commit locally. Push and watch CI once with `npm run finish` at the end of the task.

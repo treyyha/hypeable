@@ -10,7 +10,7 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 4. **Auth is enforced on the server**, in the route/loader/action. UI hiding is not security.
 5. **Conventional commits**: `type(scope): summary`. Types: feat fix docs style refactor perf test build ci chore security.
 6. Small commits, one idea each. Explain the *why* in the body.
-7. Run `npm run typecheck && npm run lint` before finishing a task.
+7. Locally run `npm run test:related` on the files you touched. Full typecheck runs on push. Full unit suite, lint of the tree, build, and e2e run in CI. Run e2e locally only when touching `app/routes`, the chat flow, or the shell UI.
 8. Do not add telemetry, trackers, or any network call to a domain we do not own, besides the user's chosen model provider and their own Vercel/GitHub.
 
 ## Product pillars (build in this order)
@@ -26,8 +26,38 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 - Prefer small pure functions with tests (vitest).
 - Brand: do not imitate any other product's logo, colours, or copy. Footer: "Not affiliated with Lovable, Bolt, or StackBlitz."
 
-## Where things are
-See `docs/ARCHITECTURE.md` and `docs/SECURITY.md`. Security snippets to copy from: `templates/security/`.
+## Repo map
+Read `docs/ORIENTATION.md` only if needed. Prefer targeted reads of the files below. Do not re-read files already in context.
+
+| Feature | Where it lives |
+|---|---|
+| Cost meter | `app/lib/cost/` (`calc.ts`, `caps.ts`, `prices.json`), `app/lib/stores/cost.ts`, `app/components/cost/`, `docs/COST-METER.md` |
+| Loop breaker | `app/lib/loop/`, `app/lib/stores/loop.ts`, `app/lib/hooks/useLoopBreaker.ts`, `app/components/loop/`, `docs/LOOP-BREAKER.md` |
+| Plan-first | `app/lib/plan/`, `app/lib/stores/plan.ts`, `app/components/plan/` (`PlanCard.tsx`, `PlanFirstChip.tsx`, `PlanSettings.tsx`), `docs/PLAN-MODE.md` |
+| Keys / security | `app/lib/api/api-key-storage.ts`, `app/lib/api/request-keys.ts`, `app/lib/security/`, `templates/security/`, `scripts/secret-scan.mjs`, `docs/SECURITY.md`, `docs/KEY-FLOW.md` |
+| Routes | `app/routes.ts` (URL table), `app/routes/` (page + `/api/*` modules), `app/root.tsx`, `app/entry.server.tsx` |
+| Stores | `app/lib/stores/` (`cost.ts`, `loop.ts`, `plan.ts`, `theme.ts`, `workbench.ts`, `settings.ts`, connector stores) |
+| Components | `app/components/chat/` (composer + messages), `app/components/header/`, `app/components/home/`, `app/components/workbench/`, `app/components/ui/`, `app/components/@settings/` |
+| Scripts | `scripts/secret-scan.mjs`, `scripts/ship.mjs`, `scripts/finish.mjs`, `scripts/typecheck.mjs`, `scripts/test-related.mjs`, `scripts/ci-docs-only.mjs` |
+| Docs | `docs/*.md` (product). Upstream mkdocs copies sit in `docs/docs/` — do not treat those as source of truth. |
+| E2E | `e2e/smoke.spec.ts`, `e2e/docs-screenshots.spec.ts`, `playwright.config.ts`. Local mock: `scripts/dev/mock-openai.mjs`. |
+
+## Command cheat sheet
+Times are local (Windows) after this speed pass. CI still runs gitleaks, typecheck, lint, unit tests, build, and e2e.
+
+| Command | What | Typical |
+|---|---|---|
+| `npm run ship -- "type(scope): summary"` | Secret scan + commit locally (hooks: scan + lint-staged). No push. | ~12s |
+| `npm run finish` | `git pull --rebase`, push, `gh run watch` **once** | typecheck on pre-push (~12s incremental), then CI |
+| `pnpm typecheck` | Incremental `tsc` (`node_modules/.cache/tsconfig.tsbuildinfo`) | ~35s first, ~12s later |
+| `pnpm lint` | eslint `--cache` on `app/` | ~43s cold, ~5s cached |
+| `npm run test:related` | Vitest related mode on files changed vs HEAD | seconds on a small diff |
+| `pnpm test` | Full unit suite. CI only, unless you need the whole picture. | ~33s |
+| `pnpm build` | Production build | ~34s |
+| `pnpm e2e` | Playwright smoke. Locally only if you touched routes, chat, or shell UI. | ~60s |
 
 ## Git hooks
-Husky (`.husky/`) is the only hook system. `pnpm install` sets `core.hooksPath` to `.husky/_`. Do not set `core.hooksPath` yourself. `.husky/pre-commit` runs `node scripts/secret-scan.mjs` first. `.husky/commit-msg` enforces Conventional Commits (`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `security`; Merge/Revert/fixup/squash allowed).
+Husky (`.husky/`) is the only hook system. `pnpm install` sets `core.hooksPath` to `.husky/_`. Do not set `core.hooksPath` yourself.
+- `.husky/pre-commit` — `node scripts/secret-scan.mjs` first, then lint-staged (eslint on **staged** files only). No full typecheck on commit.
+- `.husky/pre-push` — full typecheck once per push.
+- `.husky/commit-msg` — Conventional Commits (`feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `security`; Merge/Revert/fixup/squash allowed).
