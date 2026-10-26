@@ -1,5 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { getVercelAccessToken } from '~/lib/api/connector-tokens';
+import { parseStrictJson, vercelDeployBodySchema } from '~/lib/predeploy/deploy-request';
+import { assertPredeployClearance, predeployBlockedResponse } from '~/lib/predeploy/server-gate';
+import { withSecurity } from '~/lib/security';
+import { assertSameOrigin } from '~/lib/security/origin';
 import type { VercelProjectInfo } from '~/types/vercel';
 
 // Function to detect framework from project files
@@ -173,11 +177,10 @@ const detectFramework = (files: Record<string, string>): string => {
   return 'other';
 };
 
-// Add loader function to handle GET requests
-export async function loader({ request }: LoaderFunctionArgs) {
+async function vercelDeployLoader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const projectId = url.searchParams.get('projectId');
-  const token = getVercelAccessToken(request, undefined);
+  const token = getVercelAccessToken(request);
 
   if (!projectId || !token) {
     return Response.json({ error: 'Missing projectId or token' }, { status: 400 });
@@ -232,17 +235,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-interface DeployRequestBody {
-  projectId?: string;
-  files: Record<string, string>;
-  sourceFiles?: Record<string, string>;
-  chatId: string;
-  framework?: string;
-}
-
-// Existing action function for POST requests
-export async function action({ request }: ActionFunctionArgs) {
+async function vercelDeployAction({ request }: ActionFunctionArgs) {
   try {
+    assertSameOrigin(request);
+
+    let json: unknown;
+
+    try {
+      json = await request.json();
+    } catch {
+      return Response.json({ error: 'Invalid input' }, { status: 400 });
+    }
+
     const {
       projectId,
       files,
@@ -250,14 +254,19 @@ export async function action({ request }: ActionFunctionArgs) {
       token: bodyToken,
       chatId,
       framework,
-    } = (await request.json()) as DeployRequestBody & {
-      token: string;
-    };
+      acknowledgedRisk,
+    } = parseStrictJson(vercelDeployBodySchema, json);
 
     const token = getVercelAccessToken(request, undefined, bodyToken);
 
     if (!token) {
       return Response.json({ error: 'Not connected to Vercel' }, { status: 401 });
+    }
+
+    const gate = assertPredeployClearance({ ...(sourceFiles ?? {}), ...files }, acknowledgedRisk === true);
+
+    if (!gate.ok) {
+      return predeployBlockedResponse(gate);
     }
 
     let targetProjectId = projectId;
@@ -494,7 +503,15 @@ export async function action({ request }: ActionFunctionArgs) {
       project: projectInfo,
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+
     console.error('Vercel deploy error:', error);
+
     return Response.json({ error: 'Deployment failed' }, { status: 500 });
   }
 }
+
+export const loader = withSecurity(vercelDeployLoader, { allowedMethods: ['GET'] });
+export const action = withSecurity(vercelDeployAction, { allowedMethods: ['POST'] });

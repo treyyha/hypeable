@@ -1,6 +1,6 @@
 # Pre-deploy security check
 
-Before any publish (Vercel, Netlify, GitHub, GitLab) of a generated app, Hypeable scans the project **in this browser** and shows a pass / warn / fail report. Nothing is uploaded. There is no telemetry.
+Before any publish (Vercel, Netlify, GitHub, GitLab) of a generated app, Hypeable scans the project **in this browser** and shows a pass / warn / fail report. The Vercel and Netlify deploy APIs scan the uploaded files again on the server, so a direct POST cannot skip the gate. GitHub and GitLab push from the browser after the same modal. There is no telemetry. Publish connectors are **experimental**: token handling and this scan are tested; a live deploy to a real account is not in CI.
 
 ```mermaid
 flowchart TD

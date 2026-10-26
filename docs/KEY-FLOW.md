@@ -32,7 +32,13 @@ Implementation: `app/lib/api/api-key-storage.ts`.
 
 The key is sent **only** on LLM routes, per request, in `x-hypeable-key` (URI-encoded JSON `{ "OpenAI": "…" }`). OpenAILike also needs its base URL on those same requests: `x-hypeable-providers` (URI-encoded JSON `{ "OpenAILike": { "enabled": true, "baseUrl": "http://127.0.0.1:8787/v1" } }`). The `providers` cookie is a fallback; it is written from a React effect and can miss the first `/api/models` fetch.
 
-Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) take the same hop: stored in the browser, sent over HTTPS for the request (Authorization or JSON body), never stored or logged. They are **not** cookies. See `app/lib/api/connector-tokens.ts`. Direct browser-to-provider calls (where CORS allows) are on `docs/ROADMAP.md`.
+Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) are stored in the browser, sent over HTTPS for the request (Authorization or JSON body), never stored or logged, and **never** read from server env. They are **not** cookies. See `app/lib/api/connector-tokens.ts`.
+
+| Connector | How publish travels |
+|---|---|
+| GitHub / GitLab publish | Browser → `api.github.com` / GitLab API (CORS). Pre-deploy modal in the UI first. |
+| Vercel / Netlify publish | Browser → `/api/vercel-deploy` or `/api/netlify-deploy` (user token in the body) → provider. Server re-scans files. Site/project is created **in the user's account**. |
+| Supabase | Browser → `/api/supabase*` with the user's management token. Not a static-host publish. |
 
 | Route | Client | Header attached |
 |---|---|---|
@@ -77,4 +83,5 @@ Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-or-…`, `s
 
 ## What we do not do
 
-- We do **not** send the LLM key or a connector token from the browser straight to the provider. There is a server hop. Direct browser-to-provider (CORS) is on `docs/ROADMAP.md`.
+- We do **not** store connector tokens on the server or fall back to an operator `VERCEL_TOKEN` / `GITHUB_TOKEN`.
+- GitHub and GitLab publish **do** send the user's token from the browser straight to the provider (CORS). Vercel and Netlify publish take a one-shot proxy hop so the server can scan files.

@@ -153,6 +153,7 @@ export function useNetlifyDeploy() {
           files: fileContents,
           token: netlifyConn.token,
           chatId: currentChatId,
+          acknowledgedRisk: true,
         }),
       });
 

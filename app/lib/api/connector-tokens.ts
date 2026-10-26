@@ -1,8 +1,14 @@
 /**
- * Connector tokens (GitHub/Vercel/Netlify/Supabase) are not LLM keys.
+ * Connector tokens (GitHub/GitLab/Vercel/Netlify/Supabase) are not LLM keys.
  * They travel in Authorization or the JSON body, never cookies — cookies
  * attach to every same-origin request, including static assets.
+ *
+ * Never fall back to process.env / Worker env. A hosted Worker that had
+ * VERCEL_TOKEN set would otherwise publish into the operator's account.
+ * Self-host auto-connect still works: the client reads VITE_* at build time
+ * and sends the user's token per request.
  */
+
 function bearerToken(request: Request): string | undefined {
   const auth = request.headers.get('Authorization');
 
@@ -21,62 +27,51 @@ function bearerToken(request: Request): string | undefined {
   return undefined;
 }
 
+function privateToken(request: Request): string | undefined {
+  const value = request.headers.get('PRIVATE-TOKEN');
+  return value && value.length > 0 ? value : undefined;
+}
+
 function firstDefined(...values: Array<string | undefined | null>): string | undefined {
   return values.find((value) => typeof value === 'string' && value.length > 0) ?? undefined;
 }
 
-function envValue(env: Record<string, string | undefined> | undefined, ...keys: string[]): string | undefined {
-  for (const key of keys) {
-    const fromEnv = env?.[key] || process.env[key];
-
-    if (fromEnv) {
-      return fromEnv;
-    }
-  }
-
-  return undefined;
-}
-
 export function getGithubAccessToken(
   request: Request,
-  env: Record<string, string | undefined> | undefined,
+  _env?: Record<string, string | undefined>,
   bodyToken?: string,
 ): string | undefined {
-  return firstDefined(
-    bodyToken,
-    bearerToken(request),
-    envValue(env, 'GITHUB_TOKEN', 'GITHUB_ACCESS_TOKEN', 'VITE_GITHUB_ACCESS_TOKEN'),
-  );
+  return firstDefined(bodyToken, bearerToken(request));
 }
 
 export function getVercelAccessToken(
   request: Request,
-  env: Record<string, string | undefined> | undefined,
+  _env?: Record<string, string | undefined>,
   bodyToken?: string,
 ): string | undefined {
-  return firstDefined(bodyToken, bearerToken(request), envValue(env, 'VITE_VERCEL_ACCESS_TOKEN', 'VERCEL_TOKEN'));
+  return firstDefined(bodyToken, bearerToken(request));
 }
 
 export function getNetlifyAccessToken(
   request: Request,
-  env: Record<string, string | undefined> | undefined,
+  _env?: Record<string, string | undefined>,
   bodyToken?: string,
 ): string | undefined {
-  return firstDefined(
-    bodyToken,
-    bearerToken(request),
-    envValue(env, 'VITE_NETLIFY_ACCESS_TOKEN', 'NETLIFY_AUTH_TOKEN', 'NETLIFY_TOKEN'),
-  );
+  return firstDefined(bodyToken, bearerToken(request));
 }
 
 export function getSupabaseAccessToken(
   request: Request,
-  env: Record<string, string | undefined> | undefined,
+  _env?: Record<string, string | undefined>,
   bodyToken?: string,
 ): string | undefined {
-  return firstDefined(
-    bodyToken,
-    bearerToken(request),
-    envValue(env, 'VITE_SUPABASE_ACCESS_TOKEN', 'SUPABASE_ACCESS_TOKEN'),
-  );
+  return firstDefined(bodyToken, bearerToken(request));
+}
+
+export function getGitlabAccessToken(
+  request: Request,
+  _env?: Record<string, string | undefined>,
+  bodyToken?: string,
+): string | undefined {
+  return firstDefined(bodyToken, bearerToken(request), privateToken(request));
 }

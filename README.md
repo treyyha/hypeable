@@ -14,7 +14,7 @@
 
 ![Hypeable home](docs/assets/home-dark-1440.png)
 
-Describe an app, watch it get built, publish it to your own Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing.
+Describe an app, watch it get built, publish it to **your own** Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing and has no Hypeable-owned deploy target.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 
@@ -46,7 +46,7 @@ Details: [docs/PLAN-MODE.md](docs/PLAN-MODE.md).
 
 ### Pre-deploy security check
 
-Before you publish a generated app to your own Vercel, Netlify, GitHub, or GitLab, Hypeable scans the files in this browser and shows a pass / warn / fail report. Secrets are masked (`sk-a***`). Failures need an explicit “I understand the risk” check. Nothing leaves the machine.
+Before you publish a generated app to your own Vercel, Netlify, GitHub, or GitLab, Hypeable scans the files in this browser and shows a pass / warn / fail report. The Vercel and Netlify proxies scan again on the server so a direct API call cannot skip it. Secrets are masked (`sk-a***`). Failures need an explicit “I understand the risk” check.
 
 ![Pre-deploy check](docs/assets/predeploy-fail-dark-1440.png)
 
@@ -96,15 +96,16 @@ Deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## How your key and tokens travel
 
-Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser (`localStorage` or `sessionStorage`). They are sent **only** on the relevant request, over HTTPS, in a header or JSON body. Hypeable's server uses the value for that one outbound call to the provider you chose. It is not written to disk, cookies, or a database. Logs run through redaction (`sk-…`, `Authorization`, `x-hypeable-key`).
+Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser (`localStorage` or `sessionStorage`). They are sent **only** on the relevant request, over HTTPS, in a header or JSON body. The server never falls back to an operator env token. It is not written to disk, cookies, or a database. Logs run through redaction (`sk-…`, `Authorization`, `x-hypeable-key`, `glpat-`, `github_pat-`).
 
-There is still a server hop. Direct browser-to-provider (where CORS allows) is not shipped yet. Want zero trust? Run locally: `pnpm dev`.
+GitHub and GitLab **publish** talk to the provider from the browser (CORS). Vercel and Netlify **publish** take a one-shot hop through Hypeable so we can scan files, then the files land in **your** account. Want zero trust? Run locally: `pnpm dev`.
 
 Verify the path in [`docs/KEY-FLOW.md`](docs/KEY-FLOW.md), LLM keys in [`app/routes/api.chat.ts`](app/routes/api.chat.ts), and connectors in [`app/lib/api/connector-tokens.ts`](app/lib/api/connector-tokens.ts).
 
 ## Honest limits
 
 - **Hosted cannot reach local models.** Ollama, LM Studio, and custom OpenAI-compatible URLs are rejected on the public site. Run locally.
+- **Publish connectors are experimental.** GitHub, GitLab, Vercel, Netlify, and Supabase are wired to **your** account with your token and a pre-deploy scan. None of them has a live end-to-end deploy in CI. Token readers, hosted API locks, and the pre-deploy scanner do have automated tests.
 - **WebContainers licence.** StackBlitz WebContainers is free for personal and open-source use. Commercial hosted use needs a StackBlitz license.
 - **Prices marked ≈ are unverified.** `app/lib/cost/prices.json` is a community list-price table. Rows with `verified: false` show as estimates (`≈`) in the UI.
 - **Estimates, not invoices.** The meter multiplies tokens by list prices (or uses a provider-reported cost when one exists). It is not your provider bill. Set a limit on your provider too.

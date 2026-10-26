@@ -16,8 +16,11 @@ const RATE_LIMITS: Record<string, { windowMs: number; maxRequests: number }> = {
   // GitHub API endpoints
   '/api/github-*': { windowMs: 60 * 1000, maxRequests: 30 }, // 30 requests per minute
 
-  // Netlify API endpoints
-  '/api/netlify-*': { windowMs: 60 * 1000, maxRequests: 20 }, // 20 requests per minute
+  // Publish / connector proxies (user token, user's account)
+  '/api/netlify-*': { windowMs: 60 * 1000, maxRequests: 20 },
+  '/api/vercel-*': { windowMs: 60 * 1000, maxRequests: 20 },
+  '/api/gitlab-*': { windowMs: 60 * 1000, maxRequests: 20 },
+  '/api/supabase': { windowMs: 60 * 1000, maxRequests: 20 },
 
   // General API endpoints fallback
   '/api/*': { windowMs: 15 * 60 * 1000, maxRequests: 100 }, // 100 requests per 15 minutes
@@ -294,14 +297,24 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
       }
 
       if (!rateLimitResult.allowed) {
-        return new Response('Rate limit exceeded', {
-          status: 429,
-          headers: {
-            ...createSecurityHeaders(),
-            'Retry-After': Math.ceil((rateLimitResult.resetTime! - Date.now()) / 1000).toString(),
-            'X-RateLimit-Reset': rateLimitResult.resetTime!.toString(),
+        return new Response(
+          JSON.stringify({
+            error: true,
+            message: 'Too many requests. Wait a minute, then try again.',
+            statusCode: 429,
+            isRetryable: true,
+            provider: 'hypeable',
+          }),
+          {
+            status: 429,
+            headers: {
+              ...createSecurityHeaders(),
+              'Content-Type': 'application/json',
+              'Retry-After': Math.ceil((rateLimitResult.resetTime! - Date.now()) / 1000).toString(),
+              'X-RateLimit-Reset': rateLimitResult.resetTime!.toString(),
+            },
           },
-        });
+        );
       }
 
       const clientIP = getTrustedClientIP(request, args.context);
@@ -310,13 +323,23 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         const edgeAllowed = await checkCloudflareRateLimit(args.context, endpoint, clientIP);
 
         if (!edgeAllowed) {
-          return new Response('Rate limit exceeded', {
-            status: 429,
-            headers: {
-              ...createSecurityHeaders(),
-              'Retry-After': '60',
+          return new Response(
+            JSON.stringify({
+              error: true,
+              message: 'Too many requests. Wait a minute, then try again.',
+              statusCode: 429,
+              isRetryable: true,
+              provider: 'hypeable',
+            }),
+            {
+              status: 429,
+              headers: {
+                ...createSecurityHeaders(),
+                'Content-Type': 'application/json',
+                'Retry-After': '60',
+              },
             },
-          });
+          );
         }
       }
     }

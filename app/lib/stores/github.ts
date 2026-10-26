@@ -27,6 +27,11 @@ export async function initializeGitHubConnection() {
     return;
   }
 
+  // Tokens live in the browser. There is no operator GitHub token on the server.
+  if (!currentState.token) {
+    return;
+  }
+
   try {
     isConnecting.set(true);
 
@@ -36,7 +41,6 @@ export async function initializeGitHubConnection() {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // No server-side token available, skip initialization
         return;
       }
 
@@ -45,11 +49,10 @@ export async function initializeGitHubConnection() {
 
     const userData = await response.json();
 
-    // Update the connection state (no token stored client-side)
     const connectionData: Partial<GitHubConnection> = {
       user: userData as any,
-      token: '', // Token stored server-side only
-      tokenType: 'classic',
+      token: currentState.token,
+      tokenType: currentState.tokenType ?? 'classic',
     };
 
     // Store in localStorage for persistence

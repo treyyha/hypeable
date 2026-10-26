@@ -26,7 +26,7 @@ Set `HYPEABLE_SELF_HOSTED=1` only if you run Hypeable on a public hostname and *
 | `/api/health` | `{ ok: true, hosted: true, commit }` | `{ ok: true, hosted: false, commit }` |
 | WebContainer preview | Yes | Yes |
 
-No secrets are required on the public deployment. Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser and are sent over HTTPS for the request, never stored or logged.
+No secrets are required on the public deployment. Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser and are sent over HTTPS for the request, never stored or logged, and never read from Worker env. There is no Hypeable-owned Vercel/Netlify/GitHub target.
 
 After a deploy, wait until the Worker is serving this commit:
 

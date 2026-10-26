@@ -8,5 +8,6 @@ export { maskSecret, maskSnippet, findingHoldsSecret } from './mask';
 export { reportToMarkdown, fixWithAiPrompt } from './report';
 export { PREDEPLOY_RULES, ruleById } from './registry';
 export { withPredeployScan, withPredeployScanFiles } from './intercept';
+export { assertPredeployClearance, predeployBlockedResponse } from './server-gate';
 export { applyIgnores, parseIgnores } from './ignore';
 export type { Finding, ScanReport, ScanOutcome, Severity, PredeployRule } from './types';

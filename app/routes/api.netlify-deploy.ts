@@ -1,13 +1,11 @@
 import crypto from 'node:crypto';
 import type { ActionFunctionArgs } from 'react-router';
 import { getNetlifyAccessToken } from '~/lib/api/connector-tokens';
+import { netlifyDeployBodySchema, parseStrictJson } from '~/lib/predeploy/deploy-request';
+import { assertPredeployClearance, predeployBlockedResponse } from '~/lib/predeploy/server-gate';
+import { withSecurity } from '~/lib/security';
+import { assertSameOrigin } from '~/lib/security/origin';
 import type { NetlifySiteInfo } from '~/types/netlify';
-
-interface DeployRequestBody {
-  siteId?: string;
-  files: Record<string, string>;
-  chatId: string;
-}
 
 async function readNetlifyError(response: Response) {
   try {
@@ -26,13 +24,36 @@ async function readNetlifyError(response: Response) {
   }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+async function netlifyDeployAction({ request }: ActionFunctionArgs) {
   try {
-    const { siteId, files, token: bodyToken, chatId } = (await request.json()) as DeployRequestBody & { token: string };
+    assertSameOrigin(request);
+
+    let json: unknown;
+
+    try {
+      json = await request.json();
+    } catch {
+      return Response.json({ error: 'Invalid input' }, { status: 400 });
+    }
+
+    const {
+      siteId,
+      files,
+      token: bodyToken,
+      chatId,
+      acknowledgedRisk,
+    } = parseStrictJson(netlifyDeployBodySchema, json);
+
     const token = getNetlifyAccessToken(request, undefined, bodyToken);
 
     if (!token) {
       return Response.json({ error: 'Not connected to Netlify' }, { status: 401 });
+    }
+
+    const gate = assertPredeployClearance(files, acknowledgedRisk === true);
+
+    if (!gate.ok) {
+      return predeployBlockedResponse(gate);
     }
 
     let targetSiteId = siteId;
@@ -272,7 +293,14 @@ export async function action({ request }: ActionFunctionArgs) {
       site: siteInfo,
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+
     console.error('Deploy error:', error);
+
     return Response.json({ error: 'Deployment failed' }, { status: 500 });
   }
 }
+
+export const action = withSecurity(netlifyDeployAction, { allowedMethods: ['POST'] });

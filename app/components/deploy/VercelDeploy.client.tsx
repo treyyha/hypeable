@@ -191,6 +191,7 @@ export function useVercelDeploy() {
           sourceFiles: allProjectFiles,
           token: vercelConn.token,
           chatId: currentChatId,
+          acknowledgedRisk: true,
         }),
       });
 

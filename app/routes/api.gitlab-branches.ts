@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs } from 'react-router';
+import { getGitlabAccessToken } from '~/lib/api/connector-tokens';
 import { withSecurity } from '~/lib/security';
 import { envFromContext, hostFromContext } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { assertHostedGitLabUrl, hostedOutboundResponse } from '~/lib/security/outbound';
 
 interface GitLabBranch {
@@ -24,8 +26,17 @@ interface BranchInfo {
 
 async function gitlabBranchesLoader({ request, context }: ActionFunctionArgs) {
   try {
-    const body: any = await request.json();
-    const { token, gitlabUrl = 'https://gitlab.com', projectId } = body;
+    assertSameOrigin(request);
+
+    const body: {
+      token?: string;
+      gitlabUrl?: string;
+      projectId?: string;
+    } = await request.json();
+
+    const token = getGitlabAccessToken(request, undefined, body.token);
+    const gitlabUrl = body.gitlabUrl || 'https://gitlab.com';
+    const { projectId } = body;
 
     try {
       assertHostedGitLabUrl(envFromContext(context), gitlabUrl, hostFromContext(context));
@@ -125,6 +136,10 @@ async function gitlabBranchesLoader({ request, context }: ActionFunctionArgs) {
       total: transformedBranches.length,
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+
     console.error('Failed to fetch GitLab branches:', error);
 
     if (error instanceof Error) {
@@ -154,4 +169,4 @@ async function gitlabBranchesLoader({ request, context }: ActionFunctionArgs) {
   }
 }
 
-export const action = withSecurity(gitlabBranchesLoader);
+export const action = withSecurity(gitlabBranchesLoader, { allowedMethods: ['POST'] });

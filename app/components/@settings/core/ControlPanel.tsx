@@ -40,10 +40,17 @@ interface ControlPanelProps {
 
 // Beta status for experimental features
 const BETA_TABS = new Set<TabType>(['local-providers', 'mcp']);
+const EXPERIMENTAL_TABS = new Set<TabType>(['connectors', 'github', 'gitlab', 'netlify', 'vercel', 'supabase']);
 
 const BetaLabel = () => (
   <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20">
     <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400">BETA</span>
+  </div>
+);
+
+const ExperimentalLabel = () => (
+  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-hype-surface-2">
+    <span className="text-[10px] font-medium text-hype-muted">Experimental</span>
   </div>
 );
 
@@ -344,6 +351,7 @@ export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) =
                               className="h-full relative"
                             />
                             {BETA_TABS.has(tab.id) && <BetaLabel />}
+                            {EXPERIMENTAL_TABS.has(tab.id) && <ExperimentalLabel />}
                           </div>
                         ))}
                       </div>

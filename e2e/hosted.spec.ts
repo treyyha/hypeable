@@ -56,6 +56,45 @@ test.describe('hosted mode', () => {
     expect((await request.get('/apple-touch-icon.png')).status()).toBe(200);
   });
 
+  test('connector and deploy APIs require the user token and stay on allowed hosts', async ({ request }) => {
+    const origin = 'http://localhost:5173';
+    const jsonHeaders = { Origin: origin, 'Content-Type': 'application/json' };
+
+    const vercelNoToken = await request.post('/api/vercel-deploy', {
+      headers: jsonHeaders,
+      data: { files: { 'index.html': '<p>ok</p>' }, chatId: 'hosted-e2e' },
+    });
+    expect(vercelNoToken.status()).toBe(401);
+
+    const netlifyNoToken = await request.post('/api/netlify-deploy', {
+      headers: jsonHeaders,
+      data: { files: { 'index.html': '<p>ok</p>' }, chatId: 'hosted-e2e' },
+    });
+    expect(netlifyNoToken.status()).toBe(401);
+
+    const githubNoToken = await request.get('/api/github-user', { headers: { Origin: origin } });
+    expect(githubNoToken.status()).toBe(401);
+
+    const supabaseNoToken = await request.post('/api/supabase', {
+      headers: jsonHeaders,
+      data: {},
+    });
+    expect(supabaseNoToken.status()).toBe(401);
+
+    const gitlabSelfHosted = await request.post('/api/gitlab-projects', {
+      headers: jsonHeaders,
+      data: { token: 'not-a-real-token', gitlabUrl: 'https://gitlab.example.com' },
+    });
+    expect(gitlabSelfHosted.status()).toBe(403);
+    expect(await gitlabSelfHosted.text()).toContain(CUSTOM_ENDPOINT_MESSAGE);
+
+    const vercelCrossOrigin = await request.post('/api/vercel-deploy', {
+      headers: { Origin: 'https://evil.example', 'Content-Type': 'application/json' },
+      data: { files: { 'index.html': '<p>ok</p>' }, chatId: 'hosted-e2e', token: 'fake-user-token' },
+    });
+    expect(vercelCrossOrigin.status()).toBe(403);
+  });
+
   test('OpenRouter callback route is served hosted', async ({ page }) => {
     await page.addInitScript((key) => {
       localStorage.setItem(key, 'true');

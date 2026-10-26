@@ -11,6 +11,14 @@ describe('redact', () => {
     expect(redact('gho_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
   });
 
+  it('strips GitLab, GitHub fine-grained, Netlify, and Supabase PATs', () => {
+    expect(redact('glpat-abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
+    expect(redact('github_pat_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
+    expect(redact('nfp_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
+    expect(redact('sbp_abcdefghijklmnopqrstuvwx')).toBe('[REDACTED]');
+    expect(redact('PRIVATE-TOKEN: glpat-abcdefghijklmnopqrstuvwx')).toContain('[REDACTED]');
+  });
+
   it('strips OpenRouter sk-or- keys constructed at runtime', () => {
     const openRouterKey = `sk-or-v1-${'a'.repeat(24)}`;
     expect(redact(`provider failed for ${openRouterKey}`)).not.toContain(openRouterKey);

@@ -191,7 +191,7 @@ export const DeployButton = ({
                 src="https://cdn.simpleicons.org/netlify"
               />
               <span className="mx-auto">
-                {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify'}
+                {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify (experimental)'}
               </span>
               {netlifyConn.user && <NetlifyDeploymentLink />}
             </DropdownMenu.Item>
@@ -214,7 +214,9 @@ export const DeployButton = ({
                 src="https://cdn.simpleicons.org/vercel/white"
                 alt="vercel"
               />
-              <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
+              <span className="mx-auto">
+                {!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel (experimental)'}
+              </span>
               {vercelConn.user && <VercelDeploymentLink />}
             </DropdownMenu.Item>
 
@@ -236,7 +238,7 @@ export const DeployButton = ({
                 src="https://cdn.simpleicons.org/github"
                 alt="github"
               />
-              <span className="mx-auto">Deploy to GitHub</span>
+              <span className="mx-auto">Deploy to GitHub (experimental)</span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
@@ -257,7 +259,9 @@ export const DeployButton = ({
                 src="https://cdn.simpleicons.org/gitlab"
                 alt="gitlab"
               />
-              <span className="mx-auto">{!gitlabIsConnected ? 'No GitLab Account Connected' : 'Deploy to GitLab'}</span>
+              <span className="mx-auto">
+                {!gitlabIsConnected ? 'No GitLab Account Connected' : 'Deploy to GitLab (experimental)'}
+              </span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item

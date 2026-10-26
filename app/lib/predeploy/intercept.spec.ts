@@ -15,6 +15,8 @@ const ENTRY_POINTS = [
   'app/lib/stores/workbench.ts',
 ];
 
+const SERVER_GATES = ['app/routes/api.vercel-deploy.ts', 'app/routes/api.netlify-deploy.ts'];
+
 describe('predeploy intercept', () => {
   beforeEach(() => {
     vi.mocked(requestPredeployClearance).mockReset();
@@ -24,6 +26,13 @@ describe('predeploy intercept', () => {
     for (const file of ENTRY_POINTS) {
       const source = readFileSync(file, 'utf8');
       expect(source, file).toMatch(/withPredeployScan(Files)?\(/);
+    }
+  });
+
+  it('re-scans on the Vercel and Netlify deploy APIs', () => {
+    for (const file of SERVER_GATES) {
+      const source = readFileSync(file, 'utf8');
+      expect(source, file).toMatch(/assertPredeployClearance\(/);
     }
   });
 

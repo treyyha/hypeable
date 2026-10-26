@@ -21,6 +21,7 @@ interface Connector {
   description: string;
   icon: React.ReactNode;
   category: 'source-control' | 'deployment' | 'database' | 'browser-automation';
+  experimental?: boolean;
 }
 
 // GitHub icon
@@ -83,44 +84,50 @@ const CONNECTORS: Connector[] = [
   {
     id: 'github',
     name: 'GitHub',
-    description: 'Connect your GitHub account for repository management and version control',
+    description: 'Push a generated app to a repository on your GitHub account. Not live-tested in CI.',
     icon: <GitHubIcon />,
     category: 'source-control',
+    experimental: true,
   },
   {
     id: 'gitlab',
     name: 'GitLab',
-    description: 'Integrate with GitLab for code hosting and CI/CD pipelines',
+    description: 'Push a generated app to a project on your GitLab account. Not live-tested in CI.',
     icon: <GitLabIcon />,
     category: 'source-control',
+    experimental: true,
   },
   {
     id: 'vercel',
     name: 'Vercel',
-    description: 'Deploy and manage your projects on Vercel platform',
+    description: 'Publish the generated app to your Vercel account. Not live-tested in CI.',
     icon: <VercelIcon />,
     category: 'deployment',
+    experimental: true,
   },
   {
     id: 'netlify',
     name: 'Netlify',
-    description: 'Deploy and manage your sites on Netlify',
+    description: 'Publish the generated app to your Netlify account. Not live-tested in CI.',
     icon: <NetlifyIcon />,
     category: 'deployment',
+    experimental: true,
   },
   {
     id: 'supabase',
     name: 'Supabase',
-    description: 'Connect to Supabase for database, auth, and storage',
+    description: 'Talk to a project on your Supabase account. Not live-tested in CI.',
     icon: <SupabaseIcon />,
     category: 'database',
+    experimental: true,
   },
   {
     id: 'browser-use-cloud',
     name: 'Browser Use Cloud',
-    description: 'Run hosted browser tasks and inspect websites from your chat',
+    description: 'Run hosted browser tasks and inspect websites from your chat. Not live-tested in CI.',
     icon: <div className="i-ph:globe-hemisphere-west w-5 h-5" />,
     category: 'browser-automation',
+    experimental: true,
   },
 ];
 
@@ -342,6 +349,11 @@ export default function ConnectorsTab() {
                         <span className="rounded-full bg-bolt-elements-background-depth-3 px-2 py-0.5 text-[11px] text-bolt-elements-textSecondary">
                           {CATEGORY_LABELS[connector.category]}
                         </span>
+                        {connector.experimental && (
+                          <span className="rounded-full bg-hype-surface-2 px-2 py-0.5 text-[11px] text-hype-muted">
+                            Experimental
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-bolt-elements-textSecondary">{connector.description}</p>
                     </div>

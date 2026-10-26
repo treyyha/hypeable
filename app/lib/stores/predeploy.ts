@@ -3,7 +3,6 @@
  */
 
 import { atom } from 'nanostores';
-import { fingerprintFiles } from '~/lib/predeploy/collect';
 import { scan } from '~/lib/predeploy/scan';
 import type { ScanReport } from '~/lib/predeploy/types';
 
@@ -23,8 +22,6 @@ const emptyState = (): PredeployUiState => ({
 
 export const predeployUiStore = atom<PredeployUiState>(emptyState());
 
-let lastAllowedFingerprint = '';
-
 export function setPredeployAcknowledged(acknowledged: boolean): void {
   const current = predeployUiStore.get();
   predeployUiStore.set({ ...current, acknowledged });
@@ -37,12 +34,6 @@ export function closePredeploy(allowed: boolean): void {
 }
 
 export async function requestPredeployClearance(files: Record<string, string>): Promise<boolean> {
-  const fingerprint = fingerprintFiles(files);
-
-  if (fingerprint && fingerprint === lastAllowedFingerprint) {
-    return true;
-  }
-
   const report = scan(files);
 
   return new Promise((resolve) => {
@@ -50,18 +41,11 @@ export async function requestPredeployClearance(files: Record<string, string>): 
       open: true,
       report,
       acknowledged: false,
-      resolve: (allowed) => {
-        if (allowed) {
-          lastAllowedFingerprint = fingerprint;
-        }
-
-        resolve(allowed);
-      },
+      resolve,
     });
   });
 }
 
 export function resetPredeployGate(): void {
-  lastAllowedFingerprint = '';
   predeployUiStore.set(emptyState());
 }

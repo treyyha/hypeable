@@ -1,13 +1,28 @@
-import type { ActionFunction } from 'react-router';
+import type { ActionFunctionArgs } from 'react-router';
+import { getSupabaseAccessToken } from '~/lib/api/connector-tokens';
+import { parseStrictJson, supabaseProjectsBodySchema } from '~/lib/predeploy/deploy-request';
+import { withSecurity } from '~/lib/security';
+import { assertSameOrigin } from '~/lib/security/origin';
 import type { SupabaseProject } from '~/types/supabase';
 
-export const action: ActionFunction = async ({ request }) => {
-  if (request.method !== 'POST') {
-    return Response.json({ error: 'Method not allowed' }, { status: 405 });
-  }
-
+async function supabaseProjectsAction({ request }: ActionFunctionArgs) {
   try {
-    const { token } = (await request.json()) as any;
+    assertSameOrigin(request);
+
+    let json: unknown;
+
+    try {
+      json = await request.json();
+    } catch {
+      return Response.json({ error: 'Invalid input' }, { status: 400 });
+    }
+
+    const body = parseStrictJson(supabaseProjectsBodySchema, json);
+    const token = getSupabaseAccessToken(request, undefined, body.token);
+
+    if (!token) {
+      return Response.json({ error: 'Not connected to Supabase' }, { status: 401 });
+    }
 
     const projectsResponse = await fetch('https://api.supabase.com/v1/projects', {
       headers: {
@@ -44,12 +59,14 @@ export const action: ActionFunction = async ({ request }) => {
       },
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+
     console.error('Supabase API error:', error);
-    return Response.json(
-      {
-        error: error instanceof Error ? error.message : 'Authentication failed',
-      },
-      { status: 401 },
-    );
+
+    return Response.json({ error: 'Authentication failed' }, { status: 401 });
   }
-};
+}
+
+export const action = withSecurity(supabaseProjectsAction, { allowedMethods: ['POST'] });

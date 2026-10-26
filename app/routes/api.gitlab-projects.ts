@@ -1,6 +1,9 @@
 import type { ActionFunctionArgs } from 'react-router';
+import { getGitlabAccessToken } from '~/lib/api/connector-tokens';
+import { gitlabProjectsBodySchema, parseStrictJson } from '~/lib/predeploy/deploy-request';
 import { withSecurity } from '~/lib/security';
 import { envFromContext, hostFromContext } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { assertHostedGitLabUrl, hostedOutboundResponse } from '~/lib/security/outbound';
 import type { GitLabProjectInfo } from '~/types/GitLab';
 
@@ -20,8 +23,19 @@ interface GitLabProject {
 
 async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
   try {
-    const body: any = await request.json();
-    const { token, gitlabUrl = 'https://gitlab.com' } = body;
+    assertSameOrigin(request);
+
+    let json: unknown;
+
+    try {
+      json = await request.json();
+    } catch {
+      return Response.json({ error: 'Invalid input' }, { status: 400 });
+    }
+
+    const body = parseStrictJson(gitlabProjectsBodySchema, json);
+    const token = getGitlabAccessToken(request, undefined, body.token);
+    const gitlabUrl = body.gitlabUrl || 'https://gitlab.com';
 
     try {
       assertHostedGitLabUrl(envFromContext(context), gitlabUrl, hostFromContext(context));
@@ -86,6 +100,10 @@ async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
       total: transformedProjects.length,
     });
   } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+
     console.error('Failed to fetch GitLab projects:', error);
 
     if (error instanceof Error) {
@@ -115,4 +133,4 @@ async function gitlabProjectsLoader({ request, context }: ActionFunctionArgs) {
   }
 }
 
-export const action = withSecurity(gitlabProjectsLoader);
+export const action = withSecurity(gitlabProjectsLoader, { allowedMethods: ['POST'] });
