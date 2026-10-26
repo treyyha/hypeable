@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import React from 'react';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { classNames } from '~/utils/classNames';
 
 interface TokenTypeOption {
@@ -130,6 +131,7 @@ export function ConnectionForm({
                     Get your token
                     <div className="i-ph:arrow-square-out w-4 h-4" />
                   </a>
+                  <ConnectorTokenHint />
                 </div>
               </div>
 

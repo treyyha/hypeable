@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { useEffect } from 'react';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { Dialog, DialogRoot, DialogClose, DialogTitle, DialogButton } from '~/components/ui/Dialog';
 import { useSupabaseConnection } from '~/lib/hooks/useSupabaseConnection';
 import { chatId } from '~/lib/persistence/useChatHistory';
@@ -156,6 +157,7 @@ export function SupabaseConnection() {
                       Get your token
                       <div className="i-ph:arrow-square-out w-4 h-4" />
                     </a>
+                    <ConnectorTokenHint />
                   </div>
                 </div>
 

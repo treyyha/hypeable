@@ -2,6 +2,7 @@ import { useStore } from '@nanostores/react';
 import { motion } from 'framer-motion';
 import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { logStore } from '~/lib/stores/logs';
 import {
   vercelConnection,
@@ -160,6 +161,7 @@ export default function VercelConnection() {
                   Get your token
                   <div className="i-ph:arrow-square-out w-4 h-4" />
                 </a>
+                <ConnectorTokenHint />
                 <div className="mt-2 text-xs text-bolt-elements-textSecondary bg-bolt-elements-background-depth-1 p-2 rounded">
                   <p className="flex items-center gap-1">
                     <span className="i-ph:lightbulb w-3.5 h-3.5 text-bolt-elements-icon-success" />

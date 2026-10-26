@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '~/components/ui/Button';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { useGitLabConnection } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
 
@@ -149,6 +150,7 @@ export default function GitLabConnection({
                 </a>
                 <span className="mx-2">•</span>
                 <span>Required scopes: api, read_repository</span>
+                <ConnectorTokenHint />
               </div>
             </div>
           </div>

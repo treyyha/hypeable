@@ -57,7 +57,7 @@ pnpm install         # Husky: secret-scan + lint-staged on commit, typecheck on 
 npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
-Add your own model key in the app's settings. Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request to your provider, never stored or logged. Verify it in [`app/routes/api.chat.ts`](app/routes/api.chat.ts). Want zero trust? Run Hypeable locally: `pnpm dev`.
+Add your own model key in the app's settings. Stored in your browser. Sent over HTTPS for the request, never stored or logged. The same is true of GitHub, GitLab, Vercel, Netlify, and Supabase tokens. Verify LLM keys in [`app/routes/api.chat.ts`](app/routes/api.chat.ts) and connectors in [`app/lib/api/connector-tokens.ts`](app/lib/api/connector-tokens.ts). Want zero trust? Run Hypeable locally: `pnpm dev`.
 
 ## Run locally
 Hypeable's server sees your key for the duration of each LLM request so it can forward the call to your provider. If you do not want that hop, run the app on your machine:

@@ -9,6 +9,7 @@ import {
 import { ServiceHeader, ConnectionTestIndicator } from '~/components/@settings/shared/service-integration';
 import { Button } from '~/components/ui/Button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '~/components/ui/Collapsible';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { deleteLegacyTokenCookies } from '~/lib/api/git-auth-storage';
 import { useConnectionTest } from '~/lib/hooks';
 import { logStore } from '~/lib/stores/logs';
@@ -814,6 +815,7 @@ export default function VercelTab() {
                     Get your token
                     <div className="i-ph:arrow-square-out w-4 h-4" />
                   </a>
+                  <ConnectorTokenHint />
                 </div>
               </div>
 

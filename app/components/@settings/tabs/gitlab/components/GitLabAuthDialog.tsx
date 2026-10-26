@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { useGitLabConnection } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
 
@@ -132,6 +133,7 @@ export function GitLabAuthDialog({ isOpen, onClose }: GitLabAuthDialogProps) {
                     </a>
                     <span className="mx-2">•</span>
                     <span>Required scopes: api, read_repository</span>
+                    <ConnectorTokenHint />
                   </div>
                 </div>
 

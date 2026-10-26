@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { useGitHubConnection } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
 
@@ -123,6 +124,7 @@ export function GitHubAuthDialog({ isOpen, onClose, onSuccess }: GitHubAuthDialo
                       Get your token
                       <div className="i-ph:arrow-square-out w-4 h-4" />
                     </a>
+                    <ConnectorTokenHint />
                   </div>
                 </div>
 

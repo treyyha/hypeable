@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 import { Button } from '~/components/ui/Button';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { useGitHubConnection } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
 
@@ -140,6 +141,7 @@ export function GitHubConnection({ connectionTest, onTestConnection }: GitHubCon
                   Required scopes:{' '}
                   {tokenType === 'classic' ? 'repo, read:org, read:user' : 'Repository access, Organization access'}
                 </span>
+                <ConnectorTokenHint />
               </div>
             </div>
           </div>

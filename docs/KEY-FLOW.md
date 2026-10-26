@@ -21,6 +21,8 @@ Implementation: `app/lib/api/api-key-storage.ts`.
 
 The key is sent **only** on LLM routes, per request, in `x-hypeable-key` (URI-encoded JSON `{ "OpenAI": "…" }`). OpenAILike also needs its base URL on those same requests: `x-hypeable-providers` (URI-encoded JSON `{ "OpenAILike": { "enabled": true, "baseUrl": "http://127.0.0.1:8787/v1" } }`). The `providers` cookie is a fallback; it is written from a React effect and can miss the first `/api/models` fetch.
 
+Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) take the same hop: stored in the browser, sent over HTTPS for the request (Authorization or JSON body), never stored or logged. They are **not** cookies. See `app/lib/api/connector-tokens.ts`. Direct browser-to-provider calls (where CORS allows) are on `docs/ROADMAP.md`.
+
 | Route | Client | Header attached |
 |---|---|---|
 | `POST /api/chat` | `Chat.client.tsx` `DefaultChatTransport.headers` (~266) | `getLlmRequestHeaders()` (`x-hypeable-key` + `x-hypeable-providers`) |
@@ -64,5 +66,4 @@ Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-…`, GitHu
 
 ## What we do not do
 
-- We do **not** send the key from the browser straight to the provider. There is a server hop. Direct browser-to-provider (CORS) is on `docs/ROADMAP.md`.
-- Connector tokens (GitHub/Vercel/Netlify/Supabase/MCP) are **not** LLM keys. They travel in `Authorization` or the JSON body, never cookies. See `app/lib/api/connector-tokens.ts`.
+- We do **not** send the LLM key or a connector token from the browser straight to the provider. There is a server hop. Direct browser-to-provider (CORS) is on `docs/ROADMAP.md`.

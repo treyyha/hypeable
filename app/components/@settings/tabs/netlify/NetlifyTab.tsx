@@ -10,6 +10,7 @@ import {
 import { Badge } from '~/components/ui/Badge';
 import { Button } from '~/components/ui/Button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '~/components/ui/Collapsible';
+import { ConnectorTokenHint } from '~/components/ui/ConnectorTokenHint';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { netlifyConnection, updateNetlifyConnection, initializeNetlifyConnection } from '~/lib/stores/netlify';
 import type { NetlifySite, NetlifyDeploy, NetlifyBuild, NetlifyUser } from '~/types/netlify';
@@ -1396,6 +1397,7 @@ export default function NetlifyTab() {
                     Get your token
                     <div className="i-ph:arrow-square-out w-4 h-4" />
                   </a>
+                  <ConnectorTokenHint />
                 </div>
               </div>
 
