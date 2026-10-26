@@ -77,7 +77,7 @@ export function AttachmentMenu({
           title="Composer options"
           aria-label="Composer options"
           className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent',
+            'flex items-center appearance-none text-bolt-elements-item-contentDefault bg-transparent',
             'hover:text-bolt-elements-item-contentActive rounded-md p-1',
             'hover:bg-bolt-elements-item-backgroundActive',
             'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus focus:ring-offset-1',

@@ -36,7 +36,7 @@ export function Header() {
     >
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+        className="hype-icon-btn lg:hidden"
         aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
         onClick={toggleSidebarMobile}
       >
@@ -63,7 +63,7 @@ export function Header() {
         <button
           type="button"
           onClick={openSettings}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+          className="hype-icon-btn"
           aria-label="Keys and settings"
           title="Keys and settings"
         >

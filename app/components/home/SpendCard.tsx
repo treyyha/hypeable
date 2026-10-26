@@ -47,11 +47,13 @@ export function SpendCard() {
   const empty = snapshot.sessionTotal === 0 && snapshot.dailyTotal === 0;
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-sm font-medium tracking-tight">Your spend</CardTitle>
+        <CardTitle className="text-xs font-semibold uppercase tracking-[var(--hype-tracking-label)] text-hype-muted">
+          Your spend
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 p-4 pt-2">
+      <CardContent className="flex flex-1 flex-col space-y-3 p-4 pt-2">
         {empty ? (
           <p className="text-xs text-hype-muted">Nothing billed yet this session. Caps apply in this browser only.</p>
         ) : null}

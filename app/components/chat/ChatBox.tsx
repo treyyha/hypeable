@@ -288,7 +288,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
           placeholder={
-            props.chatMode === 'build' ? 'How can Hypeable help you today?' : 'What would you like to discuss?'
+            props.chatMode === 'build'
+              ? 'Describe your app, e.g. a habit tracker with streaks and dark mode'
+              : 'What would you like to discuss?'
           }
           translate="no"
         />
@@ -359,6 +361,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               {() => (
                 <SendButton
                   isStreaming={props.isStreaming}
+                  armed={canSend}
                   disabled={(!canSend && !props.isStreaming) || !props.providerList || props.providerList.length === 0}
                   onClick={(event) => {
                     if (props.isStreaming) {

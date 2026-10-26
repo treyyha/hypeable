@@ -311,7 +311,7 @@ export const Menu = () => {
           </a>
           <button
             type="button"
-            className="ml-auto hidden h-8 w-8 items-center justify-center rounded-[var(--hype-radius-sm)] text-hype-muted hover:bg-hype-surface-2 hover:text-hype-text lg:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+            className="hype-icon-btn ml-auto hidden lg:inline-flex"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             onClick={() => setSidebarCollapsed(!collapsed)}
           >
@@ -337,10 +337,8 @@ export const Menu = () => {
                   type="button"
                   onClick={toggleSelectionMode}
                   className={classNames(
-                    'flex items-center rounded-[var(--hype-radius-md)] border px-2.5 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
-                    selectionMode
-                      ? 'border-hype-accent bg-hype-accent text-hype-on-accent'
-                      : 'border-hype-border bg-hype-surface-2 text-hype-muted hover:text-hype-text',
+                    'hype-icon-btn',
+                    selectionMode && 'border-hype-accent bg-hype-accent text-hype-on-accent hover:text-hype-on-accent',
                   )}
                   aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
                 >

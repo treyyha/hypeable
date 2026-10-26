@@ -384,19 +384,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         {chatStarted && showChat && !showWorkbench && (
           <WorkbenchReopenButton onClick={() => workbenchStore.showWorkbench.set(true)} />
         )}
-        <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
+        <div className="flex h-full w-full flex-col overflow-hidden lg:flex-row">
           <div
             className={classNames(
               styles.Chat,
-              'relative flex h-full min-h-full flex-grow flex-col lg:min-w-[var(--chat-min-width)]',
+              'relative flex h-full min-h-0 flex-grow flex-col overflow-hidden lg:min-w-[var(--chat-min-width)]',
             )}
             data-testid="home-main"
           >
             {!chatStarted && <Aurora data-testid="home-aurora" />}
             <div
               className={classNames(
-                'relative z-[1] flex flex-col',
-                !chatStarted && 'min-h-[calc(100dvh-var(--header-height))]',
+                'relative z-[1] flex min-h-0 flex-1 flex-col',
+                chatStarted ? 'overflow-hidden' : 'overflow-y-auto',
               )}
             >
               {!chatStarted && <HomeHero />}
@@ -527,16 +527,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <MoreWaysToStart importChat={importChat} />
                 </div>
               )}
-            </div>
-            {!chatStarted && (
-              <div className="relative z-[1] flex flex-col gap-4">
-                <div className="mx-auto grid w-full max-w-chat gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
-                  <RecentProjects />
-                  <SpendCard />
+              {!chatStarted && (
+                <div className="relative z-[1] flex flex-col gap-4">
+                  <div className="mx-auto grid w-full max-w-chat items-stretch gap-4 px-4 pb-2 sm:grid-cols-[1fr_16rem]">
+                    <RecentProjects />
+                    <SpendCard />
+                  </div>
+                  <BrandFooter className="mt-4 mb-4" />
                 </div>
-                <BrandFooter className="mt-4 mb-4" />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <ClientOnly>
             {() => (

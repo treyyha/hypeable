@@ -1,8 +1,8 @@
 import { useStore } from '@nanostores/react';
 import { memo, useEffect, useState } from 'react';
-import { IconButton } from './IconButton';
 import { themeStore, toggleTheme } from '~/lib/stores/theme';
 import { getThemeMode } from '~/types/theme';
+import { classNames } from '~/utils/classNames';
 
 interface ThemeSwitchProps {
   className?: string;
@@ -16,15 +16,21 @@ export const ThemeSwitch = memo(({ className }: ThemeSwitchProps) => {
     setDomLoaded(true);
   }, []);
 
+  if (!domLoaded) {
+    return null;
+  }
+
   return (
-    domLoaded && (
-      <IconButton
-        className={className}
-        icon={getThemeMode(theme) === 'dark' ? 'i-ph-sun-dim-duotone' : 'i-ph-moon-stars-duotone'}
-        size="xl"
-        title="Toggle Theme"
-        onClick={toggleTheme}
+    <button
+      type="button"
+      className={classNames('hype-icon-btn', className)}
+      title="Toggle Theme"
+      aria-label="Toggle Theme"
+      onClick={toggleTheme}
+    >
+      <span
+        className={getThemeMode(theme) === 'dark' ? 'i-ph-sun-dim-duotone text-xl' : 'i-ph-moon-stars-duotone text-xl'}
       />
-    )
+    </button>
   );
 });

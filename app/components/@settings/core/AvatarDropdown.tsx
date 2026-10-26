@@ -42,7 +42,7 @@ export const AvatarDropdown = ({ onSelectTab, onOpenDocs }: AvatarDropdownProps)
         <DropdownMenu.Content
           className={classNames(
             'min-w-[240px] z-[250]',
-            'bg-white dark:bg-[#141414]',
+            'bg-hype-surface',
             'rounded-lg shadow-lg',
             'border border-gray-200/50 dark:border-gray-800/50',
             'animate-in fade-in-0 zoom-in-95',
@@ -57,7 +57,7 @@ export const AvatarDropdown = ({ onSelectTab, onOpenDocs }: AvatarDropdownProps)
               'border-b border-gray-200/50 dark:border-gray-800/50',
             )}
           >
-            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white dark:bg-gray-800 shadow-sm">
+            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-hype-surface-2 shadow-sm">
               <img
                 src={profile?.avatar || DEFAULT_AVATAR}
                 alt={profile?.username || 'Profile'}

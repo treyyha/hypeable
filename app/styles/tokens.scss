@@ -82,9 +82,9 @@
   --hype-gradient-from: var(--hype-lime);
   --hype-gradient-via: var(--hype-mint);
   --hype-gradient-to: var(--hype-cyan);
-  --hype-aurora-lime: rgba(200, 255, 61, 0.3);
-  --hype-aurora-mint: rgba(61, 255, 180, 0.24);
-  --hype-aurora-cyan: rgba(34, 211, 238, 0.2);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.22);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.26);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.22);
   --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 14%, transparent);
   --hype-composer-bg: rgba(17, 17, 24, 0.84);
   --hype-composer-border: #2a2a36;
@@ -105,9 +105,9 @@
   --hype-gradient-from: var(--hype-accent-on-light);
   --hype-gradient-via: var(--hype-mint-on-light);
   --hype-gradient-to: var(--hype-cyan-on-light);
-  --hype-aurora-lime: rgba(200, 255, 61, 0.12);
-  --hype-aurora-mint: rgba(61, 255, 180, 0.096);
-  --hype-aurora-cyan: rgba(34, 211, 238, 0.08);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.2);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.18);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.16);
   --hype-accent-soft: color-mix(in srgb, var(--hype-accent) 16%, transparent);
   --hype-composer-bg: #ffffff;
   --hype-composer-border: var(--hype-border);
@@ -131,9 +131,9 @@
   --hype-gradient-from: var(--hype-lime);
   --hype-gradient-via: var(--hype-mint);
   --hype-gradient-to: var(--hype-cyan);
-  --hype-aurora-lime: rgba(200, 255, 61, 0.3);
-  --hype-aurora-mint: rgba(61, 255, 180, 0.24);
-  --hype-aurora-cyan: rgba(34, 211, 238, 0.2);
+  --hype-aurora-lime: rgba(200, 255, 61, 0.22);
+  --hype-aurora-mint: rgba(61, 255, 180, 0.26);
+  --hype-aurora-cyan: rgba(34, 211, 238, 0.22);
   --hype-composer-bg: rgba(17, 17, 24, 0.84);
   --hype-composer-border: #2a2a36;
 }
@@ -289,23 +289,91 @@ samp,
   color: transparent;
 }
 
+/*
+ * Aurora sits as a viewport-sized layer behind the home column, not the
+ * scroll height. Each glow fades to fully transparent before the box edge;
+ * a feathered mask hides any leftover rectangle at every viewport size.
+ */
 .hype-aurora {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  overflow: hidden;
   z-index: 0;
+  overflow: hidden;
 }
 
 .hype-aurora__layer {
   position: absolute;
   inset: 0;
+  mix-blend-mode: screen;
   background:
-    radial-gradient(52% 58% at 30% 72%, var(--hype-aurora-lime), transparent 70%),
-    radial-gradient(46% 54% at 64% 80%, var(--hype-aurora-mint), transparent 70%),
-    radial-gradient(44% 50% at 90% 58%, var(--hype-aurora-cyan), transparent 70%),
-    var(--hype-bg);
+    radial-gradient(38% 32% at 50% 44%, var(--hype-aurora-lime) 0%, transparent 70%),
+    radial-gradient(55% 48% at 22% 58%, var(--hype-aurora-mint) 0%, transparent 72%),
+    radial-gradient(50% 46% at 82% 50%, var(--hype-aurora-cyan) 0%, transparent 72%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 76%, transparent 100%),
+    radial-gradient(ellipse 78% 68% at 50% 42%, #000 32%, transparent 74%);
+  -webkit-mask-composite: source-in, source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 76%, transparent 100%),
+    radial-gradient(ellipse 78% 68% at 50% 42%, #000 32%, transparent 74%);
+  mask-composite: intersect;
   animation: hype-aurora-drift var(--hype-duration-aurora) var(--hype-ease) infinite alternate;
+}
+
+:root[data-theme='light'] .hype-aurora__layer {
+  mix-blend-mode: normal;
+}
+
+.hype-hero-heading {
+  max-width: 760px;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: var(--hype-leading-tight);
+  letter-spacing: var(--hype-tracking-tight);
+  text-wrap: balance;
+}
+
+@media (min-width: 1100px) {
+  .hype-hero-heading {
+    white-space: nowrap;
+    text-wrap: nowrap;
+  }
+}
+
+.hype-icon-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background-color: var(--hype-surface-2);
+  border: 1px solid var(--hype-border);
+  color: var(--hype-muted);
+  border-radius: var(--hype-radius-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--hype-duration-fast) var(--hype-ease),
+    color var(--hype-duration-fast) var(--hype-ease),
+    border-color var(--hype-duration-fast) var(--hype-ease);
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--hype-text) 8%, var(--hype-surface-2));
+    color: var(--hype-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hype-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
 }
 
 /*
@@ -355,11 +423,11 @@ samp,
 
 @keyframes hype-aurora-drift {
   from {
-    transform: translate3d(-2%, -1%, 0) scale(1);
+    transform: translate3d(-1.5%, -1%, 0);
   }
 
   to {
-    transform: translate3d(2%, 2%, 0) scale(1.04);
+    transform: translate3d(1.5%, 1.2%, 0);
   }
 }
 

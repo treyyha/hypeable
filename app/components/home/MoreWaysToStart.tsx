@@ -22,14 +22,21 @@ export function MoreWaysToStart({ importChat }: MoreWaysToStartProps) {
     <div className="mx-auto w-full max-w-[520px] px-4 text-center">
       <button
         type="button"
+        id="more-ways-trigger"
         aria-expanded={open}
+        aria-controls="more-ways-panel"
         onClick={() => setOpen((current) => !current)}
-        className="appearance-none border-0 bg-transparent px-1 py-0.5 text-xs text-hype-muted hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+        className="appearance-none rounded-[var(--hype-radius-sm)] border-0 bg-transparent px-1 py-0.5 text-xs text-hype-muted hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
       >
-        More ways to start: Templates . Import folder . Import ZIP . Clone repo
+        More ways to start: Templates · Import folder · Import ZIP · Clone repo
       </button>
       {open ? (
-        <div className="mt-3 flex flex-col gap-3">
+        <div
+          id="more-ways-panel"
+          role="region"
+          aria-labelledby="more-ways-trigger"
+          className="mt-3 flex flex-col gap-3"
+        >
           <div className="flex flex-wrap justify-center gap-2">
             {STARTER_TEMPLATES.slice(0, 8).map((template) => (
               <Chip

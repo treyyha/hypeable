@@ -175,7 +175,7 @@ export default function ProfileTab() {
                 onChange={(e) => handleProfileUpdate('username', e.target.value)}
                 className={classNames(
                   'w-full pl-11 pr-4 py-2.5 rounded-xl',
-                  'bg-white dark:bg-gray-800/50',
+                  'bg-hype-surface-2',
                   'border border-gray-200 dark:border-gray-700/50',
                   'text-gray-900 dark:text-white',
                   'placeholder-gray-400 dark:placeholder-gray-500',
@@ -199,7 +199,7 @@ export default function ProfileTab() {
                 onChange={(e) => handleProfileUpdate('bio', e.target.value)}
                 className={classNames(
                   'w-full pl-11 pr-4 py-2.5 rounded-xl',
-                  'bg-white dark:bg-gray-800/50',
+                  'bg-hype-surface-2',
                   'border border-gray-200 dark:border-gray-700/50',
                   'text-gray-900 dark:text-white',
                   'placeholder-gray-400 dark:placeholder-gray-500',
