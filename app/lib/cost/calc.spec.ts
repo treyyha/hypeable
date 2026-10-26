@@ -45,7 +45,7 @@ describe('cost calculator', () => {
     expect(result.dollars).toBe(2.8);
   });
 
-  it('prices DeepSeek V4 Flash from the official table', () => {
+  it('prices DeepSeek V4 Flash from the official peak table', () => {
     const result = cost('deepseek-v4-flash', 1_000_000, 1_000_000);
     expect(result.unknown).toBe(false);
 
@@ -53,7 +53,7 @@ describe('cost calculator', () => {
       return;
     }
 
-    expect(result.dollars).toBe(0.42);
+    expect(result.dollars).toBe(1.5);
   });
 
   it('matches dated Anthropic snapshots via the model-id pattern', () => {
@@ -103,7 +103,7 @@ describe('cost calculator', () => {
   });
 
   it('marks unverified list prices so the meter can show an estimate', () => {
-    const result = cost('claude-3-haiku-20240307', 1_000_000, 0);
+    const result = cost('llama-3.3-70b-versatile', 1_000_000, 0);
     expect(result.unknown).toBe(false);
 
     if (result.unknown) {
@@ -111,7 +111,7 @@ describe('cost calculator', () => {
     }
 
     expect(result.verified).toBe(false);
-    expect(result.dollars).toBe(0.25);
+    expect(result.dollars).toBe(0.59);
   });
 
   it('prefers OpenRouter billed cost over the list-price estimate', () => {
@@ -134,7 +134,7 @@ describe('cost calculator', () => {
       return;
     }
 
-    expect(result.dollars).toBe(0.0413);
+    expect(result.dollars).toBe(0.15);
     expect(result.verified).toBe(true);
   });
 

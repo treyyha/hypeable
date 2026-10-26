@@ -13,6 +13,9 @@ Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts noth
 7. Locally run `npm run test:related` on the files you touched. Full typecheck runs on push. Full unit suite, lint of the tree, build, and e2e run in CI. Run e2e locally only when touching `app/routes`, the chat flow, or the shell UI.
 8. Do not add telemetry, trackers, or any network call to a domain we do not own, besides the user's chosen model provider and their own Vercel/GitHub.
 
+## Default model
+`DEFAULT_MODEL` in `app/utils/constants.ts` is the **only** product default. Change that one constant after a real-key test. OpenRouter Connect writes `OPENROUTER_DEFAULT_MODEL` in `app/lib/openrouter/constants.ts` because OpenRouter ids are vendor-prefixed (`z-ai/glm-5.3-flash`).
+
 ## Product pillars (build in this order)
 1. Live cost meter: tokens x model price, session and daily caps, hard stop.
 2. Loop breaker: stop after 3 repeated identical errors, offer replan / revert / switch model.

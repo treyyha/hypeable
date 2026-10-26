@@ -12,6 +12,8 @@ export type PriceRow = {
   output: number;
   cachedInput?: number;
   verified: boolean;
+  source?: string;
+  checkedAt?: string;
 };
 
 export type ProviderPrices = {

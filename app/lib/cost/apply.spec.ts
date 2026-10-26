@@ -21,11 +21,11 @@ describe('cost state transitions', () => {
   it('flags unverified list prices on the per-model breakdown', () => {
     const { snapshot } = applyUsage(
       emptySnapshot(now),
-      { id: 'm1', model: 'claude-3-haiku-20240307', promptTokens: 1_000_000, completionTokens: 0 },
+      { id: 'm1', model: 'llama-3.3-70b-versatile', promptTokens: 1_000_000, completionTokens: 0 },
       now,
     );
     expect(snapshot.messages.m1.verified).toBe(false);
-    expect(snapshot.byModel['claude-3-haiku-20240307']?.unverified).toBe(true);
+    expect(snapshot.byModel['llama-3.3-70b-versatile']?.unverified).toBe(true);
   });
 
   it('is idempotent for the same message id', () => {

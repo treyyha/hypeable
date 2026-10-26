@@ -12,7 +12,7 @@ import { ListPanel, ListRow } from '~/components/ui/ListRow';
 import { ProgressCard } from '~/components/ui/ProgressCard';
 import { ProviderChip } from '~/components/ui/ProviderChip';
 import { StatCard } from '~/components/ui/StatCard';
-import { formatTokenCount } from '~/lib/cost/calc';
+import { formatPricesCheckedAt, formatTokenCount, getPricesCatalog } from '~/lib/cost/calc';
 import {
   aggregateByModel,
   capProgress,
@@ -249,6 +249,10 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
           }
         />
       </div>
+
+      <p className="text-center text-[11px] text-hype-muted" data-testid="prices-checked">
+        {formatPricesCheckedAt(getPricesCatalog().checkedAt)}
+      </p>
     </div>
   );
 }

@@ -55,7 +55,7 @@ Defaults: **$2 session**, **$10 daily**. `0` turns a cap off.
 
 ## Prices
 
-`prices.json` is tagged with `checkedAt` and a `source` URL per provider. The meter popover shows `prices checked <date>`. Rows with `verified: false` are best-effort estimates: the UI prefixes the amount with **≈** and a "price unverified" tooltip.
+`prices.json` is tagged with `checkedAt` and a `source` URL on **every** row (and on the provider). `verified: true` only when the number came from that official page on `checkedAt`. The meter popover and Spend page footer show `prices checked <date>`. Rows with `verified: false` are best-effort estimates: the UI prefixes the amount with **≈** and a "price unverified" tooltip. Missing models stay "price unknown".
 
 OpenRouter's billed usage cost, when present, wins over the table.
 

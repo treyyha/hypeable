@@ -15,6 +15,7 @@ describe('SpendView', () => {
     expect(screen.getAllByText('$0.00').length).toBeGreaterThan(0);
     expect(screen.getByRole('figure', { name: /Spend over the last 7 days/i })).toBeTruthy();
     expect(screen.queryByText('Habit tracker')).toBeNull();
+    expect(screen.getByTestId('prices-checked').textContent).toMatch(/^prices checked /);
   });
 
   it('renders real totals, per-model rows, and cap badges', () => {

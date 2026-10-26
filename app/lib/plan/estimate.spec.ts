@@ -47,11 +47,11 @@ describe('estimatePlanCost', () => {
 
   it('marks unverified list prices and unknown models', () => {
     const unverified = estimatePlanCost({
-      model: 'claude-3-haiku-20240307',
+      model: 'llama-3.3-70b-versatile',
       plan: smallPlan,
     });
 
-    const priced = cost('claude-3-haiku-20240307', 1000, 1000);
+    const priced = cost('llama-3.3-70b-versatile', 1000, 1000);
 
     if (!priced.unknown && priced.verified === false) {
       expect(unverified.verified).toBe(false);
