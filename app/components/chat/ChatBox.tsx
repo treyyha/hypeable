@@ -12,6 +12,7 @@ import { SupabaseConnection } from './SupabaseConnection';
 import { ToolAccessMenu } from './ToolAccessMenu';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
+import { PlanFirstChip } from '~/components/plan/PlanFirstChip';
 import { Chip } from '~/components/ui/Chip';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import { IconButton } from '~/components/ui/IconButton';
@@ -23,7 +24,6 @@ import { isGitHubConnected } from '~/lib/stores/githubConnection';
 import { isGitLabConnected } from '~/lib/stores/gitlabConnection';
 import { useMCPStore, type ConnectorId } from '~/lib/stores/mcp';
 import { netlifyConnection } from '~/lib/stores/netlify';
-import { planSettingsStore, planStore, skipPlanThisTurn } from '~/lib/stores/plan';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { vercelConnection } from '~/lib/stores/vercel';
@@ -81,8 +81,6 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   const [isMcpToolsOpen, setIsMcpToolsOpen] = React.useState(false);
   const mcpToolsInitialized = useMCPStore((state) => state.isInitialized);
   const mcpSettings = useMCPStore((state) => state.settings);
-  const planSettings = useStore(planSettingsStore);
-  const planUi = useStore(planStore);
   const setWebSearchEnabled = useMCPStore((state) => state.setWebSearchEnabled);
   const setConnectorEnabled = useMCPStore((state) => state.setConnectorEnabled);
   const serverTools = useMCPStore((state) => state.serverTools);
@@ -438,15 +436,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
-            {planSettings.enabled && props.chatMode === 'build' && !planUi.pending ? (
-              <Chip
-                selected={!planUi.skipNextTurn}
-                onClick={() => skipPlanThisTurn()}
-                title="Skip plan for the next message"
-              >
-                Plan first
-              </Chip>
-            ) : null}
+            <PlanFirstChip chatMode={props.chatMode} />
             {!props.chatStarted && props.model ? (
               <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />
             ) : null}

@@ -41,6 +41,7 @@ const DOM_TESTS = [
   'app/components/chat/ImportZipButton.spec.tsx',
   'app/components/loop/LoopBreakerPanel.spec.tsx',
   'app/components/plan/PlanCard.spec.tsx',
+  'app/components/plan/PlanFirstChip.spec.tsx',
   'app/components/workbench/WorkbenchReopenButton.spec.tsx',
   'app/lib/hooks/useMessageParser.spec.ts',
   'app/lib/persistence/useChatHistory.spec.tsx',

@@ -33,7 +33,7 @@ A planning turn happens when chat mode is **build** and:
 
 The planning request adds `planMode: true` to `POST /api/chat`. The server appends the planning instruction, skips project tools, and does not start the agent loop. The model must not emit `boltArtifact` actions.
 
-Each composer has a **Skip plan** button while plan mode is on.
+Each composer has a **Plan first** chip in build mode. Selected means plan mode is on; clicking toggles the real plan-mode setting in both directions.
 
 ## Card
 
