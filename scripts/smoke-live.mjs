@@ -143,6 +143,19 @@ if (sitemap.response.status !== 200 || !sitemap.text.includes('https://hypeable.
   pass('sitemap.xml lists the home page');
 }
 
+const securityTxt = await get('/.well-known/security.txt');
+
+if (
+  securityTxt.response.status !== 200 ||
+  !securityTxt.text.includes('https://github.com/treyyha/hypeable/security/advisories/new') ||
+  !securityTxt.text.includes('Canonical: https://hypeable.dev/.well-known/security.txt') ||
+  !securityTxt.text.includes('Preferred-Languages: en')
+) {
+  fail(`/.well-known/security.txt → ${securityTxt.response.status} ${securityTxt.text.slice(0, 160)}`);
+} else {
+  pass('security.txt is present');
+}
+
 const llms = await get('/llms.txt');
 
 if (llms.response.status !== 200 || !llms.text.toLowerCase().includes('hypeable')) {

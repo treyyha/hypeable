@@ -1,5 +1,7 @@
 # Security guide
 
+Longer write-up: [THREAT-MODEL.md](THREAT-MODEL.md). Report privately via [GitHub security advisories](https://github.com/treyyha/hypeable/security/advisories/new) (`https://hypeable.dev/.well-known/security.txt`).
+
 ## Threat model (short)
 | Threat | Mitigation |
 |---|---|
@@ -13,6 +15,7 @@
 | XSS / clickjacking | HTML/static: enforcing CSP + stricter CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
 | Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
+| Operator env keys on hosted | Hosted ignores `serverEnv` / `process.env` API keys and `GITHUB_TOKEN`. `wrangler.jsonc` has no secrets; only `API_RATE_LIMITER`. |
 
 ## Response headers
 
@@ -46,7 +49,38 @@ Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is s
 ```bash
 bash scripts/github-guardrails.sh <owner>/<repo>
 ```
-Turns on secret scanning, push protection, Dependabot alerts, and protects `main`.
+Turns on secret scanning, push protection, and Dependabot alerts. Protect `main` with a ruleset (solo maintainer: no required reviews, so you are not locked out):
+
+1. Repo → **Settings**. If the tab is hidden, open the **···** menu, then **Settings**.
+2. Left sidebar, under **Code, planning, and automation**, click **Rulesets**, then **Rulesets**.
+3. **New ruleset** → **New branch ruleset**. Name: `main`. Enforcement: **Active**.
+4. **Target branches** → **Add a target** → **Include default branch**.
+5. Under **Branch protections**, enable:
+   - **Block force pushes**
+   - **Restrict deletions**
+   - **Require status checks to pass before merging** → add `build`, `e2e`, `secrets` (the CI job names). Do **not** require “Require a pull request before merging” with approving reviews — a solo maintainer would need a bypass for every push.
+6. **Bypass list**: add only your user (so you can still push a hotfix if CI is broken). Leave everyone else subject to the rules.
+7. **Create**.
+
+Do **not** enable **Require signed commits** unless you already sign every local commit. Do **not** require **linear history** unless you already rebase.
+
+Private vulnerability reporting (needed for `security.txt`):
+
+1. Repo → **Settings**.
+2. Left sidebar, under **Security and quality**, click **Advanced Security**.
+3. Next to **Private vulnerability reporting**, click **Enable**.
+
+## Env vars on the Worker
+Production is Cloudflare (`docs/DEPLOY.md`), not Vercel. `wrangler.jsonc` defines **no secrets**. Bindings/vars:
+
+| Name | Kind | Purpose |
+|---|---|---|
+| `API_RATE_LIMITER` | Rate Limiting binding | `/api/chat` and `/api/llmcall`. Keyed on `CF-Connecting-IP` (not `X-Forwarded-For`). Missing binding → in-memory limiter only. Public host without `CF-Connecting-IP` fail-closes. |
+| `HYPEABLE_HOSTED` | Optional dashboard var `1` | Defence in depth; a public Host already fail-closes. |
+| `WORKERS_CI_COMMIT_SHA` | Set by Workers Builds | `/api/health` `commit`. Not a secret. |
+| `NODE_VERSION` | Build var `22` | Toolchain. |
+
+Do **not** add `OPENAI_API_KEY`, connector tokens, `SESSION_SECRET`, or `ENCRYPTION_KEY`. Hosted code ignores operator `*_API_KEY` / `GITHUB_TOKEN` even if they appear. `worker-configuration.d.ts` still types leftover bolt.diy key names for local self-host; they are not in `wrangler.jsonc`.
 
 ## Purging secrets from git history
 **Step 0, always: rotate the key.** Anyone could have copied it already. Deleting it from history does not un-leak it.
@@ -58,9 +92,6 @@ git filter-repo --replace-text ../replacements.txt
 git push --force --all && git push --force --tags
 ```
 Then ask GitHub Support to purge cached views if the repo was public, and tell collaborators to re-clone.
-
-## Env vars on Vercel
-Add secrets in Project -> Settings -> Environment Variables (never in git). Mark as Sensitive.
 
 ## Remaining Dependabot alerts
 After dropping Electron, unused MkDocs/`docs/poetry.lock`, and pinning `fast-uri@3.1.9`, npm production audit is one low finding.

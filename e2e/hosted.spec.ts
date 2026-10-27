@@ -79,6 +79,10 @@ test.describe('hosted mode', () => {
     expect((await request.get('/favicon.svg')).status()).toBe(200);
     expect((await request.get('/og.png')).status()).toBe(200);
     expect((await request.get('/apple-touch-icon.png')).status()).toBe(200);
+
+    const securityTxt = await request.get('/.well-known/security.txt');
+    expect(securityTxt.status()).toBe(200);
+    expect(await securityTxt.text()).toContain('https://github.com/treyyha/hypeable/security/advisories/new');
   });
 
   test('connector and deploy APIs require the user token and stay on allowed hosts', async ({ request }) => {
