@@ -37,4 +37,17 @@ describe('home first-load graph', () => {
     expect(src).not.toMatch('from "~/lib/stores/settings"');
     expect(src).toMatch("from '~/lib/stores/settings-panel'");
   });
+
+  it('keeps debug logging off the LLM provider registry', () => {
+    const debugSrc = readApp('app/utils/debugLogger.ts');
+    expect(debugSrc).not.toMatch('provider-list');
+    expect(debugSrc).not.toMatch("from './constants'");
+    expect(debugSrc).toMatch("from './constants-core'");
+
+    const loggerSrc = readApp('app/utils/logger.ts');
+    expect(loggerSrc).not.toMatch("import('./debugLogger')");
+
+    const rootSrc = readApp('app/root.tsx');
+    expect(rootSrc).not.toMatch('debugLogger');
+  });
 });

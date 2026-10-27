@@ -129,28 +129,14 @@ function getColorForLevel(level: DebugLevel): string {
 
 export const renderLogger = createScopedLogger('Render');
 
-// Debug logging integration
-let debugLogger: any = null;
+type DebugCapture = { captureLog: (level: DebugLevel, scope: string | undefined, messages: unknown[]) => void };
 
-// Lazy load debug logger to avoid circular dependencies
-const getDebugLogger = () => {
-  if (!debugLogger && typeof window !== 'undefined') {
-    try {
-      // Use dynamic import asynchronously but don't block the function
-      import('./debugLogger')
-        .then(({ debugLogger: loggerInstance }) => {
-          debugLogger = loggerInstance;
-        })
-        .catch(() => {
-          // Debug logger not available, skip integration
-        });
-    } catch {
-      // Debug logger not available, skip integration
-    }
-  }
+let debugCapture: DebugCapture | null = null;
 
-  return debugLogger;
-};
+/** Debug logger attaches itself when that module actually loads. Do not import it from here. */
+export function attachDebugLogger(instance: DebugCapture | null): void {
+  debugCapture = instance;
+}
 
 // Override the log function to also capture to debug logger
 
@@ -159,9 +145,5 @@ function logWithDebugCapture(level: DebugLevel, scope: string | undefined, messa
   log(level, scope, messages);
 
   // Also capture to debug logger if available
-  const debug = getDebugLogger();
-
-  if (debug) {
-    debug.captureLog(level, scope, messages);
-  }
+  debugCapture?.captureLog(level, scope, messages);
 }

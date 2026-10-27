@@ -1,5 +1,5 @@
-import { PROVIDER_LIST, DEFAULT_MODEL } from './constants';
-import { logger } from './logger';
+import { DEFAULT_MODEL } from './constants-core';
+import { attachDebugLogger, logger } from './logger';
 import { isMobile } from './mobile';
 import { isMac, isWindows, isLinux } from './os';
 
@@ -883,9 +883,9 @@ class DebugLogger {
         }
       }
 
-      return PROVIDER_LIST[0]?.name || 'unknown';
+      return 'unknown';
     } catch {
-      return PROVIDER_LIST[0]?.name || 'unknown';
+      return 'unknown';
     }
   }
 
@@ -1129,6 +1129,8 @@ export const debugLogger = new DebugLogger({
   captureErrors: true,
   debounceTerminal: 100,
 });
+
+attachDebugLogger(debugLogger);
 
 // Helper function to download debug log
 export async function downloadDebugLog(filename?: string): Promise<void> {

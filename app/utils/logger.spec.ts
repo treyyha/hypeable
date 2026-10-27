@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { logger, createScopedLogger } from './logger';
+import { attachDebugLogger, logger, createScopedLogger } from './logger';
 
 describe('logger', () => {
   let consoleLogSpy: any;
@@ -147,6 +147,22 @@ describe('logger', () => {
       const error = new Error('Test error');
       logger.error(error);
       expect(consoleLogSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('debug capture', () => {
+    afterEach(() => {
+      attachDebugLogger(null);
+    });
+
+    it('only captures logs after a debug logger attaches', () => {
+      const captureLog = vi.fn();
+      logger.info('before attach');
+      expect(captureLog).not.toHaveBeenCalled();
+
+      attachDebugLogger({ captureLog });
+      logger.info('after attach');
+      expect(captureLog).toHaveBeenCalled();
     });
   });
 });

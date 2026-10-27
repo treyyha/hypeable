@@ -46,7 +46,9 @@ export default defineConfig((config) => {
         resolveDependencies: (_filename, deps) =>
           deps.filter(
             (dep) =>
-              !/(provider-list|Menu\.client|Chat\.client|Workbench\.client|ControlPanel|ModelKeyPopover)/.test(dep),
+              !/(provider-list|Menu\.client|Menu-|Chat\.client|Workbench\.client|workbench-|ControlPanel|ModelKeyPopover|debugLogger|jszip)/.test(
+                dep,
+              ),
           ),
       },
     },
