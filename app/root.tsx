@@ -142,6 +142,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </p>
         </noscript>
         {children}
+        <OpenRouterToastHost />
         <ToastContainer
           closeButton={({ closeToast }) => {
             return (
@@ -174,6 +175,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { OpenRouterToastHost } from './components/onboarding/OpenRouterToastHost';
 import { AppErrorPage } from './components/ui/AppErrorPage';
 import { journeys, observeWebVitals } from './lib/performance/metrics';
 import { isHostedFromContext } from './lib/security/hosted';

@@ -173,6 +173,12 @@ export const ChatImpl = memo(
      */
     const [input, setInput] = useState(homeComposerDraft.get() || readPref('cachedPrompt') || '');
 
+    useEffect(() => {
+      return homeComposerDraft.subscribe((value) => {
+        setInput(value);
+      });
+    }, []);
+
     /*
      * v5 removed the data array from useChat in favour of an onData
      * callback, so progress annotations are local state again.

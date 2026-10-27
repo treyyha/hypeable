@@ -19,7 +19,7 @@ import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
 import { SidebarSection } from '~/components/ui/SidebarSection';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
-import { closeSettingsPanel, settingsPanelStore } from '~/lib/stores/settings-panel';
+import { closeSettingsPanel, openSettingsPanel, settingsPanelStore } from '~/lib/stores/settings-panel';
 import {
   setSidebarCollapsed,
   setSidebarMobileOpen,
@@ -39,12 +39,12 @@ export const Menu = () => {
   const collapsed = useStore(sidebarCollapsedStore);
   const mobileOpen = useStore(sidebarMobileOpenStore);
   const settingsPanel = useStore(settingsPanelStore);
+  const isSettingsOpen = settingsPanel.open;
+  const settingsInitialTab = settingsPanel.tab;
   const location = useLocation();
   const onSpend = location.pathname === '/spend';
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<string | undefined>(undefined);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -243,8 +243,7 @@ export const Menu = () => {
 
   useEffect(() => {
     const handleOpenGitHubSettings = () => {
-      setSettingsInitialTab('github');
-      setIsSettingsOpen(true);
+      openSettingsPanel('github');
       setSidebarMobileOpen(false);
     };
 
@@ -252,8 +251,7 @@ export const Menu = () => {
 
     const handleOpenHypeableSettings = (event: Event) => {
       const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab;
-      setSettingsInitialTab(tab);
-      setIsSettingsOpen(true);
+      openSettingsPanel(tab);
       setSidebarMobileOpen(false);
     };
 
@@ -265,29 +263,17 @@ export const Menu = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!settingsPanel.open) {
-      return;
-    }
-
-    setSettingsInitialTab(settingsPanel.tab);
-    setIsSettingsOpen(true);
-    setSidebarMobileOpen(false);
-  }, [settingsPanel]);
-
   const handleDuplicate = async (id: string) => {
     await duplicateCurrentChat(id);
     loadEntries(); // Reload the list after duplication
   };
 
   const handleSettingsClick = () => {
-    setIsSettingsOpen(true);
+    openSettingsPanel();
     setSidebarMobileOpen(false);
   };
 
   const handleSettingsClose = () => {
-    setIsSettingsOpen(false);
-    setSettingsInitialTab(undefined);
     closeSettingsPanel();
   };
 
@@ -309,12 +295,13 @@ export const Menu = () => {
         />
       ) : null}
       <aside
+        data-testid="app-sidebar"
         ref={menuRef}
         className={classNames(
           'flex h-full shrink-0 flex-col border-r border-hype-border bg-hype-surface text-sm text-hype-text',
           'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-max max-lg:w-[var(--hype-sidebar-width)]',
           'max-lg:transition-transform max-lg:duration-[var(--hype-duration-med)]',
-          mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+          mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full max-lg:pointer-events-none',
           collapsed ? 'lg:w-[var(--hype-sidebar-width-collapsed)]' : 'lg:w-[var(--hype-sidebar-width)]',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}

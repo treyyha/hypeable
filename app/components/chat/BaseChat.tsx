@@ -16,7 +16,6 @@ import { MoreWaysToStart } from '~/components/home/MoreWaysToStart';
 import { RecentProjects } from '~/components/home/RecentProjects';
 import { SpendCard } from '~/components/home/SpendCard';
 import { LoopBreakerHost } from '~/components/loop/LoopBreakerHost';
-import { OpenRouterToastHost } from '~/components/onboarding/OpenRouterToastHost';
 import { StartInSixty } from '~/components/onboarding/StartInSixty';
 import { PlanHost } from '~/components/plan/PlanHost';
 import { Aurora } from '~/components/ui/Aurora';
@@ -153,6 +152,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const draft = useStore(homeComposerDraft);
+    const [homeHydrated, setHomeHydrated] = useState(false);
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
     const [isListening, setIsListening] = useState(false);
@@ -164,6 +164,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [showWorkbench, setShowWorkbench] = useState(true);
     const isSmallViewport = useViewport(1024);
     const [qrModalOpen, setQrModalOpen] = useState(false);
+
+    useEffect(() => {
+      setHomeHydrated(true);
+    }, []);
 
     useEffect(() => {
       if (!chatStarted || typeof window === 'undefined') {
@@ -432,6 +436,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
         data-chat-ready={sendMessage ? 'true' : undefined}
+        data-chat-started={chatStarted ? 'true' : undefined}
+        data-home-hydrated={homeHydrated ? 'true' : undefined}
       >
         {chatStarted && showChat && !showWorkbench && !isSmallViewport && (
           <WorkbenchReopenButton
@@ -459,7 +465,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               )}
             >
               {!chatStarted && <HomeHero />}
-              <OpenRouterToastHost />
               {!chatStarted && Object.keys(apiKeys).length === 0 && (
                 <div className="relative z-[1] mx-auto mt-6 w-full px-4">
                   <StartInSixty />

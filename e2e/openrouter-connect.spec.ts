@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY, waitForChatReady } from './seed';
+import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY, waitForChatReady, waitForHomeHydrated } from './seed';
 
 const MOCK_ORIGIN = 'http://127.0.0.1:8788';
 const MOCK_KEY = 'sk-or-e2e-mock';
@@ -57,6 +57,7 @@ test.describe('OpenRouter connect', () => {
     });
 
     await page.goto('/');
+    await waitForHomeHydrated(page);
     await expect(page.getByTestId('start-in-sixty')).toBeVisible();
     await page.getByTestId('connect-openrouter').click();
 
@@ -108,6 +109,7 @@ test.describe('OpenRouter connect', () => {
     });
 
     await page.goto('/');
+    await waitForHomeHydrated(page);
     await page.getByTestId('connect-openrouter').click();
 
     await expect(page.getByRole('alert')).toContainText(/Could not connect|Paste a key instead/i, { timeout: 20_000 });

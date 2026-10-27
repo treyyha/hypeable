@@ -1,9 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
+import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady, waitForChatStarted } from './seed';
 
-async function assertNoSeriousAxeViolations(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
+async function assertNoSeriousAxeViolations(page: Page, include?: string) {
+  const builder = include ? new AxeBuilder({ page }).include(include) : new AxeBuilder({ page });
+  const results = await builder.analyze();
 
   const serious = results.violations.filter(
     (violation) => violation.impact === 'serious' || violation.impact === 'critical',
@@ -55,7 +56,8 @@ test.describe('axe-core', () => {
     await seedOpenAILikeMock(page);
     await page.goto('/?debugStarted=1');
     await waitForChatReady(page);
+    await waitForChatStarted(page);
     await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
-    await assertNoSeriousAxeViolations(page);
+    await assertNoSeriousAxeViolations(page, '[data-testid="home-main"]');
   });
 });

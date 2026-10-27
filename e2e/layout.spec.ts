@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
+import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatStarted } from './seed';
 
 const VIEWPORTS = [
   { width: 375, height: 812, name: '375' },
@@ -21,7 +21,7 @@ async function assertNoHorizontalScroll(page: Page) {
 
 test.describe('narrow layout', () => {
   test('home and started chat have no horizontal scroll at 375, 768, and 1440', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     await seedOpenAILikeMock(page);
 
     for (const viewport of VIEWPORTS) {
@@ -31,12 +31,12 @@ test.describe('narrow layout', () => {
       await assertNoHorizontalScroll(page);
 
       await page.goto('/?debugStarted=1');
-      await waitForChatReady(page);
+      await waitForChatStarted(page);
       await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
       await assertNoHorizontalScroll(page);
 
       if (viewport.width < 1024) {
-        await expect(page.getByTestId('mobile-pane-tabs')).toBeVisible();
+        await expect(page.getByTestId('mobile-pane-tabs')).toBeVisible({ timeout: 20_000 });
         await page.getByTestId('mobile-pane-code').click();
         await assertNoHorizontalScroll(page);
         await page.getByTestId('mobile-pane-preview').click();

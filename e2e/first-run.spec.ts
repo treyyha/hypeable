@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY } from './seed';
+import { ONBOARDING_COMPLETED_KEY, waitForHomeHydrated } from './seed';
 
 test.describe('first-run polish', () => {
   test('example chips fill the composer and the shortcut hint is visible', async ({ page }) => {
@@ -8,6 +8,7 @@ test.describe('first-run polish', () => {
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
+    await waitForHomeHydrated(page);
 
     const chip = page.getByTestId('example-prompts').getByRole('button').first();
     const label = (await chip.textContent())?.trim() ?? '';
@@ -23,6 +24,7 @@ test.describe('first-run polish', () => {
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
     await expect(page.getByTestId('example-prompts')).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId('app-sidebar').waitFor({ state: 'attached', timeout: 20_000 });
     await page.getByRole('button', { name: 'Keys and settings' }).click();
     await page.getByRole('button', { name: 'Connectors' }).click();
     await expect(page.getByText('Experimental').first()).toBeVisible({ timeout: 20_000 });
