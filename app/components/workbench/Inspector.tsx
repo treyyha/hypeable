@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { isTrustedPreviewMessage, previewPostMessageTarget } from '~/lib/security/preview-origin';
 
 interface InspectorProps {
   isActive: boolean;
@@ -42,6 +43,10 @@ export const Inspector = ({ isActive, iframeRef, onElementSelect }: InspectorPro
 
     // Listen for messages from the iframe
     const handleMessage = (event: MessageEvent) => {
+      if (!isTrustedPreviewMessage(event, iframe)) {
+        return;
+      }
+
       if (event.data.type === 'INSPECTOR_HOVER') {
         const elementInfo = event.data.elementInfo;
 
@@ -79,7 +84,7 @@ export const Inspector = ({ isActive, iframeRef, onElementSelect }: InspectorPro
             type: 'INSPECTOR_ACTIVATE',
             active: isActive,
           },
-          '*',
+          previewPostMessageTarget(iframe),
         );
       }
     };
@@ -99,7 +104,7 @@ export const Inspector = ({ isActive, iframeRef, onElementSelect }: InspectorPro
             type: 'INSPECTOR_ACTIVATE',
             active: false,
           },
-          '*',
+          previewPostMessageTarget(iframe),
         );
       }
     };

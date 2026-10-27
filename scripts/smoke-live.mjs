@@ -109,6 +109,14 @@ if (!headers.get('content-security-policy-report-only')) {
   pass('CSP-Report-Only present');
 }
 
+const connect = await get('/webcontainer/connect/x');
+
+if (connect.response.status !== 404) {
+  fail(`GET /webcontainer/connect/x → ${connect.response.status}, expected 404`);
+} else {
+  pass('/webcontainer/connect is 404');
+}
+
 const robots = await get('/robots.txt');
 
 if (robots.response.status !== 200 || !robots.text.includes('Disallow: /api/')) {

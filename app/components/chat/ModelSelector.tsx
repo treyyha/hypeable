@@ -8,6 +8,7 @@ import { hostedModeStore } from '~/lib/stores/hosted';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
+import { escapeHtml } from '~/utils/escapeHtml';
 
 // Fuzzy search utilities
 const levenshteinDistance = (str1: string, str2: string): number => {
@@ -63,13 +64,16 @@ const fuzzyMatch = (query: string, text: string): { score: number; matches: bool
 };
 
 const highlightText = (text: string, query: string): string => {
+  const safe = escapeHtml(text);
+
   if (!query) {
-    return text;
+    return safe;
   }
 
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const escapedQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
 
-  return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800 text-current">$1</mark>');
+  return safe.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800 text-current">$1</mark>');
 };
 
 const formatContextSize = (tokens: number): string => {

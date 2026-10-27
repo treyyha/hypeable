@@ -7,6 +7,7 @@ import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';
 import { IconButton } from '~/components/ui/IconButton';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
+import { isTrustedPreviewMessage, previewPostMessageTarget } from '~/lib/security/preview-origin';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { workbenchStore } from '~/lib/stores/workbench';
 
@@ -630,7 +631,7 @@ export const Preview = memo(({ selectedElement, setSelectedElement }: PreviewPro
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (!iframeRef.current?.contentWindow || event.source !== iframeRef.current.contentWindow) {
+      if (!isTrustedPreviewMessage(event, iframeRef.current)) {
         return;
       }
 
@@ -641,7 +642,7 @@ export const Preview = memo(({ selectedElement, setSelectedElement }: PreviewPro
               type: 'INSPECTOR_ACTIVATE',
               active: isInspectorMode,
             },
-            '*',
+            previewPostMessageTarget(iframeRef.current),
           );
         }
       } else if (event.data.type === 'INSPECTOR_CLICK') {
@@ -666,7 +667,10 @@ export const Preview = memo(({ selectedElement, setSelectedElement }: PreviewPro
       return;
     }
 
-    iframeRef.current?.contentWindow?.postMessage({ type: 'INSPECTOR_DESELECT' }, '*');
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'INSPECTOR_DESELECT' },
+      previewPostMessageTarget(iframeRef.current),
+    );
     setSelectedInspectorElement(null);
     setInspectorEdits({});
     setInspectorUndoStack([]);
@@ -674,7 +678,7 @@ export const Preview = memo(({ selectedElement, setSelectedElement }: PreviewPro
   }, [selectedElement, selectedInspectorElement]);
 
   const sendInspectorEdit = (message: Record<string, string>) => {
-    iframeRef.current?.contentWindow?.postMessage(message, '*');
+    iframeRef.current?.contentWindow?.postMessage(message, previewPostMessageTarget(iframeRef.current));
   };
 
   const getVisualEdits = (edits: Record<string, string>) =>
@@ -822,7 +826,7 @@ export const Preview = memo(({ selectedElement, setSelectedElement }: PreviewPro
           type: 'INSPECTOR_ACTIVATE',
           active: newInspectorMode,
         },
-        '*',
+        previewPostMessageTarget(iframeRef.current),
       );
     }
   };

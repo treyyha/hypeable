@@ -73,6 +73,7 @@ test.describe('hosted mode', () => {
     expect((await request.get('/sitemap.xml')).status()).toBe(200);
     expect((await request.get('/llms.txt')).status()).toBe(200);
     expect((await request.get('/site.webmanifest')).status()).toBe(200);
+    expect((await request.get('/webcontainer/connect/x')).status()).toBe(404);
     expect((await request.get('/favicon.svg')).status()).toBe(200);
     expect((await request.get('/og.png')).status()).toBe(200);
     expect((await request.get('/apple-touch-icon.png')).status()).toBe(200);

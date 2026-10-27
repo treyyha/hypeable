@@ -10,6 +10,7 @@ import '~/styles/diff-view.css';
 import type { FileHistory } from '~/types/actions';
 import { getThemeMode } from '~/types/theme';
 import { diffFiles, extractRelativePath } from '~/utils/diff';
+import { escapeHtml } from '~/utils/escapeHtml';
 import { getLanguageFromExtension } from '~/utils/getLanguageFromExtension';
 
 interface CodeComparisonProps {
@@ -385,7 +386,7 @@ const NoChangesView = memo(
                           })
                           .replace(/<\/?pre[^>]*>/g, '')
                           .replace(/<\/?code[^>]*>/g, '')
-                      : line,
+                      : escapeHtml(line),
                   }}
                 />
               </div>
@@ -433,7 +434,7 @@ const CodeLine = memo(
               })
               .replace(/<\/?pre[^>]*>/g, '')
               .replace(/<\/?code[^>]*>/g, '')
-          : content;
+          : escapeHtml(content);
         return <span dangerouslySetInnerHTML={{ __html: highlightedCode }} />;
       }
 
@@ -450,7 +451,7 @@ const CodeLine = memo(
                   })
                   .replace(/<\/?pre[^>]*>/g, '')
                   .replace(/<\/?code[^>]*>/g, '')
-              : change.value;
+              : escapeHtml(change.value);
 
             return <span key={index} className={changeClass} dangerouslySetInnerHTML={{ __html: highlightedCode }} />;
           })}
