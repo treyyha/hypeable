@@ -1290,6 +1290,10 @@ export const ChatImpl = memo(
         enhancingPrompt={enhancingPrompt}
         promptEnhanced={promptEnhanced}
         sendMessage={sendMessage}
+        fillPrompt={(text) => {
+          setInput(text);
+          textareaRef.current?.focus();
+        }}
         model={model}
         setModel={handleModelChange}
         provider={provider}

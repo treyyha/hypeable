@@ -66,6 +66,7 @@ interface BaseChatProps {
   providerList?: ProviderInfo[];
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
+  fillPrompt?: (text: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
   importChat?: (description: string, messages: UIMessage[]) => Promise<void>;
@@ -113,6 +114,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       // promptEnhanced,
       enhancePrompt,
       sendMessage,
+      fillPrompt,
       handleStop,
       importChat,
       exportChat,
@@ -539,14 +541,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </StickToBottom>
               {!chatStarted && (
                 <div className="flex flex-col gap-4 pb-6">
-                  {ExamplePrompts((event, messageInput) => {
-                    if (isStreaming) {
-                      handleStop?.();
-                      return;
-                    }
-
-                    handleSendMessage?.(event, messageInput);
-                  })}
+                  <ExamplePrompts
+                    onFill={(text) => {
+                      fillPrompt?.(text);
+                    }}
+                  />
                   <MoreWaysToStart importChat={importChat} />
                 </div>
               )}

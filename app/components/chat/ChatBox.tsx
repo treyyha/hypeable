@@ -338,6 +338,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </div>
           <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
           <PlanFirstChip chatMode={props.chatMode} />
+          {!props.chatStarted ? (
+            <span className="hidden text-[11px] text-hype-muted sm:inline" data-testid="composer-shortcut-hint">
+              Enter to send · Shift+Enter for a new line
+            </span>
+          ) : null}
           <ClientOnly>
             {() => (
               <ModelKeyPopover
