@@ -26,15 +26,15 @@ node scripts/check-first-load-budget.mjs
 
 CI runs that after `pnpm build`. This app is SSR, so there is no `build/client/index.html`. The checker walks static imports from `entry.client`, `root`, and `_index`. Chat, Menu, the workbench, ControlPanel, and `provider-list` (LLM SDKs) must stay behind `import()`. Dynamic `import()` (Chat.client, Menu.client, Workbench, Shiki, xterm CSS, `@webcontainer/api`) stays out of the graph or the job fails.
 
-Measured on 2026-10-27 after keeping the SSR hero and deferring Chat to composer intent (gzip level 9):
+Measured on 2026-10-27 after the SSR first-run card and deferring Menu / `provider-list` (gzip level 9):
 
 | | Raw | Gzip |
 |---|---|---|
-| JS | 940 KiB | 305 KiB |
-| CSS | 344 KiB | 62 KiB |
-| Files in static graph | 73 | |
+| JS | 945 KiB | 307 KiB |
+| CSS | 343 KiB | 62 KiB |
+| Files in static graph | 75 | |
 
-Budget is 351 KiB JS gzip / 73 KiB CSS gzip. The empty home no longer static-imports Chat.client, Menu.client, ControlPanel, Workbench, or `provider-list`. The SSR hero and first-run card stay mounted until a build starts. Chat and Workbench prefetch on composer focus, pointerenter, or first keypress; Menu on sidebar/settings intent; `provider-list` on model-picker intent or first send. Hashed `/assets/*` are immutable; HTML stays `no-store`.
+Budget is 351 KiB JS gzip / 73 KiB CSS gzip. The empty home no longer static-imports Chat.client, Menu.client, ControlPanel, Workbench, or `provider-list`. The SSR hero and first-run card stay mounted until a build starts. Chat and Workbench prefetch on composer focus, pointerenter, or first keypress; Menu on sidebar/settings intent; `provider-list` on model-picker intent or first send. Hashed `/assets/*` are immutable; HTML stays `no-store`. Production Lighthouse for this path is recorded in [PERFORMANCE.md](PERFORMANCE.md); that pass is closed.
 
 Throttled Fast 4G (Chrome DevTools: 9 Mbps down, 1.5 Mbps up, 170 ms RTT) against local `pnpm start` on 2026-10-27:
 
