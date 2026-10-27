@@ -21,7 +21,7 @@ Deterministic unit coverage of the same monitors stays blocking: `tests/unit/fra
 
 ## Docs screenshots (opt-in)
 
-`e2e/docs-screenshots.spec.ts` is skipped unless `CAPTURE_DOCS=1`. That is a capture helper, not a product test. `pnpm e2e` still runs smoke, spend, predeploy, OpenRouter connect, and home presentation.
+`e2e/docs-screenshots.spec.ts` and `e2e/docs-demos.spec.ts` are skipped unless `CAPTURE_DOCS=1`. They are capture helpers, not product tests. `pnpm e2e` still runs smoke, spend, predeploy, OpenRouter connect, and home presentation. Demo clips in `docs/assets/demo-*.webp` are recorded against the mock provider; README captions say so.
 
 ## Started chat on narrow screens
 

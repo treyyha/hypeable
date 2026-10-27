@@ -26,6 +26,10 @@ The header pill is session spend in dollars. Click it for today, per-model total
 
 ![Cost meter](docs/assets/cost-popover-1440.png)
 
+![Live cost pill during a build](docs/assets/demo-cost-pill.webp)
+
+*Recorded with a mock provider.*
+
 Details: [docs/COST-METER.md](docs/COST-METER.md).
 
 ### Loop breaker
@@ -34,6 +38,10 @@ If the same error (or the same file rewrite) repeats 3 times, Hypeable stops the
 
 ![Loop breaker](docs/assets/loop-panel-1440.png)
 
+![Loop breaker triggering](docs/assets/demo-loop-breaker.webp)
+
+*Recorded with a mock provider.*
+
 Details: [docs/LOOP-BREAKER.md](docs/LOOP-BREAKER.md).
 
 ### Plan-first mode
@@ -41,6 +49,10 @@ Details: [docs/LOOP-BREAKER.md](docs/LOOP-BREAKER.md).
 On by default. The first build in an empty workspace (or every request, if you turn that on) returns a plan card — pages, data, features you can tick, and a dollar **estimate** range — before any code is written. Approve, ask for changes, or skip.
 
 ![Plan-first](docs/assets/plan-card-1440.png)
+
+![Plan Card](docs/assets/demo-plan-card.webp)
+
+*Recorded with a mock provider.*
 
 Details: [docs/PLAN-MODE.md](docs/PLAN-MODE.md).
 
@@ -58,6 +70,10 @@ Details: [docs/PREDEPLOY-CHECK.md](docs/PREDEPLOY-CHECK.md).
 
 ![Spend page](docs/assets/spend-dark-1440.png)
 
+![Spend page](docs/assets/demo-spend.webp)
+
+*Recorded with a mock provider.*
+
 ## Quick start
 
 ```bash
@@ -68,6 +84,10 @@ npm run dev
 ```
 
 Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server — it lives in this browser. Sent over HTTPS for each model request, never stored or logged. We do not ship analytics. Fonts are self-hosted. Hypeable does not phone home for updates. WebContainer (`*.webcontainer-api.io`) starts only when you build. HTML is `Cache-Control: no-store, no-transform` so Cloudflare cannot inject its Web Analytics beacon. Report vulnerabilities at [hypeable.dev/.well-known/security.txt](https://hypeable.dev/.well-known/security.txt).
+
+![Connect with OpenRouter](docs/assets/demo-openrouter.webp)
+
+*Recorded with a mock provider.*
 
 ## Run locally
 
