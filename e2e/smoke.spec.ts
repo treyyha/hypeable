@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Response } from '@playwright/test';
+import { collectRequestOrigins, forbiddenOrigins } from './external-origins';
 import { E2E_FAKE_KEY, MOCK_OPENAI_BASE_URL, seedOpenAILikeMock } from './seed';
 
 const PREVIEW = process.env.E2E_PREVIEW === '1';
@@ -92,6 +93,7 @@ test.describe('OpenAILike mock smoke', () => {
     test.setTimeout(120_000);
 
     const leaks = collectLeaks(page);
+    const requestOrigins = collectRequestOrigins(page);
     await page.addInitScript(() => {
       const key = '__cspViolations';
       const read = (): Array<Record<string, string>> => {
@@ -199,5 +201,8 @@ test.describe('OpenAILike mock smoke', () => {
     });
     const enforcingHits = cspHits.filter((hit) => hit.disposition === 'enforce');
     expect(enforcingHits, `enforcing CSP blocked ${JSON.stringify(enforcingHits)}`).toEqual([]);
+
+    const phoneHome = forbiddenOrigins(requestOrigins);
+    expect(phoneHome, `build origins: ${[...requestOrigins].sort().join(', ')}`).toEqual([]);
   });
 });

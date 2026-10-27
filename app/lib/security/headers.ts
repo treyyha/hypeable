@@ -53,7 +53,7 @@ export const CSP_REPORT_ONLY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.simpleicons.org",
+  "img-src 'self' data: blob:",
   "font-src 'self' data:",
   [
     "connect-src 'self' blob: data:",

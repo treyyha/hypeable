@@ -183,13 +183,7 @@ export const DeployButton = ({
               disabled={isDeploying || !activePreview || !netlifyConn.user}
               onClick={handleNetlifyDeployClick}
             >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/netlify"
-              />
+              <div className="i-ph:cloud w-5 h-5 text-bolt-elements-textPrimary" />
               <span className="mx-auto">
                 {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify (experimental)'}
               </span>
@@ -206,14 +200,7 @@ export const DeployButton = ({
               disabled={isDeploying || !activePreview || !vercelConn.user}
               onClick={handleVercelDeployClick}
             >
-              <img
-                className="w-5 h-5 bg-black p-1 rounded"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/vercel/white"
-                alt="vercel"
-              />
+              <div className="i-ph:triangle w-5 h-5 text-bolt-elements-textPrimary" />
               <span className="mx-auto">
                 {!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel (experimental)'}
               </span>
@@ -230,14 +217,7 @@ export const DeployButton = ({
               disabled={isDeploying || !activePreview}
               onClick={handleGitHubDeployClick}
             >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/github"
-                alt="github"
-              />
+              <div className="i-ph:github-logo w-5 h-5 text-bolt-elements-textPrimary" />
               <span className="mx-auto">Deploy to GitHub (experimental)</span>
             </DropdownMenu.Item>
 
@@ -251,14 +231,7 @@ export const DeployButton = ({
               disabled={isDeploying || !activePreview || !gitlabIsConnected}
               onClick={handleGitLabDeployClick}
             >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/gitlab"
-                alt="gitlab"
-              />
+              <div className="i-ph:gitlab-logo w-5 h-5 text-bolt-elements-textPrimary" />
               <span className="mx-auto">
                 {!gitlabIsConnected ? 'No GitLab Account Connected' : 'Deploy to GitLab (experimental)'}
               </span>
@@ -268,14 +241,7 @@ export const DeployButton = ({
               disabled
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2 opacity-60 cursor-not-allowed"
             >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/cloudflare"
-                alt="cloudflare"
-              />
+              <div className="i-ph:cloud-lightning w-5 h-5 text-bolt-elements-textPrimary" />
               <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
             </DropdownMenu.Item>
           </DropdownMenu.Content>

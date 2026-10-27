@@ -67,7 +67,7 @@ npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
 
-Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server — it lives in this browser. Sent over HTTPS for each model request, never stored or logged.
+Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server — it lives in this browser. Sent over HTTPS for each model request, never stored or logged. There is no analytics beacon; fonts are self-hosted; Hypeable does not phone home for updates. WebContainer (`*.webcontainer-api.io`) starts only when you build. Report vulnerabilities at [hypeable.dev/.well-known/security.txt](https://hypeable.dev/.well-known/security.txt).
 
 ## Run locally
 

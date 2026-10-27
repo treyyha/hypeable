@@ -108,7 +108,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       {
         id: 'supabase',
         name: 'Supabase',
-        icon: <img className="w-4 h-4" height="16" width="16" src="https://cdn.simpleicons.org/supabase" alt="" />,
+        icon: <div className="i-ph:database text-lg" />,
         available: supabaseConnected,
       },
       {
