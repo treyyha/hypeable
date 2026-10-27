@@ -94,8 +94,13 @@ test.describe('hosted mode', () => {
     const sitemap = await request.get('/sitemap.xml');
     expect(sitemap.status()).toBe(200);
     expect(await sitemap.text()).toContain('https://hypeable.dev/privacy');
-    expect((await request.get('/privacy')).status()).toBe(200);
-    expect((await request.get('/terms')).status()).toBe(200);
+    const privacy = await request.get('/privacy');
+    expect(privacy.status()).toBe(200);
+    expect(await privacy.text()).toContain('selectedProvider');
+
+    const terms = await request.get('/terms');
+    expect(terms.status()).toBe(200);
+    expect(await terms.text()).toContain('MIT licence');
     expect((await request.get('/llms.txt')).status()).toBe(200);
     expect((await request.get('/site.webmanifest')).status()).toBe(200);
     expect((await request.get('/webcontainer/connect/x')).status()).toBe(404);

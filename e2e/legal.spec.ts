@@ -33,4 +33,18 @@ test.describe('privacy and terms', () => {
     await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy');
     await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms');
   });
+
+  test('privacy and terms copy is in the HTML without waiting for JS', async ({ request }) => {
+    const privacy = await request.get('/privacy');
+    expect(privacy.status()).toBe(200);
+    const privacyText = await privacy.text();
+    expect(privacyText).toContain('selectedProvider');
+    expect(privacyText).not.toMatch(/legal advice/i);
+
+    const terms = await request.get('/terms');
+    expect(terms.status()).toBe(200);
+    const termsText = await terms.text();
+    expect(termsText).toContain('MIT licence');
+    expect(termsText).not.toMatch(/legal advice/i);
+  });
 });

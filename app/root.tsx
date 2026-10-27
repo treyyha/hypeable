@@ -11,6 +11,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useRouteError,
   type LinksFunction,
   type LoaderFunctionArgs,
@@ -89,8 +90,12 @@ const inlineOpenRouterCallbackStrip = stripIndents`
   })();
 `;
 
+const SSR_DOCUMENT_PATHS = new Set(['/privacy', '/terms']);
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
+  const { pathname } = useLocation();
+  const ssrDocument = SSR_DOCUMENT_PATHS.has(pathname);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -110,18 +115,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="w-full h-full">
         {/*
-          Privacy/terms (and other static pages) must be in the HTML for crawlers
-          and for anyone without JS. DnD wraps after mount; it is not needed to
-          read those pages. Chat still has its own ClientOnly around WebContainer.
+          Privacy/terms must be in the HTML for crawlers. Chat still uses window
+          on first paint, so every other route stays behind ClientOnly.
         */}
         <noscript>
           <p style={{ margin: '1.5rem', fontFamily: 'system-ui, sans-serif' }}>
-            Hypeable needs JavaScript to build apps in your browser. Privacy and terms below still apply.
+            Hypeable needs JavaScript to build apps in your browser. Privacy and terms still apply at /privacy and
+            /terms.
           </p>
         </noscript>
-        <ClientOnly fallback={children}>
-          {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
-        </ClientOnly>
+        {ssrDocument ? (
+          children
+        ) : (
+          <ClientOnly fallback={<div className="w-full h-full" />}>
+            {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
+          </ClientOnly>
+        )}
         <ToastContainer
           closeButton={({ closeToast }) => {
             return (
