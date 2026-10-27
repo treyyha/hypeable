@@ -1,4 +1,7 @@
 import JSZip from 'jszip';
+import { GITHUB_ARCHIVE_HOSTS, fetchAllowlistedHttps } from '~/lib/security/outbound';
+
+const GITHUB_REPO_NAME = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
 function decodeTextFile(bytes: Uint8Array): string | null {
   /*
@@ -185,8 +188,11 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
   const releaseData = (await releaseResponse.json()) as any;
   const zipballUrl = releaseData.zipball_url;
 
-  // Fetch the zipball
-  const zipResponse = await fetch(zipballUrl, {
+  if (typeof zipballUrl !== 'string') {
+    throw new Error('Release zipball URL missing');
+  }
+
+  const zipResponse = await fetchAllowlistedHttps(zipballUrl, GITHUB_ARCHIVE_HOSTS, {
     headers: {
       ...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
     },
@@ -295,7 +301,7 @@ export async function loader({ request, context }: { request: Request; context: 
   const url = new URL(request.url);
   const repo = url.searchParams.get('repo');
 
-  if (!repo) {
+  if (!repo || !GITHUB_REPO_NAME.test(repo)) {
     return Response.json({ error: 'Repository name is required' }, { status: 400 });
   }
 

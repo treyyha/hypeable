@@ -1,6 +1,11 @@
 import type { LoaderFunction, LoaderFunctionArgs } from 'react-router';
 import { getGithubAccessToken } from '~/lib/api/connector-tokens';
 import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
+import { localDebugCorsHeaders } from '~/lib/security/origin';
+
+function cors(request: Request): Record<string, string> {
+  return localDebugCorsHeaders(request);
+}
 
 interface GitInfo {
   local: {
@@ -74,7 +79,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        ...cors(request),
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
@@ -98,7 +103,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         {
           status: 401,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            ...cors(request),
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           },
         },
@@ -125,7 +130,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           { user: userData },
           {
             headers: {
-              'Access-Control-Allow-Origin': '*',
+              ...cors(request),
               'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             },
           },
@@ -209,7 +214,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           },
           {
             headers: {
-              'Access-Control-Allow-Origin': '*',
+              ...cors(request),
               'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             },
           },
@@ -235,7 +240,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           { organizations: orgs },
           {
             headers: {
-              'Access-Control-Allow-Origin': '*',
+              ...cors(request),
               'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             },
           },
@@ -256,7 +261,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
             {
               status: 400,
               headers: {
-                'Access-Control-Allow-Origin': '*',
+                ...cors(request),
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
               },
             },
@@ -272,7 +277,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
             {
               status: 400,
               headers: {
-                'Access-Control-Allow-Origin': '*',
+                ...cors(request),
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
               },
             },
@@ -297,7 +302,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           { recentActivity: events },
           {
             headers: {
-              'Access-Control-Allow-Origin': '*',
+              ...cors(request),
               'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             },
           },
@@ -310,7 +315,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         {
           status: 500,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            ...cors(request),
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           },
         },
@@ -333,7 +338,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
 
   return Response.json(gitInfo, {
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      ...cors(request),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     },
   });

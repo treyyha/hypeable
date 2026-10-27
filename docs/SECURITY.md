@@ -24,12 +24,7 @@
 
 Constants: `app/lib/security/headers.ts`.
 
-Hosted JSON does not send `Access-Control-Allow-Origin`. Routes that still set `Access-Control-Allow-Origin: *`:
-
-| Route | Why |
-|---|---|
-| `/api/git-proxy/*` | isomorphic-git cors-proxy (`useGit.ts` `corsProxy: '/api/git-proxy'`). GitHub/GitLab do not send CORS; the proxy implements the cors-proxy contract (OPTIONS + `*`). The product path is same-origin (relative URL). Hosted still allowlists GitHub/GitLab only. |
-| `/api/system/git-info`, `/api/system/diagnostics` | Leftover local debug `*`. Both return 404 on hosted, so they never appear on hypeable.dev. |
+Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is same-origin only on hosted (the product uses the relative URL `corsProxy: '/api/git-proxy'`). Local debug routes (`/api/system/git-info`, `/api/system/diagnostics`) reflect a loopback `Origin` or send no CORS header — never `*`. Both return 404 on hosted.
 
 ## Where each snippet is
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.

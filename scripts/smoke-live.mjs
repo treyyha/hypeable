@@ -228,6 +228,25 @@ if (git.response.status !== 403 || !git.text.includes(CUSTOM)) {
   pass('git-proxy non-GitHub/GitLab is 403');
 }
 
+const gitUserinfo = await get('/api/git-proxy/evil.com@github.com/owner/repo.git/info/refs');
+
+if (gitUserinfo.response.status !== 403) {
+  fail(`git-proxy userinfo bypass → ${gitUserinfo.response.status}`);
+} else {
+  pass('git-proxy userinfo host is 403');
+}
+
+const gitOptions = await get('/api/git-proxy/github.com/owner/repo.git/info/refs?service=git-upload-pack', {
+  method: 'OPTIONS',
+  headers: { Origin: 'https://evil.example' },
+});
+
+if (gitOptions.response.headers.get('access-control-allow-origin')) {
+  fail(`git-proxy OPTIONS CORS is ${gitOptions.response.headers.get('access-control-allow-origin')}`);
+} else {
+  pass('git-proxy OPTIONS has no Access-Control-Allow-Origin');
+}
+
 const health = await get('/api/health');
 
 let healthJson;

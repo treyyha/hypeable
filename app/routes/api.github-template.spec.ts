@@ -35,4 +35,13 @@ describe('GitHub template loader', () => {
       'https://codeload.github.com/blueberry-llm/bolt-astro-basic-template/zip/refs/heads/main',
     );
   });
+
+  it('rejects a repo name that is not owner/name', async () => {
+    const response = await loader({
+      request: new Request('http://localhost/api/github-template?repo=https://evil.example/x'),
+      context: {},
+    });
+
+    expect(response.status).toBe(400);
+  });
 });

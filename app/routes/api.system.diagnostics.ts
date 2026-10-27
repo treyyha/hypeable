@@ -1,5 +1,6 @@
 import type { LoaderFunction, LoaderFunctionArgs } from 'react-router';
 import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
+import { localDebugCorsHeaders } from '~/lib/security/origin';
 
 /**
  * Diagnostic API for troubleshooting connection issues
@@ -53,13 +54,8 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
     netlifyKeysToCheck: ['netlify_connection'],
   };
 
-  // Check if CORS might be an issue
   const corsStatus = {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers: localDebugCorsHeaders(request),
   };
 
   // Check if API endpoints are reachable

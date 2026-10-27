@@ -33,6 +33,16 @@ test.describe('hosted mode', () => {
     expect(gitProxy.headers()['cache-control']).toContain('no-store');
     expect(gitProxy.headers()['access-control-allow-origin']).toBeFalsy();
 
+    const gitUserinfo = await request.get('/api/git-proxy/evil.com@github.com/owner/repo.git/info/refs');
+    expect(gitUserinfo.status()).toBe(403);
+
+    const gitOptions = await request.fetch('/api/git-proxy/github.com/owner/repo.git/info/refs?service=git-upload-pack', {
+      method: 'OPTIONS',
+      headers: { Origin: 'https://evil.example' },
+    });
+    expect(gitOptions.status()).toBe(204);
+    expect(gitOptions.headers()['access-control-allow-origin']).toBeFalsy();
+
     expect((await request.get('/api/mcp-check')).status()).toBe(404);
     expect((await request.post('/api/mcp-update-config', { data: { mcpServers: {} } })).status()).toBe(404);
     expect((await request.post('/api/bug-report', { data: {} })).status()).toBe(404);
