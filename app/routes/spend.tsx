@@ -1,7 +1,6 @@
 import type { MetaFunction } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Header } from '~/components/header/Header';
-import { FirstRunOnboarding } from '~/components/onboarding/FirstRunOnboarding';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { SpendPage } from '~/components/spend/SpendPage';
 import { LoadingState } from '~/components/ui/LoadingState';
@@ -21,7 +20,6 @@ export default function SpendRoute() {
           <ClientOnly fallback={<LoadingState />}>{() => <SpendPage />}</ClientOnly>
         </div>
       </div>
-      <FirstRunOnboarding />
     </div>
   );
 }

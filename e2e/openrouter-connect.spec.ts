@@ -1,14 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY, waitForChatReady, waitForHomeHydrated } from './seed';
+import { API_KEYS_STORAGE_KEY, waitForChatReady, waitForHomeHydrated } from './seed';
 
 const MOCK_ORIGIN = 'http://127.0.0.1:8788';
 const MOCK_KEY = 'sk-or-e2e-mock';
-
-async function skipOnboarding(page: Page) {
-  await page.addInitScript((key) => {
-    localStorage.setItem(key, 'true');
-  }, ONBOARDING_COMPLETED_KEY);
-}
 
 async function routeOpenRouterThroughMock(page: Page) {
   await page.route(/https:\/\/openrouter\.ai\/.*/, async (route) => {
@@ -46,7 +40,6 @@ async function routeOpenRouterThroughMock(page: Page) {
 test.describe('OpenRouter connect', () => {
   test('connects, stores the key in the browser, and disconnects', async ({ page }) => {
     test.setTimeout(90_000);
-    await skipOnboarding(page);
     await routeOpenRouterThroughMock(page);
 
     const leaks: string[] = [];
@@ -84,7 +77,6 @@ test.describe('OpenRouter connect', () => {
 
   test('failed exchange shows a plain error and the paste fallback', async ({ page }) => {
     test.setTimeout(60_000);
-    await skipOnboarding(page);
 
     await page.route(/https:\/\/openrouter\.ai\/auth.*/, async (route) => {
       const incoming = new URL(route.request().url());

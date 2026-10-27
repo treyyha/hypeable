@@ -1,6 +1,6 @@
 import { copyFileSync, mkdirSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
-import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock } from './seed';
+import { API_KEYS_STORAGE_KEY, seedOpenAILikeMock } from './seed';
 
 const CAPTURE = process.env.CAPTURE_DOCS === '1';
 const MOCK_ORIGIN = 'http://127.0.0.1:8788';
@@ -111,9 +111,6 @@ test.describe('docs demos', () => {
   test('connect with OpenRouter', async ({ page }, testInfo) => {
     testInfo.annotations.push({ type: 'clip', description: 'docs/assets/demo-openrouter.webm' });
     test.setTimeout(90_000);
-    await page.addInitScript((key) => {
-      localStorage.setItem(key, 'true');
-    }, ONBOARDING_COMPLETED_KEY);
     await routeOpenRouterThroughMock(page);
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');

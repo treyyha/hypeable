@@ -28,7 +28,7 @@ Keys are **not** stored in a cookie. Cookies attach to every same-origin request
 Implementation: `app/lib/api/api-key-storage.ts`, `app/lib/api/prefs-storage.ts`.
 
 - Read: `readStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~69)
-- Write: `writeStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~79) from `APIKeyManager`, `BaseChat`, `FirstRunOnboarding`, and OpenRouter PKCE success (`app/lib/openrouter/connect.ts`)
+- Write: `writeStoredApiKeys()` (`app/lib/api/api-key-storage.ts` ~79) from `APIKeyManager`, `BaseChat`, and OpenRouter PKCE success (`app/lib/openrouter/connect.ts`)
 - Key migration: `migrateApiKeysFromCookie()` (~144). On load, if the old `apiKeys` cookie exists, it is copied into web storage and the cookie is deleted.
 - Pref migration: `migrateLegacyPrefCookies()` (`app/lib/api/prefs-storage.ts`), called from `app/entry.client.tsx`. Leftover `selectedProvider`, `selectedModel`, `providers`, `cachedPrompt`, `agentMode`, `isDebugEnabled`, `eventLogs`, and `tabConfiguration` cookies are copied into localStorage (storage wins if both exist) and deleted.
 

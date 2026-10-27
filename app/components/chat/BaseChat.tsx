@@ -482,11 +482,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               )}
             >
               {!chatStarted && <HomeHero />}
-              {!chatStarted && Object.keys(apiKeys).length === 0 && (
-                <div className="relative z-[1] mx-auto mt-6 w-full px-4">
-                  <StartInSixty />
-                </div>
-              )}
+              {!chatStarted ? <StartInSixty hasKeys={Object.keys(apiKeys).length > 0} /> : null}
               <StickToBottom
                 className={classNames('relative z-[1] px-2 pt-6 sm:px-6', {
                   'h-full flex flex-col modern-scrollbar': chatStarted,
@@ -573,7 +569,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     provider={resolvedProvider}
                     setProvider={resolvedSetProvider}
                     providerList={resolvedProviderList || []}
-                    onComposerFocus={requestHomeChatLoad}
+                    onComposerFocus={requestProviderListLoad}
                     onModelPickerOpen={requestProviderListLoad}
                     model={resolvedModel}
                     setModel={resolvedSetModel}

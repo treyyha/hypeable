@@ -47,6 +47,8 @@ const DOM_TESTS = [
   'app/components/ui/Aurora.spec.tsx',
   'app/components/ui/BrandFooter.spec.tsx',
   'app/components/ui/AppErrorPage.spec.tsx',
+  'app/components/onboarding/StartInSixty.spec.tsx',
+  'app/components/onboarding/first-run.spec.ts',
   'app/components/legal/LegalPage.spec.tsx',
   'app/components/workbench/WorkbenchReopenButton.spec.tsx',
   'app/lib/hooks/useMessageParser.spec.ts',

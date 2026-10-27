@@ -13,6 +13,14 @@ body {
   background-color: var(--bolt-elements-bg-depth-1);
 }
 
+/*
+ * Returning visitors hide the SSR first-run card before paint. First visits
+ * (empty localStorage, including Lighthouse) still paint the card with the hero.
+ */
+html[data-first-run='done'] [data-first-run-card] {
+  display: none;
+}
+
 html[data-accent-intensity] .bg-accent-500 {
   background-color: color-mix(
     in srgb,

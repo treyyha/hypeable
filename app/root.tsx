@@ -92,6 +92,17 @@ const inlineThemeCode = stripIndents`
     colorTheme = colorTheme === 'light' || colorTheme.startsWith('light') ? 'light' : 'dark';
     document.querySelector('html')?.setAttribute('data-theme', colorTheme);
     document.querySelector('html')?.setAttribute('data-color-theme', colorTheme);
+
+    try {
+      if (localStorage.getItem('${FIRST_RUN_DISMISSED_KEY}') === 'true') {
+        document.documentElement.dataset.firstRun = 'done';
+      } else {
+        var storedKeys = JSON.parse(localStorage.getItem('${FIRST_RUN_KEYS_STORAGE_KEY}') || '{}');
+        if (storedKeys && typeof storedKeys === 'object' && !Array.isArray(storedKeys) && Object.keys(storedKeys).length > 0) {
+          document.documentElement.dataset.firstRun = 'done';
+        }
+      }
+    } catch {}
   }
 `;
 
@@ -131,9 +142,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="w-full h-full">
         {/*
-          Home chrome (hero, composer, skip link) must be in the first HTML so
-          LCP is not blocked on 1 MiB of client JS. Window-only trees stay
-          behind ClientOnly in the routes (Chat, Menu, onboarding).
+          Home chrome (hero, first-run card, composer, skip link) must be in the
+          first HTML so LCP is not blocked on client JS. Chat and Menu stay
+          behind intent; the first-run card is inline, not a dialog.
         */}
         <noscript>
           <p style={{ margin: '1.5rem', fontFamily: 'system-ui, sans-serif' }}>
@@ -176,6 +187,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { OpenRouterToastHost } from './components/onboarding/OpenRouterToastHost';
+import { FIRST_RUN_DISMISSED_KEY, FIRST_RUN_KEYS_STORAGE_KEY } from './components/onboarding/first-run';
 import { AppErrorPage } from './components/ui/AppErrorPage';
 import { journeys, observeWebVitals } from './lib/performance/metrics';
 import { isHostedFromContext } from './lib/security/hosted';

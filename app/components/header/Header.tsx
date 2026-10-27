@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
+import { requestMenuLoad, requestSettingsLoad } from '~/lib/performance/prefetch-home';
 import { description as descriptionStore } from '~/lib/persistence/chat-meta';
 import { chatStore } from '~/lib/stores/chat';
 import { openSettingsPanel } from '~/lib/stores/settings-panel';
@@ -24,8 +25,14 @@ const ChatDescription = lazy(() =>
 );
 
 function openSettings() {
+  requestSettingsLoad();
   openSettingsPanel('settings');
   document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
+}
+
+function openMobileSidebar() {
+  requestMenuLoad();
+  toggleSidebarMobile();
 }
 
 function HeaderChatTitle() {
@@ -62,7 +69,9 @@ export function Header() {
         type="button"
         className="hype-icon-btn lg:hidden"
         aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
-        onClick={toggleSidebarMobile}
+        onPointerEnter={requestMenuLoad}
+        onFocus={requestMenuLoad}
+        onClick={openMobileSidebar}
       >
         <span className={mobileOpen ? 'i-ph:x text-xl' : 'i-ph:list text-xl'} />
       </button>
@@ -117,6 +126,8 @@ export function Header() {
         <ClientOnly>{() => <ThemeSwitch />}</ClientOnly>
         <button
           type="button"
+          onPointerEnter={requestSettingsLoad}
+          onFocus={requestSettingsLoad}
           onClick={openSettings}
           className="hype-icon-btn"
           aria-label="Keys and settings"

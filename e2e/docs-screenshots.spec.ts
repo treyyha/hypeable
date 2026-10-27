@@ -172,10 +172,6 @@ test.describe('docs screenshots', () => {
 
   test('start in 60 seconds panel on empty home', async ({ page }) => {
     test.setTimeout(60_000);
-    await page.addInitScript((key) => {
-      localStorage.setItem(key, 'true');
-    }, 'bolt_onboarding_completed');
-
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     await expect(page.getByTestId('start-in-sixty')).toBeVisible({ timeout: 20_000 });

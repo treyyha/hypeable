@@ -42,6 +42,13 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
+      modulePreload: {
+        resolveDependencies: (_filename, deps) =>
+          deps.filter(
+            (dep) =>
+              !/(provider-list|Menu\.client|Chat\.client|Workbench\.client|ControlPanel|ModelKeyPopover)/.test(dep),
+          ),
+      },
     },
     optimizeDeps: {
       include: [

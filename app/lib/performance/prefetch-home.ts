@@ -1,11 +1,12 @@
 /**
- * Warm chat/workbench only after the user shows intent. Idle prefetch of
- * Chat, Workbench, and provider-list pulled hundreds of KiB of unused JS
+ * Warm chat/workbench/menu only after the user shows intent. Idle prefetch of
+ * Chat, Workbench, Menu, and provider-list pulled hundreds of KiB of unused JS
  * into the first-load Lighthouse trace and delayed LCP on Slow 4G.
  */
 import { atom } from 'nanostores';
 
 export const homeChatShouldLoad = atom(false);
+export const homeMenuShouldLoad = atom(false);
 
 export function prefetchChatRuntime(): void {
   void import('~/components/chat/Chat.client');
@@ -17,6 +18,16 @@ export function prefetchWorkbench(): void {
 
 export function prefetchProviderList(): void {
   void import('~/utils/provider-list');
+  void import('~/components/chat/ModelKeyPopover');
+}
+
+export function prefetchMenu(): void {
+  void import('~/components/sidebar/Menu.client');
+}
+
+export function prefetchSettings(): void {
+  prefetchMenu();
+  void import('~/components/@settings/core/ControlPanel');
 }
 
 export function prefetchOnComposerIntent(): void {
@@ -32,4 +43,14 @@ export function requestHomeChatLoad(): void {
 export function requestProviderListLoad(): void {
   prefetchProviderList();
   requestHomeChatLoad();
+}
+
+export function requestMenuLoad(): void {
+  prefetchMenu();
+  homeMenuShouldLoad.set(true);
+}
+
+export function requestSettingsLoad(): void {
+  prefetchSettings();
+  homeMenuShouldLoad.set(true);
 }

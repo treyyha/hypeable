@@ -368,31 +368,33 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               Enter to send · Shift+Enter for a new line
             </span>
           ) : null}
-          <ClientOnly>
-            {() => (
-              <Suspense fallback={null}>
-                <ModelKeyPopover
-                  open={modelKeyOpen}
-                  onOpenChange={(open) => {
-                    setModelKeyOpen(open);
+          <div onPointerEnter={() => props.onModelPickerOpen?.()} onFocusCapture={() => props.onModelPickerOpen?.()}>
+            <ClientOnly>
+              {() => (
+                <Suspense fallback={null}>
+                  <ModelKeyPopover
+                    open={modelKeyOpen}
+                    onOpenChange={(open) => {
+                      setModelKeyOpen(open);
 
-                    if (open) {
-                      props.onModelPickerOpen?.();
-                    }
-                  }}
-                  provider={props.provider}
-                  providerList={props.providerList}
-                  model={props.model}
-                  modelList={props.modelList}
-                  apiKeys={props.apiKeys}
-                  isModelLoading={props.isModelLoading}
-                  setProvider={props.setProvider}
-                  setModel={props.setModel}
-                  onApiKeysChange={props.onApiKeysChange}
-                />
-              </Suspense>
-            )}
-          </ClientOnly>
+                      if (open) {
+                        props.onModelPickerOpen?.();
+                      }
+                    }}
+                    provider={props.provider}
+                    providerList={props.providerList}
+                    model={props.model}
+                    modelList={props.modelList}
+                    apiKeys={props.apiKeys}
+                    isModelLoading={props.isModelLoading}
+                    setProvider={props.setProvider}
+                    setModel={props.setModel}
+                    onApiKeysChange={props.onApiKeysChange}
+                  />
+                </Suspense>
+              )}
+            </ClientOnly>
+          </div>
           <div className="ml-auto flex min-w-0 items-center gap-1.5">
             {!props.chatStarted && props.model ? (
               <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />

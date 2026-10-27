@@ -4,16 +4,13 @@ import { useLocation, type MetaFunction } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
 import { Header } from '~/components/header/Header';
-import { homeChatShouldLoad } from '~/lib/performance/prefetch-home';
+import { SidebarShell } from '~/components/sidebar/SidebarShell';
+import { homeChatShouldLoad, homeMenuShouldLoad, requestMenuLoad } from '~/lib/performance/prefetch-home';
 import { chatStore } from '~/lib/stores/chat';
 import { brandMeta } from '~/utils/brand';
 
 const Chat = lazy(() => import('~/components/chat/Chat.client').then((module) => ({ default: module.Chat })));
 const Menu = lazy(() => import('~/components/sidebar/Menu.client').then((module) => ({ default: module.Menu })));
-
-const FirstRunOnboarding = lazy(() =>
-  import('~/components/onboarding/FirstRunOnboarding').then((module) => ({ default: module.FirstRunOnboarding })),
-);
 
 export const meta: MetaFunction = () => brandMeta();
 
@@ -21,13 +18,16 @@ export const loader = () => Response.json({});
 
 /**
  * App shell: collapsible sidebar + header + workbench. Home stays a clean prompt.
- * The SSR hero stays mounted until a build starts so LCP is not the Chat.client swap.
+ * The SSR hero and first-run card stay mounted until a build starts so LCP is
+ * not a client-only dialog. Menu stays behind intent so the provider registry
+ * is not on the first view.
  */
 export default function Index() {
   const { pathname, search } = useLocation();
   const restoredChat = pathname.startsWith('/chat/');
   const started = useStore(chatStore).started;
   const shouldLoad = useStore(homeChatShouldLoad);
+  const menuShouldLoad = useStore(homeMenuShouldLoad);
   const params = new URLSearchParams(search);
   const debugLoad = params.get('debugStarted') === '1' || params.get('debugLoop') === '1';
   const loadChat = shouldLoad || started || restoredChat || debugLoad;
@@ -41,17 +41,17 @@ export default function Index() {
       >
         Skip to composer
       </a>
-      <ClientOnly
-        fallback={<div className="hidden shrink-0 lg:block lg:w-[var(--hype-sidebar-width)]" aria-hidden="true" />}
-      >
-        {() => (
-          <Suspense
-            fallback={<div className="hidden shrink-0 lg:block lg:w-[var(--hype-sidebar-width)]" aria-hidden="true" />}
-          >
-            <Menu />
-          </Suspense>
-        )}
-      </ClientOnly>
+      {menuShouldLoad ? (
+        <ClientOnly fallback={<SidebarShell />}>
+          {() => (
+            <Suspense fallback={<SidebarShell />}>
+              <Menu />
+            </Suspense>
+          )}
+        </ClientOnly>
+      ) : (
+        <SidebarShell onIntent={requestMenuLoad} />
+      )}
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
         <div className="relative min-h-0 flex-1">
@@ -67,13 +67,6 @@ export default function Index() {
           ) : null}
         </div>
       </div>
-      <ClientOnly>
-        {() => (
-          <Suspense fallback={null}>
-            <FirstRunOnboarding />
-          </Suspense>
-        )}
-      </ClientOnly>
     </div>
   );
 }

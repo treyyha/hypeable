@@ -1,13 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { attachConsoleGuard } from './console';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
+import { seedOpenAILikeMock, waitForChatReady } from './seed';
 
 test.describe('clean console', () => {
   test('first load of / has no console errors, warnings, or failed requests', async ({ page }) => {
     const guard = attachConsoleGuard(page);
-    await page.addInitScript((key) => {
-      localStorage.setItem(key, 'true');
-    }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
     await page.waitForTimeout(1_500);

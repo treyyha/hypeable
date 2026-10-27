@@ -123,8 +123,10 @@ const forbidden = [...seen].filter(
   (name) =>
     name.startsWith('Workbench.client') ||
     name.startsWith('Chat.client') ||
+    name.startsWith('Menu.client') ||
     name.startsWith('ControlPanel') ||
     name.startsWith('provider-list') ||
+    name.startsWith('FirstRunOnboarding') ||
     name.startsWith('xterm-') ||
     /^(typescript|cpp|wasm|emacs-lisp)-/.test(name),
 );
