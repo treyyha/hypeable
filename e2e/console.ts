@@ -10,11 +10,15 @@ import { expect, type Page } from '@playwright/test';
  * - Framer Motion reduced-motion notice when the OS asks for it
  * - `favicon.ico` 404 — we ship `/favicon.svg`
  * - Aborted requests from in-page navigations (`net::ERR_ABORTED`)
+ * - CSP-Report-Only `frame-src` hits on `https://stackblitz.com/` after a
+ *   mocked build: WebContainer boots that frame; the enforcing CSP still
+ *   allows `https:` frames. Hosted first load never hits this.
  */
 const ALLOWED_CONSOLE = [
   /Download the React DevTools/i,
   /\[vite\]/,
   /\[Motion\].*Reduced Motion/i,
+  /Framing 'https:\/\/stackblitz\.com\/' violates the following report-only/i,
 ];
 
 const ALLOWED_REQUEST = [

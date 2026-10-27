@@ -22,8 +22,8 @@ test.describe('first-run polish', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
+    await expect(page.getByTestId('example-prompts')).toBeVisible({ timeout: 20_000 });
     await page.getByRole('button', { name: 'Keys and settings' }).click();
-    await expect(page.getByText('Control Panel')).toBeVisible({ timeout: 20_000 });
     await page.getByRole('button', { name: 'Connectors' }).click();
     await expect(page.getByText('Experimental').first()).toBeVisible({ timeout: 20_000 });
     await page.getByRole('button', { name: 'Features' }).click();

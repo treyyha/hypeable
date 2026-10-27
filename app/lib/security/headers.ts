@@ -12,7 +12,12 @@ export const COEP_HEADER = 'credentialless';
 export const COOP_HEADER = 'same-origin';
 export const REFERRER_POLICY = 'strict-origin-when-cross-origin';
 
-const LOCAL_CONNECT = 'http://127.0.0.1:* http://localhost:* http://[::1]:*';
+/*
+ * Chrome rejects `http://[::1]:*` as a CSP source and logs a console error.
+ * localhost covers dual-stack loopback in local e2e; IPv6 literals stay blocked
+ * as untrusted hosts on the outbound path.
+ */
+const LOCAL_CONNECT = 'http://127.0.0.1:* http://localhost:*';
 const WEBCONTAINER_FRAME = 'https://*.webcontainer-api.io https://*.local-credentialless.webcontainer-api.io';
 const WEBCONTAINER_CONNECT = `${WEBCONTAINER_FRAME} wss://*.webcontainer-api.io wss://*.local-credentialless.webcontainer-api.io`;
 

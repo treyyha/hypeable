@@ -7,14 +7,12 @@ export function BrandFooter({ className }: { className?: string }) {
   const href = githubCommitUrl(APP_REPO_URL, BUILD_COMMIT);
 
   return (
-    <div
-      className={classNames('px-4 py-2 text-center text-[11px] leading-4 text-bolt-elements-textTertiary', className)}
-    >
+    <div className={classNames('px-4 py-2 text-center text-[11px] leading-4 text-hype-muted', className)}>
       <p>
         {href ? (
           <a
             href={href}
-            className="text-bolt-elements-textTertiary underline-offset-2 hover:underline"
+            className="text-hype-muted underline-offset-2 hover:underline"
             rel="noreferrer"
             target="_blank"
           >
