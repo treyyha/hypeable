@@ -9,7 +9,8 @@ export function readIsSmallViewport(threshold = 1024, win: { innerWidth: number 
 }
 
 const useViewport = (threshold = 1024) => {
-  const [isSmallViewport, setIsSmallViewport] = useState(() => readIsSmallViewport(threshold));
+  // SSR and the first client paint must match; window width is applied after mount.
+  const [isSmallViewport, setIsSmallViewport] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsSmallViewport(readIsSmallViewport(threshold));

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock } from './seed';
+import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
 
 async function assertNoSeriousAxeViolations(page: Page) {
   const results = await new AxeBuilder({ page }).analyze();
@@ -26,6 +26,7 @@ test.describe('axe-core', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
+    await waitForChatReady(page);
     await page.getByRole('button', { name: 'Model and key' }).click();
     await expect(page.getByText(/API key/i).first()).toBeVisible({ timeout: 20_000 });
     await assertNoSeriousAxeViolations(page);
@@ -53,6 +54,7 @@ test.describe('axe-core', () => {
   test('started chat has no serious or critical violations', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.goto('/?debugStarted=1');
+    await waitForChatReady(page);
     await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
     await assertNoSeriousAxeViolations(page);
   });

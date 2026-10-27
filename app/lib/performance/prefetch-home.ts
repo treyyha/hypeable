@@ -10,9 +10,14 @@ export function prefetchWorkbench(): void {
   void import('~/components/workbench/Workbench.client');
 }
 
+export function prefetchMenu(): void {
+  void import('~/components/sidebar/Menu.client');
+}
+
 export function prefetchHomeChunks(): void {
   prefetchChatRuntime();
   prefetchWorkbench();
+  prefetchMenu();
 }
 
 export function scheduleHomePrefetch(): () => void {

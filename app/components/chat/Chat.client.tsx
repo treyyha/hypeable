@@ -34,6 +34,7 @@ import type { PluginManifest } from '~/lib/plugins/schema';
 import { pluginManifestSchema } from '~/lib/plugins/schema';
 import { callProjectMcpTool, PROJECT_TOOL_NAMES } from '~/lib/runtime/projectMcp';
 import { chatStore } from '~/lib/stores/chat';
+import { homeComposerDraft, homeComposerSendNonce } from '~/lib/stores/home-composer';
 import { logStore } from '~/lib/stores/logs';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { consumePlanTurnFlags, ingestPlanReply, planSettingsStore, rememberPlanningPrompt } from '~/lib/stores/plan';
@@ -69,19 +70,19 @@ export function Chat() {
     workbenchStore.setReloadedMessages(initialMessages.map((m) => m.id));
   }, [initialMessages]);
 
+  if (!ready) {
+    return <BaseChat />;
+  }
+
   return (
-    <>
-      {ready && (
-        <ChatImpl
-          description={title}
-          initialMessages={initialMessages}
-          chatChanged={chatChanged}
-          exportChat={exportChat}
-          storeMessageHistory={storeMessageHistory}
-          importChat={importChat}
-        />
-      )}
-    </>
+    <ChatImpl
+      description={title}
+      initialMessages={initialMessages}
+      chatChanged={chatChanged}
+      exportChat={exportChat}
+      storeMessageHistory={storeMessageHistory}
+      importChat={importChat}
+    />
   );
 }
 
@@ -170,7 +171,7 @@ export const ChatImpl = memo(
      * `handleInputChange` are gone, so it is local state here. `initialInput` is
      * gone too, hence the useState initializer.
      */
-    const [input, setInput] = useState(readPref('cachedPrompt') || '');
+    const [input, setInput] = useState(homeComposerDraft.get() || readPref('cachedPrompt') || '');
 
     /*
      * v5 removed the data array from useChat in favour of an onData
@@ -1199,6 +1200,8 @@ export const ChatImpl = memo(
     const sendMessageRef = useRef(sendMessage);
     sendMessageRef.current = sendMessage;
 
+    const handledSendNonceRef = useRef(0);
+
     useEffect(() => {
       const handler = (event: Event) => {
         const message = (event as CustomEvent<{ message?: string }>).detail?.message;
@@ -1211,6 +1214,22 @@ export const ChatImpl = memo(
       document.addEventListener('hypeable-send-chat', handler);
 
       return () => document.removeEventListener('hypeable-send-chat', handler);
+    }, []);
+
+    useEffect(() => {
+      return homeComposerSendNonce.subscribe((nonce) => {
+        if (nonce === 0 || nonce <= handledSendNonceRef.current) {
+          return;
+        }
+
+        handledSendNonceRef.current = nonce;
+
+        const text = homeComposerDraft.get();
+
+        if (text.trim()) {
+          void sendMessageRef.current({} as never, text);
+        }
+      });
     }, []);
 
     /*
@@ -1290,6 +1309,7 @@ export const ChatImpl = memo(
         promptEnhanced={promptEnhanced}
         sendMessage={sendMessage}
         fillPrompt={(text) => {
+          homeComposerDraft.set(text);
           setInput(text);
           textareaRef.current?.focus();
         }}

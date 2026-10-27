@@ -75,3 +75,8 @@ export async function seedOpenAILikeMock(page: Page): Promise<void> {
     localStorage.setItem(seed.providerStorage, 'OpenAILike');
   }, payload);
 }
+
+/** ChatImpl has replaced the SSR shell, so send/model/key handlers are live. */
+export async function waitForChatReady(page: Page): Promise<void> {
+  await page.locator('[data-chat-ready="true"]').waitFor({ state: 'visible', timeout: 20_000 });
+}

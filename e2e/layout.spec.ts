@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock } from './seed';
+import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
 
 const VIEWPORTS = [
   { width: 375, height: 812, name: '375' },
@@ -31,6 +31,7 @@ test.describe('narrow layout', () => {
       await assertNoHorizontalScroll(page);
 
       await page.goto('/?debugStarted=1');
+      await waitForChatReady(page);
       await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
       await assertNoHorizontalScroll(page);
 

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY } from './seed';
+import { ONBOARDING_COMPLETED_KEY, waitForChatReady } from './seed';
 
 const CUSTOM_ENDPOINT_MESSAGE = 'Run Hypeable locally to use custom endpoints';
 
@@ -27,6 +27,7 @@ test.describe('hosted mode', () => {
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
     await page.waitForTimeout(1_500);
     expect(hosted404Hits, `hosted first load requested ${hosted404Hits.join(', ')}`).toEqual([]);
+    await waitForChatReady(page);
     await page.getByRole('button', { name: 'Model and key' }).click();
     await page.waitForTimeout(500);
     expect(hosted404Hits, `opening the key dialog requested ${hosted404Hits.join(', ')}`).toEqual([]);

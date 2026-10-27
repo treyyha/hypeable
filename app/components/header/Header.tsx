@@ -5,6 +5,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
 import { description as descriptionStore } from '~/lib/persistence/chat-meta';
 import { chatStore } from '~/lib/stores/chat';
+import { openSettingsPanel } from '~/lib/stores/settings-panel';
 import { sidebarMobileOpenStore, toggleSidebarMobile } from '~/lib/stores/sidebar';
 import { classNames } from '~/utils/classNames';
 
@@ -23,6 +24,7 @@ const ChatDescription = lazy(() =>
 );
 
 function openSettings() {
+  openSettingsPanel('settings');
   document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
 }
 

@@ -29,6 +29,7 @@ import { StickToBottom, useStickToBottomContext } from '~/lib/hooks/StickToBotto
 import useViewport from '~/lib/hooks/useViewport';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { prefetchWorkbench } from '~/lib/performance/prefetch-home';
+import { homeComposerDraft, requestHomeComposerSend, setHomeComposerDraft } from '~/lib/stores/home-composer';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import type { ProgressAnnotation } from '~/types/context';
@@ -151,7 +152,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     ref,
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>(readStoredApiKeys());
+    const draft = useStore(homeComposerDraft);
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
@@ -340,23 +342,34 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     };
 
+    const composerInput = handleInputChange ? input : draft;
+
+    const onComposerChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setHomeComposerDraft(event.target.value);
+      handleInputChange?.(event);
+    };
+
     const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
-      if (sendMessage) {
-        sendMessage(event, messageInput);
-        setSelectedElement?.(null);
+      if (!sendMessage) {
+        requestHomeComposerSend();
+        return;
+      }
 
-        if (recognition) {
-          recognition.abort(); // Stop current recognition
-          setTranscript(''); // Clear transcript
-          setIsListening(false);
+      sendMessage(event, messageInput);
+      setSelectedElement?.(null);
+      setHomeComposerDraft('');
 
-          // Clear the input by triggering handleInputChange with empty value
-          if (handleInputChange) {
-            const syntheticEvent = {
-              target: { value: '' },
-            } as React.ChangeEvent<HTMLTextAreaElement>;
-            handleInputChange(syntheticEvent);
-          }
+      if (recognition) {
+        recognition.abort(); // Stop current recognition
+        setTranscript(''); // Clear transcript
+        setIsListening(false);
+
+        // Clear the input by triggering handleInputChange with empty value
+        if (handleInputChange) {
+          const syntheticEvent = {
+            target: { value: '' },
+          } as React.ChangeEvent<HTMLTextAreaElement>;
+          handleInputChange(syntheticEvent);
         }
       }
     };
@@ -418,6 +431,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         ref={ref}
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
+        data-chat-ready={sendMessage ? 'true' : undefined}
       >
         {chatStarted && showChat && !showWorkbench && !isSmallViewport && (
           <WorkbenchReopenButton
@@ -547,8 +561,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     imageDataList={imageDataList}
                     setImageDataList={setImageDataList}
                     textareaRef={textareaRef}
-                    input={input}
-                    handleInputChange={handleInputChange}
+                    input={composerInput}
+                    handleInputChange={onComposerChange}
                     handlePaste={handlePaste}
                     TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
                     TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
@@ -580,6 +594,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <div className="flex flex-col gap-4 pb-6">
                   <ExamplePrompts
                     onFill={(text) => {
+                      setHomeComposerDraft(text);
                       fillPrompt?.(text);
                     }}
                   />

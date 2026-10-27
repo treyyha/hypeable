@@ -19,6 +19,7 @@ import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
 import { SidebarSection } from '~/components/ui/SidebarSection';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
+import { closeSettingsPanel, settingsPanelStore } from '~/lib/stores/settings-panel';
 import {
   setSidebarCollapsed,
   setSidebarMobileOpen,
@@ -37,6 +38,7 @@ export const Menu = () => {
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const collapsed = useStore(sidebarCollapsedStore);
   const mobileOpen = useStore(sidebarMobileOpenStore);
+  const settingsPanel = useStore(settingsPanelStore);
   const location = useLocation();
   const onSpend = location.pathname === '/spend';
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
@@ -263,6 +265,16 @@ export const Menu = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!settingsPanel.open) {
+      return;
+    }
+
+    setSettingsInitialTab(settingsPanel.tab);
+    setIsSettingsOpen(true);
+    setSidebarMobileOpen(false);
+  }, [settingsPanel]);
+
   const handleDuplicate = async (id: string) => {
     await duplicateCurrentChat(id);
     loadEntries(); // Reload the list after duplication
@@ -276,6 +288,7 @@ export const Menu = () => {
   const handleSettingsClose = () => {
     setIsSettingsOpen(false);
     setSettingsInitialTab(undefined);
+    closeSettingsPanel();
   };
 
   const setDialogContentWithLogging = useCallback((content: DialogContent) => {

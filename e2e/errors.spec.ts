@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock } from './seed';
+import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from './seed';
 
 async function sendFromHome(page: import('@playwright/test').Page) {
+  await waitForChatReady(page);
   const composer = page.locator('#composer');
   await expect(composer).toBeVisible({ timeout: 20_000 });
   await composer.fill('make a todo app');
@@ -107,6 +108,7 @@ test.describe('user-facing error states', () => {
   test('offline shows a connection message', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.goto('/');
+    await waitForChatReady(page);
     const composer = page.locator('#composer');
     await expect(composer).toBeVisible({ timeout: 20_000 });
     await composer.fill('make a todo app');

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY } from './seed';
+import { API_KEYS_STORAGE_KEY, ONBOARDING_COMPLETED_KEY, waitForChatReady } from './seed';
 
 const MOCK_ORIGIN = 'http://127.0.0.1:8788';
 const MOCK_KEY = 'sk-or-e2e-mock';
@@ -71,6 +71,7 @@ test.describe('OpenRouter connect', () => {
     expect(page.url()).not.toContain('code=');
     expect(leaks, 'console must not print the OpenRouter key or code').toEqual([]);
 
+    await waitForChatReady(page);
     await page.getByRole('button', { name: 'Model and key' }).click();
     await expect(page.getByTestId('openrouter-connected')).toContainText('Connected via OpenRouter');
     await page.getByTestId('disconnect-openrouter').click();
