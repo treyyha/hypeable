@@ -14,8 +14,9 @@ import { Switch } from '~/components/ui/Switch';
 import { useToast } from '~/components/ui/use-toast';
 import { useLocalModelHealth } from '~/lib/hooks/useLocalModelHealth';
 import { useSettings } from '~/lib/hooks/useSettings';
+import { hostedModeStore } from '~/lib/stores/hosted';
 import { logStore } from '~/lib/stores/logs';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
+import { initializeProviders, LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import type { IProviderConfig } from '~/types/model';
 import { providerBaseUrlEnvKeys } from '~/utils/constants';
 
@@ -32,6 +33,12 @@ export default function LocalProvidersTab() {
   const [isLoadingLMStudioModels, setIsLoadingLMStudioModels] = useState(false);
   const { toast } = useToast();
   const { startMonitoring, stopMonitoring } = useLocalModelHealth();
+
+  useEffect(() => {
+    if (!hostedModeStore.get()) {
+      void initializeProviders();
+    }
+  }, []);
 
   // Memoized filtered providers to prevent unnecessary re-renders
   const filteredProviders = useMemo(() => {

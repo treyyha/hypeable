@@ -1,5 +1,6 @@
 import { atom, map } from 'nanostores';
 import { create } from 'zustand';
+import { hostedModeStore } from './hosted';
 import { toggleTheme } from './theme';
 import { DEFAULT_TAB_CONFIG } from '~/components/@settings/core/constants';
 import type { TabVisibilityConfig, TabWindowConfig, UserTabConfig } from '~/components/@settings/core/types';
@@ -66,11 +67,18 @@ interface ConfiguredProvider {
 
 // Fetch configured providers from server
 const fetchConfiguredProviders = async (): Promise<ConfiguredProvider[]> => {
+  /*
+   * Hosted 404s this route. Never fire it there — a stranger's first load
+   * must not show a failing request in the network panel.
+   */
+  if (hostedModeStore.get()) {
+    return [];
+  }
+
   try {
     const response = await fetch('/api/configured-providers');
 
     if (!response.ok) {
-      // Hosted mode 404s this route; it is not a misconfiguration.
       if (response.status === 404) {
         return [];
       }
@@ -193,16 +201,11 @@ const autoEnableConfiguredProviders = async () => {
 
 export const providersStore = map<ProviderSetting>(getInitialProviderSettings());
 
-// Export the auto-enable function for use in components
+/*
+ * Local Providers tab calls this. Do not auto-run on module load — that
+ * produced a hosted 404 on every first visit.
+ */
 export const initializeProviders = autoEnableConfiguredProviders;
-
-// Initialize providers when the module loads (in browser only)
-if (isBrowser) {
-  // Use a small delay to ensure DOM and other resources are ready
-  setTimeout(() => {
-    autoEnableConfiguredProviders();
-  }, 100);
-}
 
 // Create a function to update provider settings that handles both store and persistence
 export const updateProviderSettings = (provider: string, settings: ProviderSetting) => {

@@ -23,6 +23,14 @@ export const getVisibleTabs = (
         return false;
       }
 
+      /*
+       * Marketplace fetched unvetted third-party content. Keep the tab type
+       * so old localStorage configs do not crash, but never show it.
+       */
+      if (tab.id === 'plugins') {
+        return false;
+      }
+
       // Only show tabs that are explicitly visible and assigned to the user window
       return tab.visible && tab.window === 'user';
     })

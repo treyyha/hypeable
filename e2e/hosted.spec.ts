@@ -9,9 +9,27 @@ test.describe('hosted mode', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
 
+    const hosted404Hits: string[] = [];
+
+    page.on('request', (request) => {
+      try {
+        const path = new URL(request.url()).pathname;
+
+        if (path === '/api/configured-providers' || path.startsWith('/api/check-env-key')) {
+          hosted404Hits.push(path);
+        }
+      } catch {
+        // ignore invalid URLs
+      }
+    });
+
     await page.goto('/');
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
+    await page.waitForTimeout(1_500);
+    expect(hosted404Hits, `hosted first load requested ${hosted404Hits.join(', ')}`).toEqual([]);
     await page.getByRole('button', { name: 'Model and key' }).click();
+    await page.waitForTimeout(500);
+    expect(hosted404Hits, `opening the key dialog requested ${hosted404Hits.join(', ')}`).toEqual([]);
     await expect(page.getByTestId('run-locally-hint').first()).toBeVisible({ timeout: 20_000 });
 
     const llmcall = await request.post('/api/llmcall', {

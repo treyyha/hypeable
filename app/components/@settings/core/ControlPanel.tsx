@@ -16,7 +16,6 @@ import GitLabTab from '~/components/@settings/tabs/gitlab/GitLabTab';
 import McpTab from '~/components/@settings/tabs/mcp/McpTab';
 import NetlifyTab from '~/components/@settings/tabs/netlify/NetlifyTab';
 import NotificationsTab from '~/components/@settings/tabs/notifications/NotificationsTab';
-import PluginTab from '~/components/@settings/tabs/plugins/PluginTab';
 import ProfileTab from '~/components/@settings/tabs/profile/ProfileTab';
 import CloudProvidersTab from '~/components/@settings/tabs/providers/cloud/CloudProvidersTab';
 import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab';
@@ -60,7 +59,6 @@ const NAV_GROUPS: { label: string; tabs: TabType[] }[] = [
   { label: 'Workspace', tabs: ['features', 'data', 'event-logs'] },
   { label: 'AI Providers', tabs: ['cloud-providers', 'local-providers'] },
   { label: 'Integrations', tabs: ['connectors', 'mcp'] },
-  { label: 'Extensions', tabs: ['plugins'] },
 ];
 
 export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) => {
@@ -103,6 +101,10 @@ export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) =
         }
 
         if (tab.id === 'notifications' && notificationsDisabled) {
+          return false;
+        }
+
+        if (tab.id === 'plugins') {
           return false;
         }
 
@@ -172,8 +174,6 @@ export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) =
         return <EventLogsTab />;
       case 'mcp':
         return <McpTab />;
-      case 'plugins':
-        return <PluginTab />;
 
       default:
         return null;

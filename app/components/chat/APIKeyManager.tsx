@@ -7,6 +7,7 @@ import {
   setForgetKeysOnTabClose,
   writeStoredApiKeys,
 } from '~/lib/api/api-key-storage';
+import { hostedModeStore } from '~/lib/stores/hosted';
 import type { ProviderInfo } from '~/types/model';
 
 interface APIKeyManagerProps {
@@ -48,6 +49,13 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
   }, [provider.name]);
 
   const checkEnvApiKey = useCallback(async () => {
+    if (hostedModeStore.get()) {
+      providerEnvKeyStatusCache[provider.name] = false;
+      setIsEnvKeySet(false);
+
+      return;
+    }
+
     if (providerEnvKeyStatusCache[provider.name] !== undefined) {
       setIsEnvKeySet(providerEnvKeyStatusCache[provider.name]);
       return;
