@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { llmFetch } from '~/lib/api/api-key-storage';
-import { takeUsageMarker } from '~/lib/cost/usage';
+import { estimateUsageFromText, takeUsageMarker } from '~/lib/cost/usage';
 import { ingestUsageAnnotation, pendingUsageId } from '~/lib/stores/cost';
 import type { ProviderInfo } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
@@ -87,6 +87,19 @@ export function usePromptEnhancer() {
             model,
             provider: provider.name,
           });
+        } else if (_input) {
+          ingestUsageAnnotation(
+            estimateUsageFromText(split.text, {
+              aborted: Boolean(_error),
+              maybeBilled: true,
+              callKind: 'enhancer',
+            }),
+            {
+              id: pendingUsageId(`enhancer:${Date.now()}`),
+              model,
+              provider: provider.name,
+            },
+          );
         }
 
         setEnhancingPrompt(false);

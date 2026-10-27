@@ -152,7 +152,11 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
 
       return new Response(
         toSafeTextStream(
-          wrapTextStreamWithUsage(result.textStream, usageFromResult(result), { model, provider: providerName }),
+          wrapTextStreamWithUsage(result.textStream, usageFromResult(result), {
+            model,
+            provider: providerName,
+            callKind: 'llmcall',
+          }),
         ),
         {
           status: 200,

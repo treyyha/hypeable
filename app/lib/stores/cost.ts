@@ -24,7 +24,7 @@ import {
   type CustomModelPriceRecord,
 } from '~/lib/cost/persist';
 import { formatReceipt } from '~/lib/cost/receipt';
-import { extractTokenUsage } from '~/lib/cost/usage';
+import { extractTokenUsage, type TokenUsage } from '~/lib/cost/usage';
 import { recordLedgerFromUsage } from '~/lib/stores/ledger';
 
 const browserStorage = (): Storage | undefined => {
@@ -111,8 +111,22 @@ export function recordUsage(entry: UsageEntry): CapDecision {
         provider: record.provider,
         promptTokens: record.promptTokens,
         completionTokens: record.completionTokens,
+        cachedTokens: record.cachedTokens,
+        cacheWriteTokens: record.cacheWriteTokens,
+        cacheWrite1hTokens: record.cacheWrite1hTokens,
+        reasoningTokens: record.reasoningTokens,
+        imageTokens: record.imageTokens,
         dollars: record.dollars,
+        computedDollars: record.computedDollars,
+        providerDollars: record.providerDollars,
         verified: record.verified,
+        approximate: record.approximate,
+        precision: record.precision,
+        callKind: record.callKind,
+        aborted: record.aborted,
+        maybeBilled: record.maybeBilled,
+        divergenceNanos: record.divergenceNanos,
+        approximateReasons: record.approximateReasons,
       });
     }
   }
@@ -214,6 +228,7 @@ export function estimateRequestCost(input: {
     provider: input.provider,
     promptTokens,
     completionTokens,
+    precision: 'estimate',
   });
 
   return { dollars: result.dollars, unknown: result.unknown, promptTokens };
@@ -231,13 +246,18 @@ export function ingestUsageAnnotation(
   data: unknown,
   fallback: { id?: string; model?: string; provider?: string } = {},
 ): CapDecision | undefined {
-  const tokens = extractTokenUsage(data);
+  const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+
+  const tokens = extractTokenUsage(data, {
+    precision: record.precision === 'estimate' ? 'estimate' : 'exact',
+    aborted: record.aborted === true,
+    maybeBilled: record.maybeBilled === true,
+    callKind: typeof record.callKind === 'string' ? (record.callKind as TokenUsage['callKind']) : undefined,
+  });
 
   if (!tokens) {
     return undefined;
   }
-
-  const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
 
   const id =
     fallback.id ||
@@ -254,7 +274,16 @@ export function ingestUsageAnnotation(
     promptTokens: tokens.promptTokens,
     completionTokens: tokens.completionTokens,
     cachedTokens: tokens.cachedTokens,
+    cacheWriteTokens: tokens.cacheWriteTokens,
+    cacheWrite1hTokens: tokens.cacheWrite1hTokens,
+    reasoningTokens: tokens.reasoningTokens,
+    reasoningIncludedInOutput: tokens.reasoningIncludedInOutput,
+    imageTokens: tokens.imageTokens,
     actualCost: tokens.cost,
+    precision: tokens.precision,
+    aborted: tokens.aborted,
+    maybeBilled: tokens.maybeBilled,
+    callKind: tokens.callKind,
   });
 }
 

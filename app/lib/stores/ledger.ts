@@ -20,26 +20,12 @@ const browserStorage = (): Storage | undefined => {
 
 export const ledgerStore = atom<LedgerEntry[]>(readLedger(browserStorage()).entries);
 
-export function recordLedgerFromUsage(input: {
-  id: string;
-  model: string;
-  provider?: string;
-  promptTokens: number;
-  completionTokens: number;
-  dollars: number;
-  verified?: boolean;
-}): void {
+export function recordLedgerFromUsage(input: Omit<LedgerEntry, 'timestamp' | 'chatId' | 'chatName'>): void {
   const snapshot = persistLedgerEntry(browserStorage(), {
-    id: input.id,
+    ...input,
     timestamp: Date.now(),
     chatId: chatId.get(),
     chatName: description.get(),
-    model: input.model,
-    provider: input.provider,
-    promptTokens: input.promptTokens,
-    completionTokens: input.completionTokens,
-    dollars: input.dollars,
-    verified: input.verified,
   });
 
   ledgerStore.set(snapshot.entries);

@@ -1,8 +1,18 @@
 /**
  * Append a usage marker to a text stream once the provider reports tokens.
  * Chat uses data-usage parts; enhancer / llmcall have no annotation channel.
+ *
+ * If the stream is aborted or the provider never sends usage, we still emit
+ * a marker from the tokens seen so far and label it an estimate.
  */
-import { encodeUsageMarker, extractTokenUsage, toUsageAnnotation, type UsageAnnotation } from './usage';
+import {
+  encodeUsageMarker,
+  estimateUsageFromText,
+  extractTokenUsage,
+  toUsageAnnotation,
+  type CallKind,
+  type UsageAnnotation,
+} from './usage';
 
 export async function readUsagePromise(usage: Promise<unknown> | unknown): Promise<UsageAnnotation | undefined> {
   try {
@@ -40,34 +50,56 @@ async function* iterateText(stream: AsyncIterable<string> | ReadableStream<strin
   }
 }
 
+function markerFor(
+  tokens: UsageAnnotation | undefined,
+  extras: { model: string; provider?: string; id?: string; callKind?: CallKind },
+  fallbackText: string,
+  aborted: boolean,
+): string {
+  const usage =
+    tokens ??
+    estimateUsageFromText(fallbackText, {
+      callKind: extras.callKind,
+      aborted,
+      maybeBilled: aborted || extras.callKind === 'llmcall',
+    });
+
+  return encodeUsageMarker({
+    ...usage,
+    precision: tokens ? usage.precision : 'estimate',
+    aborted: aborted || usage.aborted,
+    maybeBilled: aborted ? true : usage.maybeBilled,
+    model: extras.model,
+    provider: extras.provider,
+    id: extras.id,
+    callKind: extras.callKind ?? usage.callKind,
+  });
+}
+
 export function wrapTextStreamWithUsage(
   textStream: AsyncIterable<string> | ReadableStream<string>,
   usage: Promise<unknown> | unknown,
-  extras: { model: string; provider?: string; id?: string },
+  extras: { model: string; provider?: string; id?: string; callKind?: CallKind },
 ): ReadableStream<string> {
   return new ReadableStream<string>({
     async start(controller) {
+      let seen = '';
+
       try {
         for await (const chunk of iterateText(textStream)) {
           if (chunk) {
+            seen += chunk;
             controller.enqueue(chunk);
           }
         }
 
         const tokens = await readUsagePromise(usage);
+        controller.enqueue(markerFor(tokens, extras, seen, false));
+      } catch {
+        const tokens = await readUsagePromise(usage);
+        controller.enqueue(markerFor(tokens, extras, seen, true));
+        controller.close();
 
-        if (tokens) {
-          controller.enqueue(
-            encodeUsageMarker({
-              ...tokens,
-              model: extras.model,
-              provider: extras.provider,
-              id: extras.id,
-            }),
-          );
-        }
-      } catch (error) {
-        controller.error(error);
         return;
       }
 

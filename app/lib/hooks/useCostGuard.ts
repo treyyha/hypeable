@@ -72,6 +72,7 @@ export function useCostGuard(options: {
       provider: providerRef.current,
       promptTokens: promptTokensRef.current,
       completionTokens,
+      precision: 'estimate',
     });
   }, [options.isStreaming, options.messages]);
 
@@ -96,6 +97,7 @@ export function useCostGuard(options: {
         provider: options.provider,
         promptTokens: estimated.promptTokens,
         completionTokens: 0,
+        precision: 'estimate',
       });
     };
 
@@ -121,12 +123,19 @@ export function useCostGuard(options: {
   };
 
   const onUsage = (data: unknown) => {
+    const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+    const kind = typeof record.callKind === 'string' ? record.callKind : undefined;
+    const settlesPending = !kind || kind === 'chat' || kind === 'plan' || kind === 'retry';
+
     ingestUsageAnnotation(data, {
-      id: pendingIdRef.current ?? undefined,
+      id: settlesPending ? (pendingIdRef.current ?? undefined) : typeof record.id === 'string' ? record.id : undefined,
       model: options.model,
       provider: options.provider,
     });
-    pendingIdRef.current = null;
+
+    if (settlesPending) {
+      pendingIdRef.current = null;
+    }
   };
 
   const onStreamEnd = () => {
@@ -141,6 +150,10 @@ export function useCostGuard(options: {
         promptTokens: existing.promptTokens,
         completionTokens: existing.completionTokens,
         cachedTokens: existing.cachedTokens,
+        precision: 'estimate',
+        aborted: true,
+        maybeBilled: true,
+        callKind: 'chat',
       });
     }
 

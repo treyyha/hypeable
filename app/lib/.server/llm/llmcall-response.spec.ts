@@ -44,11 +44,17 @@ describe('toLlmCallResponse', () => {
 
   it('passes flattened usage through', async () => {
     const result = await generateText({ model: mockModel(), prompt: 'x' });
+    const { extractTokenUsage } = await import('~/lib/cost/usage');
 
     expect(toLlmCallResponse(result).usage).toMatchObject({
       inputTokens: 7,
       outputTokens: 5,
       totalTokens: 12,
+    });
+    expect(extractTokenUsage(toLlmCallResponse(result).usage)).toMatchObject({
+      promptTokens: 7,
+      completionTokens: 5,
+      precision: 'exact',
     });
   });
 

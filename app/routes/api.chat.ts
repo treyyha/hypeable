@@ -33,7 +33,7 @@ import { getApiKeysFromRequest } from '~/lib/api/request-keys';
 import { getAgentLoopInstructions, getAgentLoopProgress } from '~/lib/common/agentLoop';
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
 import { getStarterBuildProgress } from '~/lib/common/starterBuild';
-import { extractTokenUsage } from '~/lib/cost/usage';
+import { extractTokenUsage, toUsageAnnotation, type CallKind } from '~/lib/cost/usage';
 import { createMessage, getMessageText } from '~/lib/persistence/messageMigration';
 import { PLAN_INSTRUCTION } from '~/lib/plan';
 import { getPluginToolDescriptions, getPluginTools } from '~/lib/plugins/adapters';
@@ -124,31 +124,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     throw error;
   }
 
-  const cumulativeUsage = {
-    completionTokens: 0,
-    promptTokens: 0,
-    totalTokens: 0,
-    cachedTokens: 0,
-    cost: undefined as number | undefined,
-  };
-
-  const addUsage = (usage: unknown) => {
-    const extracted = extractTokenUsage(usage);
-
-    if (!extracted) {
-      return;
-    }
-
-    cumulativeUsage.completionTokens += extracted.completionTokens;
-    cumulativeUsage.promptTokens += extracted.promptTokens;
-    cumulativeUsage.totalTokens += extracted.totalTokens;
-    cumulativeUsage.cachedTokens += extracted.cachedTokens;
-
-    if (extracted.cost !== undefined) {
-      cumulativeUsage.cost = (cumulativeUsage.cost ?? 0) + extracted.cost;
-    }
-  };
-
   let progressCounter: number = 1;
 
   try {
@@ -179,6 +154,32 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
     const uiStream = createChatUIMessageStream(messages, {
       async execute({ writer }) {
+        const writeUsage = (
+          usage: unknown,
+          callKind: CallKind,
+          flags: { maybeBilled?: boolean; aborted?: boolean } = {},
+        ) => {
+          const extracted = extractTokenUsage(usage, {
+            callKind,
+            maybeBilled: flags.maybeBilled,
+            aborted: flags.aborted,
+          });
+
+          if (!extracted) {
+            return;
+          }
+
+          writer.write({
+            type: 'data-usage',
+            data: toUsageAnnotation(extracted, {
+              id: generateId(),
+              model: requestModel?.model,
+              provider: requestModel?.provider,
+              callKind,
+            }),
+          });
+        };
+
         const filePaths = getFilePaths(files || {});
 
         let filteredFiles: FileMap | undefined = undefined;
@@ -233,10 +234,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             promptId,
             contextOptimization,
             onFinish(resp) {
-              if (resp.usage) {
-                logger.debug('createSummary token usage', JSON.stringify(resp.usage));
-                addUsage(resp.usage);
-              }
+              const usage = resp.totalUsage ?? resp.usage;
+              logger.debug('createSummary token usage', JSON.stringify(usage));
+              writeUsage(usage, 'summary');
             },
           });
           writer.write({
@@ -280,10 +280,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             contextOptimization,
             summary,
             onFinish(resp) {
-              if (resp.usage) {
-                logger.debug('selectContext token usage', JSON.stringify(resp.usage));
-                addUsage(resp.usage);
-              }
+              const usage = resp.totalUsage ?? resp.usage;
+              logger.debug('selectContext token usage', JSON.stringify(usage));
+              writeUsage(usage, 'context');
             },
           });
 
@@ -489,7 +488,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             logger.debug('usage', JSON.stringify(usage));
 
             if (usage) {
-              addUsage(usage);
+              writeUsage(usage, planMode ? 'plan' : 'chat', {
+                maybeBilled: finishReason === 'error',
+              });
             }
 
             if (finishReason === 'error') {
@@ -497,18 +498,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             }
 
             if (finishReason !== 'length') {
-              writer.write({
-                type: 'data-usage',
-                data: {
-                  completionTokens: cumulativeUsage.completionTokens,
-                  promptTokens: cumulativeUsage.promptTokens,
-                  totalTokens: cumulativeUsage.totalTokens,
-                  cachedTokens: cumulativeUsage.cachedTokens,
-                  model: requestModel?.model,
-                  provider: requestModel?.provider,
-                  ...(cumulativeUsage.cost !== undefined ? { cost: cumulativeUsage.cost } : {}),
-                },
-              });
               writer.write({
                 type: 'data-progress',
                 data: {
