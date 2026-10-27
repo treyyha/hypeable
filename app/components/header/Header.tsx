@@ -62,13 +62,14 @@ export function Header() {
   return (
     <header
       className={classNames(
-        'flex items-center gap-3 border-b border-hype-border bg-hype-bg px-3 h-[var(--header-height)]',
+        'relative z-logo flex h-[var(--header-height)] items-center gap-3 border-b border-hype-border bg-hype-bg px-3',
       )}
     >
       <button
         type="button"
         className="hype-icon-btn lg:hidden"
         data-testid="sidebar-toggle"
+        aria-expanded={mobileOpen}
         aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
         onPointerEnter={requestMenuLoad}
         onFocus={requestMenuLoad}

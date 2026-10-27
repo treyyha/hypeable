@@ -289,7 +289,7 @@ export const Menu = () => {
       {mobileOpen ? (
         <button
           type="button"
-          className="fixed inset-0 z-sidebar bg-hype-bg/70 lg:hidden"
+          className="fixed inset-x-0 bottom-0 top-[var(--header-height)] z-sidebar bg-hype-bg/70 lg:hidden"
           aria-label="Close sidebar"
           onClick={() => setSidebarMobileOpen(false)}
         />
@@ -298,10 +298,10 @@ export const Menu = () => {
         data-testid="app-sidebar"
         ref={menuRef}
         className={classNames(
-          'flex h-full shrink-0 flex-col border-r border-hype-border bg-hype-surface text-sm text-hype-text',
-          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-max max-lg:w-[var(--hype-sidebar-width)]',
-          'max-lg:transition-transform max-lg:duration-[var(--hype-duration-med)]',
-          mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full max-lg:pointer-events-none',
+          'shrink-0 flex-col border-r border-hype-border bg-hype-surface text-sm text-hype-text',
+          mobileOpen
+            ? 'fixed bottom-0 left-0 top-[var(--header-height)] z-max flex w-[var(--hype-sidebar-width)] lg:static lg:inset-auto lg:h-full'
+            : 'hidden lg:flex lg:h-full',
           collapsed ? 'lg:w-[var(--hype-sidebar-width-collapsed)]' : 'lg:w-[var(--hype-sidebar-width)]',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}

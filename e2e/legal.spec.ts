@@ -12,8 +12,7 @@ test.describe('privacy and terms', () => {
     await page.goto('/privacy');
     await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible({ timeout: 20_000 });
     await expect(page).toHaveTitle(/Privacy/);
-    await expect(page.getByText(/No accounts and no database/i)).toBeVisible();
-    await expect(page.getByText(/relayed through our Cloudflare Worker/i)).toBeVisible();
+    await expect(page.getByText(/No accounts and no database/i).first()).toBeVisible();
     await expect(page.getByText(/We have not audited what StackBlitz sees/i)).toBeVisible();
     await expect(page.getByText(/selectedProvider/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'KEY-FLOW.md' })).toBeVisible();

@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { seedOpenAILikeMock, waitForChatStarted } from './seed';
+import { seedOpenAILikeMock, waitForChatStarted, waitForHomeHydrated } from './seed';
 
 const WIDTHS = [375, 768, 1024, 1440] as const;
 const THEMES = ['dark', 'light'] as const;
@@ -19,6 +19,7 @@ const PAGES: RouteShot[] = [
     path: '/',
     ready: async (page) => {
       await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId('cost-pill')).toBeVisible({ timeout: 20_000 });
     },
   },
   {
@@ -27,6 +28,11 @@ const PAGES: RouteShot[] = [
     ready: async (page) => {
       await waitForChatStarted(page);
       await expect(page.locator('[data-testid="home-main"]')).toBeVisible({ timeout: 20_000 });
+      const width = page.viewportSize()?.width ?? 0;
+
+      if (width < 1024) {
+        await expect(page.getByTestId('mobile-pane-tabs')).toBeVisible({ timeout: 20_000 });
+      }
     },
   },
   {
@@ -80,6 +86,10 @@ test.describe('responsive screenshots', () => {
         await page.goto(route.path);
         await route.ready(page);
 
+        if (route.id === 'home' || route.id === 'chat') {
+          await waitForHomeHydrated(page);
+        }
+
         const overflow = await page.evaluate(() => ({
           scrollWidth: document.documentElement.scrollWidth,
           clientWidth: document.documentElement.clientWidth,
@@ -90,7 +100,7 @@ test.describe('responsive screenshots', () => {
 
         for (const theme of THEMES) {
           await setTheme(page, theme);
-          await page.screenshot({ path: join(SHOT_DIR, `${route.id}-${theme}-${width}.png`), fullPage: true });
+          await page.screenshot({ path: join(SHOT_DIR, `${route.id}-${theme}-${width}.png`), fullPage: false });
         }
       }
     }

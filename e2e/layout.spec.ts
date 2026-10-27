@@ -9,8 +9,22 @@ const VIEWPORTS = [
 ] as const;
 
 async function sidebarOnScreen(page: Page): Promise<boolean> {
-  const box = await page.getByTestId('app-sidebar').boundingBox();
-  return Boolean(box && box.width > 8 && box.x + 8 >= 0 && box.x < page.viewportSize()!.width);
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="app-sidebar"]');
+
+    if (!(el instanceof HTMLElement)) {
+      return false;
+    }
+
+    const style = getComputedStyle(el);
+
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+
+    const box = el.getBoundingClientRect();
+    return box.width > 8 && box.right > 8 && box.left < window.innerWidth - 8;
+  });
 }
 
 async function assertNoHorizontalScroll(page: Page) {
@@ -56,29 +70,41 @@ test.describe('narrow layout', () => {
   });
 
   test('hamburger is hidden at ≥1024 and opens the sidebar at 375 and 768', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     await seedOpenAILikeMock(page);
 
-    for (const viewport of VIEWPORTS) {
-      await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      await page.goto('/');
-      await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
+    for (const path of ['/', '/spend'] as const) {
+      for (const viewport of VIEWPORTS) {
+        await page.setViewportSize({ width: viewport.width, height: viewport.height });
+        await page.goto(path);
+        await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
 
-      const toggle = page.getByTestId('sidebar-toggle');
+        if (path === '/spend') {
+          await expect(page.getByTestId('spend-page')).toBeVisible({ timeout: 20_000 });
+        } else {
+          await expect(page.getByTestId('cost-pill')).toBeVisible({ timeout: 20_000 });
+        }
 
-      if (viewport.width >= 1024) {
-        await expect(toggle).toBeHidden();
-        await expect.poll(() => sidebarOnScreen(page)).toBe(true);
-        continue;
+        const toggle = page.getByTestId('sidebar-toggle');
+
+        if (viewport.width >= 1024) {
+          await expect(toggle).toBeHidden();
+          await expect.poll(() => sidebarOnScreen(page), { timeout: 15_000 }).toBe(true);
+          continue;
+        }
+
+        await expect(toggle).toBeVisible();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        await expect.poll(() => sidebarOnScreen(page), { timeout: 15_000 }).toBe(false);
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        await expect(toggle).toBeVisible();
+        await expect.poll(() => sidebarOnScreen(page), { timeout: 15_000 }).toBe(true);
+        await expect(page.getByRole('link', { name: 'New build' }).last()).toBeVisible();
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        await expect.poll(() => sidebarOnScreen(page), { timeout: 15_000 }).toBe(false);
       }
-
-      await expect(toggle).toBeVisible();
-      await expect.poll(() => sidebarOnScreen(page)).toBe(false);
-      await toggle.click();
-      await expect.poll(() => sidebarOnScreen(page)).toBe(true);
-      await expect(page.getByRole('link', { name: 'New build' })).toBeVisible();
-      await page.getByRole('button', { name: 'Close sidebar' }).first().click();
-      await expect.poll(() => sidebarOnScreen(page)).toBe(false);
     }
   });
 
