@@ -92,12 +92,36 @@ test.describe('OpenAILike mock smoke', () => {
     test.setTimeout(120_000);
 
     const leaks = collectLeaks(page);
+    await page.addInitScript(() => {
+      const key = '__cspViolations';
+      const read = (): Array<Record<string, string>> => {
+        try {
+          return JSON.parse(sessionStorage.getItem(key) || '[]') as Array<Record<string, string>>;
+        } catch {
+          return [];
+        }
+      };
+      document.addEventListener('securitypolicyviolation', (event) => {
+        const rows = read();
+        rows.push({
+          directive: event.effectiveDirective,
+          uri: event.blockedURI,
+          disposition: event.disposition,
+        });
+        sessionStorage.setItem(key, JSON.stringify(rows));
+      });
+    });
     await seedOpenAILikeMock(page);
 
     const documentResponse = await page.goto('/');
     expect(documentResponse).toBeTruthy();
     expect(documentResponse?.headers()['cross-origin-embedder-policy']).toBe('credentialless');
     expect(documentResponse?.headers()['cross-origin-opener-policy']).toBe('same-origin');
+    expect(documentResponse?.headers()['content-security-policy']).toContain("default-src 'self'");
+    expect(documentResponse?.headers()['content-security-policy']).toContain('wasm-unsafe-eval');
+    expect(documentResponse?.headers()['content-security-policy-report-only']).toContain(
+      'https://*.webcontainer-api.io',
+    );
 
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
     await expect(page.locator('header').getByText('new build')).toBeVisible();
@@ -161,5 +185,19 @@ test.describe('OpenAILike mock smoke', () => {
     expect(leaks.chatApiHeaders.every((headers) => headers.referrer === 'strict-origin-when-cross-origin')).toBe(true);
     expect(leaks.chatApiHeaders.every((headers) => headers.coop === '' && headers.coep === '')).toBe(true);
     expect(leaks.chatApiHeaders.every((headers) => headers.cspReportOnly === '')).toBe(true);
+
+    const cspHits = await page.evaluate(() => {
+      try {
+        return JSON.parse(sessionStorage.getItem('__cspViolations') || '[]') as Array<{
+          directive: string;
+          uri: string;
+          disposition: string;
+        }>;
+      } catch {
+        return [];
+      }
+    });
+    const enforcingHits = cspHits.filter((hit) => hit.disposition === 'enforce');
+    expect(enforcingHits, `enforcing CSP blocked ${JSON.stringify(enforcingHits)}`).toEqual([]);
   });
 });

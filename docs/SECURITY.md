@@ -10,7 +10,7 @@
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
 | Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |
 | Missing auth | check inside every server handler |
-| XSS / clickjacking | HTML/static: CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
+| XSS / clickjacking | HTML/static: enforcing CSP + stricter CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
 | Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
 
@@ -18,9 +18,17 @@
 
 | Surface | Headers |
 |---|---|
-| HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, CSP-Report-Only |
+| HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, enforcing `Content-Security-Policy`, stricter `Content-Security-Policy-Report-Only` |
 | Static assets (`public/_headers`) | Same as HTML |
 | `/api/*` (`workers/app.ts`) | `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store`. No COOP, COEP, CSP, or Permissions-Policy. Existing stricter Cache-Control / Referrer-Policy on a route is kept. Body is passed through (not buffered) so chat/SSE still streams. |
+
+Enforcing CSP (`app/lib/security/headers.ts` `CSP_ENFORCING`) keeps `https:` on `connect-src` / `frame-src` / `img-src` because the user picks a provider at runtime and WebContainer preview frames are per-session. Tightening those to a static host list would break Connect, preview, and publish. A stricter report-only policy (`CSP_REPORT_ONLY`) lists known provider and WebContainer hosts so new origins show up in the console without breaking a flow.
+
+`unsafe-inline` / `unsafe-eval` (not removable without a rewrite):
+
+- `script-src 'unsafe-inline'`: root theme boot and the OpenRouter callback-strip script in `app/root.tsx`
+- `script-src 'unsafe-eval'` and `'wasm-unsafe-eval'`: WebContainer compiles guest JavaScript and WASM
+- `style-src 'unsafe-inline'`: UnoCSS / runtime component styles
 
 Constants: `app/lib/security/headers.ts`.
 

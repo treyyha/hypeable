@@ -62,6 +62,7 @@ test.describe('hosted mode', () => {
     expect(health.headers()['cache-control']).toContain('no-store');
     expect(health.headers()['cross-origin-opener-policy']).toBeFalsy();
     expect(health.headers()['cross-origin-embedder-policy']).toBeFalsy();
+    expect(health.headers()['content-security-policy']).toBeFalsy();
     expect(health.headers()['content-security-policy-report-only']).toBeFalsy();
     expect(health.headers()['permissions-policy']).toBeFalsy();
     expect(health.headers()['access-control-allow-origin']).toBeFalsy();

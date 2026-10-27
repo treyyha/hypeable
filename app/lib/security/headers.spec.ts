@@ -1,11 +1,34 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   API_SECURITY_HEADERS,
+  CSP_ENFORCING,
+  CSP_REPORT_ONLY,
   DOCUMENT_ONLY_HEADER_NAMES,
+  DOCUMENT_SECURITY_HEADERS,
   REFERRER_POLICY,
   applyApiSecurityHeaders,
   isApiRequest,
 } from './headers';
+
+describe('document CSP', () => {
+  it('ships an enforcing policy and a stricter report-only policy', () => {
+    expect(DOCUMENT_SECURITY_HEADERS['Content-Security-Policy']).toBe(CSP_ENFORCING);
+    expect(DOCUMENT_SECURITY_HEADERS['Content-Security-Policy-Report-Only']).toBe(CSP_REPORT_ONLY);
+    expect(CSP_ENFORCING).toContain("object-src 'none'");
+    expect(CSP_ENFORCING).toContain('wasm-unsafe-eval');
+    expect(CSP_REPORT_ONLY.includes('https: wss:')).toBe(false);
+    expect(CSP_REPORT_ONLY).toContain('https://*.webcontainer-api.io');
+    expect(DOCUMENT_ONLY_HEADER_NAMES).toContain('Content-Security-Policy');
+  });
+
+  it('keeps public/_headers in sync with the document CSP', () => {
+    const headersFile = readFileSync(join(process.cwd(), 'public/_headers'), 'utf8');
+    expect(headersFile).toContain(`Content-Security-Policy: ${CSP_ENFORCING}`);
+    expect(headersFile).toContain(`Content-Security-Policy-Report-Only: ${CSP_REPORT_ONLY}`);
+  });
+});
 
 describe('isApiRequest', () => {
   it('matches /api and /api/* only', () => {

@@ -103,10 +103,20 @@ for (const [name, value] of Object.entries(needed)) {
   }
 }
 
-if (!headers.get('content-security-policy-report-only')) {
-  fail('missing Content-Security-Policy-Report-Only');
+const csp = headers.get('content-security-policy') || '';
+
+if (!csp.includes("default-src 'self'") || !csp.includes('wasm-unsafe-eval')) {
+  fail(`Content-Security-Policy missing or too weak: ${csp.slice(0, 160)}`);
 } else {
-  pass('CSP-Report-Only present');
+  pass('Content-Security-Policy is enforcing');
+}
+
+const cspRo = headers.get('content-security-policy-report-only') || '';
+
+if (!cspRo.includes('https://*.webcontainer-api.io')) {
+  fail(`missing stricter CSP-Report-Only: ${cspRo.slice(0, 160)}`);
+} else {
+  pass('CSP-Report-Only is the stricter monitor policy');
 }
 
 const connect = await get('/webcontainer/connect/x');
@@ -303,6 +313,7 @@ if (!/(?:^|,)\s*no-store\s*(?:,|$)/i.test(healthCache)) {
 const documentOnlyOnApi = [
   'cross-origin-opener-policy',
   'cross-origin-embedder-policy',
+  'content-security-policy',
   'content-security-policy-report-only',
   'permissions-policy',
 ];

@@ -2,33 +2,75 @@
  * Document isolation headers vs the smaller API set.
  *
  * HTML (`app/entry.server.tsx`) and static assets (`public/_headers`) get
- * COOP/COEP (WebContainer SharedArrayBuffer), Permissions-Policy, and
- * CSP-Report-Only. JSON/SSE `/api/*` responses get nosniff, Referrer-Policy,
- * and Cache-Control: no-store only — applied in `workers/app.ts` so every
- * Worker API response is covered without buffering the body.
+ * COOP/COEP (WebContainer SharedArrayBuffer), Permissions-Policy, an
+ * enforcing CSP, and a stricter CSP-Report-Only for monitoring. JSON/SSE
+ * `/api/*` responses get nosniff, Referrer-Policy, and Cache-Control: no-store
+ * only — applied in `workers/app.ts` so every Worker API response is covered
+ * without buffering the body.
  */
 export const COEP_HEADER = 'credentialless';
 export const COOP_HEADER = 'same-origin';
 export const REFERRER_POLICY = 'strict-origin-when-cross-origin';
 
+const LOCAL_CONNECT = 'http://127.0.0.1:* http://localhost:* http://[::1]:*';
+const WEBCONTAINER_FRAME = 'https://*.webcontainer-api.io https://*.local-credentialless.webcontainer-api.io';
+const WEBCONTAINER_CONNECT = `${WEBCONTAINER_FRAME} wss://*.webcontainer-api.io wss://*.local-credentialless.webcontainer-api.io`;
+
 /*
- * Why each directive is this loose:
- * - script/worker wasm-unsafe-eval + blob: — WebContainer compiles and runs guest JS
- * - connect/frame https: and localhost — preview iframes and the user's model provider
- * - wss: — WebContainer / preview live reload
- * First-party LLM hosts are already allowlisted server-side; the browser still
- * talks to whatever provider the user picked, plus GitHub/GitLab/Vercel/Netlify.
+ * Enforcing CSP. Keep `https:` in connect/frame because the user picks a
+ * provider at runtime (OpenAI, Groq, a new first-party host) and WebContainer
+ * preview frames are generated per session. Tightening those to a static host
+ * list breaks Connect / preview / publish.
+ *
+ * unsafe-inline / unsafe-eval (justified, not removable without a rewrite):
+ * - script-src 'unsafe-inline': root theme + OpenRouter callback-strip scripts
+ * - script-src 'unsafe-eval' + 'wasm-unsafe-eval': WebContainer compiles guest JS
+ * - style-src 'unsafe-inline': UnoCSS/runtime component styles
  */
-export const CSP_REPORT_ONLY = [
+export const CSP_ENFORCING = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' blob: data: https: wss: http://127.0.0.1:* http://localhost:* http://[::1]:*",
+  `connect-src 'self' blob: data: https: wss: ${LOCAL_CONNECT}`,
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
-  "frame-src 'self' blob: https: http://localhost:* http://127.0.0.1:* http://[::1]:*",
+  `frame-src 'self' blob: https: ${LOCAL_CONNECT}`,
+  "media-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
+/*
+ * Stricter report-only: no blanket `https:` on connect/frame. Browser console
+ * (and Playwright) record violations when a new provider or preview host appears
+ * so we can extend the list without breaking a flow first.
+ */
+export const CSP_REPORT_ONLY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://cdn.simpleicons.org",
+  "font-src 'self' data:",
+  [
+    "connect-src 'self' blob: data:",
+    WEBCONTAINER_CONNECT,
+    'https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com',
+    'https://openrouter.ai https://api.groq.com https://api.deepseek.com https://api.mistral.ai',
+    'https://api.x.ai https://api.together.xyz https://api.perplexity.ai https://api.cohere.ai https://api.cohere.com',
+    'https://api-inference.huggingface.co https://router.huggingface.co https://huggingface.co',
+    'https://api.fireworks.ai https://api.cerebras.ai https://api.moonshot.ai https://api.moonshot.cn',
+    'https://api.hyperbolic.xyz https://api.z.ai https://open.bigmodel.cn',
+    'https://models.github.ai https://models.inference.ai.azure.com',
+    'https://api.github.com https://github.com https://gitlab.com https://api.vercel.com https://api.netlify.com https://api.supabase.com',
+    LOCAL_CONNECT,
+  ].join(' '),
+  "worker-src 'self' blob:",
+  "child-src 'self' blob:",
+  `frame-src 'self' blob: ${WEBCONTAINER_FRAME} ${LOCAL_CONNECT}`,
   "media-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
@@ -42,6 +84,7 @@ export const DOCUMENT_SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': REFERRER_POLICY,
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Content-Security-Policy': CSP_ENFORCING,
   'Content-Security-Policy-Report-Only': CSP_REPORT_ONLY,
 };
 
@@ -56,6 +99,7 @@ export const DOCUMENT_ONLY_HEADER_NAMES = [
   'Cross-Origin-Embedder-Policy',
   'Cross-Origin-Opener-Policy',
   'Permissions-Policy',
+  'Content-Security-Policy',
   'Content-Security-Policy-Report-Only',
 ] as const;
 

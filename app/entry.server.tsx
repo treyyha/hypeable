@@ -31,8 +31,8 @@ export default async function handleRequest(
    * WebContainer requires a cross-origin-isolated document.
    * `credentialless` is used because the preview iframe and the
    * COEP header would otherwise block every third-party subresource.
-   * Extra headers + CSP-Report-Only live in DOCUMENT_SECURITY_HEADERS
-   * (keep public/_headers in sync).
+   * Extra headers + enforcing CSP + stricter CSP-Report-Only live in
+   * DOCUMENT_SECURITY_HEADERS (keep public/_headers in sync).
    */
   for (const [name, value] of Object.entries(DOCUMENT_SECURITY_HEADERS)) {
     responseHeaders.set(name, value);
