@@ -8,7 +8,7 @@ import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { readStoredConnection } from '~/lib/api/git-auth-storage';
-import { description } from '~/lib/persistence';
+import { description } from '~/lib/persistence/chat-meta';
 import { withPredeployScan } from '~/lib/predeploy/intercept';
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';

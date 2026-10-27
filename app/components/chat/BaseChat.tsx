@@ -7,9 +7,7 @@ import styles from './BaseChat.module.scss';
 import ChatAlert from './ChatAlert';
 import { ChatBox } from './ChatBox';
 import LlmErrorAlert from './LLMApiAlert';
-import { Messages, type DisplayMessage } from './Messages.client';
-import ProgressCompilation from './ProgressCompilation';
-import { ToolApprovalTray } from './ToolApprovalTray';
+import type { DisplayMessage } from './Messages.client';
 import { BrowserSupportBanner } from '~/components/browser/BrowserSupportBanner';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
@@ -24,25 +22,32 @@ import { PlanHost } from '~/components/plan/PlanHost';
 import { Aurora } from '~/components/ui/Aurora';
 import { BrandFooter } from '~/components/ui/BrandFooter';
 import type { ElementInfo } from '~/components/workbench/Inspector';
-import { MobilePaneTabs } from '~/components/workbench/MobilePaneTabs';
 import { WorkbenchReopenButton } from '~/components/workbench/WorkbenchReopenButton';
 import { llmFetch, readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
-
-const LazyWorkbench = lazy(() =>
-  import('~/components/workbench/Workbench.client').then((m) => ({ default: m.Workbench })),
-);
-import useViewport, { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
+import { StickToBottom, useStickToBottomContext } from '~/lib/hooks/StickToBottom';
+import useViewport from '~/lib/hooks/useViewport';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { setMobilePane } from '~/lib/stores/mobile-pane';
+import { prefetchWorkbench } from '~/lib/performance/prefetch-home';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
-import { workbenchStore } from '~/lib/stores/workbench';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import type { ProgressAnnotation } from '~/types/context';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
+
+const LazyWorkbench = lazy(() =>
+  import('~/components/workbench/Workbench.client').then((m) => ({ default: m.Workbench })),
+);
+
+const Messages = lazy(() => import('./Messages.client').then((m) => ({ default: m.Messages })));
+
+const MobilePaneTabs = lazy(() =>
+  import('~/components/workbench/MobilePaneTabs').then((m) => ({ default: m.MobilePaneTabs })),
+);
+
+const ProgressCompilation = lazy(() => import('./ProgressCompilation'));
+const ToolApprovalTray = lazy(() => import('./ToolApprovalTray').then((m) => ({ default: m.ToolApprovalTray })));
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -154,7 +159,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [isModelLoading, setIsModelLoading] = useState<string | undefined>('all');
 
     const expoUrl = useStore(expoUrlAtom);
-    const showWorkbench = useStore(workbenchStore.showWorkbench);
+    const [showWorkbench, setShowWorkbench] = useState(true);
     const isSmallViewport = useViewport(1024);
     const [qrModalOpen, setQrModalOpen] = useState(false);
 
@@ -164,8 +169,23 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
 
       if (window.matchMedia('(max-width: 1023px)').matches) {
-        setMobilePane('chat');
+        void import('~/lib/stores/mobile-pane').then(({ setMobilePane }) => setMobilePane('chat'));
       }
+    }, [chatStarted]);
+
+    useEffect(() => {
+      if (!chatStarted) {
+        return undefined;
+      }
+
+      let unsub: (() => void) | undefined;
+
+      void import('~/lib/stores/workbench').then(({ workbenchStore }) => {
+        setShowWorkbench(workbenchStore.showWorkbench.get());
+        unsub = workbenchStore.showWorkbench.subscribe(setShowWorkbench);
+      });
+
+      return () => unsub?.();
     }, [chatStarted]);
 
     useEffect(() => {
@@ -400,7 +420,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         data-chat-visible={showChat}
       >
         {chatStarted && showChat && !showWorkbench && !isSmallViewport && (
-          <WorkbenchReopenButton onClick={() => workbenchStore.showWorkbench.set(true)} />
+          <WorkbenchReopenButton
+            onClick={() => {
+              void import('~/lib/stores/workbench').then(({ workbenchStore }) => {
+                workbenchStore.showWorkbench.set(true);
+              });
+            }}
+          />
         )}
         <div className="flex h-full min-w-0 w-full flex-col overflow-hidden lg:flex-row">
           <div
@@ -436,17 +462,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <ClientOnly>
                     {() => {
                       return chatStarted ? (
-                        <Messages
-                          className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
-                          messages={messages}
-                          isStreaming={isStreaming}
-                          append={append}
-                          chatMode={chatMode}
-                          setChatMode={setChatMode}
-                          provider={provider}
-                          model={model}
-                          addToolResult={addToolOutput}
-                        />
+                        <Suspense fallback={null}>
+                          <Messages
+                            className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                            messages={messages}
+                            isStreaming={isStreaming}
+                            append={append}
+                            chatMode={chatMode}
+                            setChatMode={setChatMode}
+                            provider={provider}
+                            model={model}
+                            addToolResult={addToolOutput}
+                          />
+                        </Suspense>
                       ) : null;
                     }}
                   </ClientOnly>
@@ -493,12 +521,21 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     )}
                     {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
                   </div>
-                  <ToolApprovalTray messages={messages} addToolOutput={addToolOutput} />
-                  {incomingProgressAnnotations && <ProgressCompilation data={incomingProgressAnnotations} />}
+                  {chatStarted ? (
+                    <Suspense fallback={null}>
+                      <ToolApprovalTray messages={messages} addToolOutput={addToolOutput} />
+                    </Suspense>
+                  ) : null}
+                  {incomingProgressAnnotations ? (
+                    <Suspense fallback={null}>
+                      <ProgressCompilation data={incomingProgressAnnotations} />
+                    </Suspense>
+                  ) : null}
                   <ChatBox
                     provider={provider}
                     setProvider={setProvider}
-                    providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+                    providerList={providerList || []}
+                    onComposerFocus={prefetchWorkbench}
                     model={model}
                     setModel={setModel}
                     modelList={modelList}
@@ -575,7 +612,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               )}
             </ClientOnly>
           )}
-          {chatStarted && <MobilePaneTabs />}
+          {chatStarted && (
+            <Suspense fallback={null}>
+              <MobilePaneTabs />
+            </Suspense>
+          )}
         </div>
       </div>
     );

@@ -1,16 +1,26 @@
 import { useStore } from '@nanostores/react';
+import { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
-import { HeaderActionButtons } from './HeaderActionButtons.client';
-import { CostMeter } from '~/components/cost/CostMeter';
-import { PlanPanel } from '~/components/plan/PlanPanel';
-import { PredeployHost } from '~/components/predeploy/PredeployHost';
 import { ThemeSwitch } from '~/components/ui/ThemeSwitch';
-import { description as descriptionStore } from '~/lib/persistence';
-import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { description as descriptionStore } from '~/lib/persistence/chat-meta';
 import { chatStore } from '~/lib/stores/chat';
 import { sidebarMobileOpenStore, toggleSidebarMobile } from '~/lib/stores/sidebar';
 import { classNames } from '~/utils/classNames';
+
+const HeaderActionButtons = lazy(() =>
+  import('./HeaderActionButtons.client').then((module) => ({ default: module.HeaderActionButtons })),
+);
+
+const CostMeter = lazy(() => import('~/components/cost/CostMeter').then((module) => ({ default: module.CostMeter })));
+const PlanPanel = lazy(() => import('~/components/plan/PlanPanel').then((module) => ({ default: module.PlanPanel })));
+
+const PredeployHost = lazy(() =>
+  import('~/components/predeploy/PredeployHost').then((module) => ({ default: module.PredeployHost })),
+);
+const ChatDescription = lazy(() =>
+  import('~/lib/persistence/ChatDescription.client').then((module) => ({ default: module.ChatDescription })),
+);
 
 function openSettings() {
   document.dispatchEvent(new CustomEvent('open-hypeable-settings', { detail: { tab: 'settings' } }));
@@ -66,18 +76,42 @@ export function Header() {
           {crumb ? (
             crumb
           ) : chat.started ? (
-            <ClientOnly fallback="new build">{() => <HeaderChatTitle />}</ClientOnly>
+            <ClientOnly fallback="new build">
+              {() => (
+                <Suspense fallback="new build">
+                  <HeaderChatTitle />
+                </Suspense>
+              )}
+            </ClientOnly>
           ) : (
             'new build'
           )}
         </span>
       </nav>
 
-      <ClientOnly>{() => <PlanPanel />}</ClientOnly>
-      <ClientOnly>{() => <PredeployHost />}</ClientOnly>
+      <ClientOnly>
+        {() => (
+          <Suspense fallback={null}>
+            <PlanPanel />
+          </Suspense>
+        )}
+      </ClientOnly>
+      <ClientOnly>
+        {() => (
+          <Suspense fallback={null}>
+            <PredeployHost />
+          </Suspense>
+        )}
+      </ClientOnly>
 
       <div className="ml-auto flex items-center gap-1.5">
-        <ClientOnly>{() => <CostMeter />}</ClientOnly>
+        <ClientOnly>
+          {() => (
+            <Suspense fallback={null}>
+              <CostMeter />
+            </Suspense>
+          )}
+        </ClientOnly>
         <ClientOnly>{() => <ThemeSwitch />}</ClientOnly>
         <button
           type="button"
@@ -91,9 +125,11 @@ export function Header() {
         {chat.started && (
           <ClientOnly>
             {() => (
-              <div>
-                <HeaderActionButtons chatStarted={chat.started} />
-              </div>
+              <Suspense fallback={null}>
+                <div>
+                  <HeaderActionButtons chatStarted={chat.started} />
+                </div>
+              </Suspense>
             )}
           </ClientOnly>
         )}

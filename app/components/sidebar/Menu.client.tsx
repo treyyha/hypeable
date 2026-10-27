@@ -536,9 +536,15 @@ export const Menu = () => {
         </div>
       </aside>
 
-      <Suspense fallback={null}>
-        <LazyControlPanel open={isSettingsOpen} onClose={handleSettingsClose} initialTab={settingsInitialTab as any} />
-      </Suspense>
+      {isSettingsOpen ? (
+        <Suspense fallback={null}>
+          <LazyControlPanel
+            open={isSettingsOpen}
+            onClose={handleSettingsClose}
+            initialTab={settingsInitialTab as any}
+          />
+        </Suspense>
+      ) : null}
       <DocumentationPanel open={isDocumentationOpen} onClose={() => setIsDocumentationOpen(false)} />
     </>
   );

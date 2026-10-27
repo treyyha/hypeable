@@ -47,13 +47,14 @@ import type { ProgressAnnotation } from '~/types/context';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { shouldPreserveChatMessagesOnRefresh } from '~/utils/chatHistoryRefresh';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST, TOOL_EXECUTION_APPROVAL } from '~/utils/constants';
+import { DEFAULT_MODEL, TOOL_EXECUTION_APPROVAL } from '~/utils/constants-core';
 import { debounce } from '~/utils/debounce';
 import { cubicEasingFn } from '~/utils/easings';
 import { filesToArtifacts } from '~/utils/fileUtils';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { resolveProjectCallContext } from '~/utils/projectCallContext';
 import { createCommandsMessage, detectProjectCommands } from '~/utils/projectCommands';
+import { DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/provider-list';
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
 

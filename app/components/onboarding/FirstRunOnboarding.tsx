@@ -10,7 +10,7 @@ import type { MCPConfig } from '~/lib/services/mcpService';
 import { hostedModeStore } from '~/lib/stores/hosted';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { DEFAULT_AVATARS, DEFAULT_AVATAR, updateProfile } from '~/lib/stores/profile';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
+import { LOCAL_PROVIDERS } from '~/lib/stores/provider-kinds';
 import { setTheme, themeStore } from '~/lib/stores/theme';
 import { THEMES, normalizeTheme, type Theme } from '~/types/theme';
 import { PROVIDER_LIST } from '~/utils/constants';

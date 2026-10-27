@@ -3,13 +3,19 @@
  * actions stay reachable without crowding the first screen.
  */
 import type { UIMessage } from 'ai';
-import { useState } from 'react';
-import GitCloneButton from '~/components/chat/GitCloneButton';
-import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
-import { ImportZipButton } from '~/components/chat/ImportZipButton';
+import { lazy, Suspense, useState } from 'react';
 import { Chip } from '~/components/ui/Chip';
 import { classNames } from '~/utils/classNames';
-import { STARTER_TEMPLATES } from '~/utils/constants';
+import { STARTER_TEMPLATES } from '~/utils/constants-core';
+
+const GitCloneButton = lazy(() => import('~/components/chat/GitCloneButton'));
+
+const ImportFolderButton = lazy(() =>
+  import('~/components/chat/ImportFolderButton').then((module) => ({ default: module.ImportFolderButton })),
+);
+const ImportZipButton = lazy(() =>
+  import('~/components/chat/ImportZipButton').then((module) => ({ default: module.ImportZipButton })),
+);
 
 type MoreWaysToStartProps = {
   importChat?: (description: string, messages: UIMessage[]) => Promise<void>;
@@ -47,29 +53,31 @@ export function MoreWaysToStart({ importChat }: MoreWaysToStartProps) {
               </Chip>
             ))}
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            <ImportFolderButton
-              importChat={importChat}
-              className={classNames(
-                'gap-2 bg-bolt-elements-background-depth-1',
-                'text-bolt-elements-textPrimary',
-                'hover:bg-bolt-elements-background-depth-2',
-                'h-10 px-4 py-2 min-w-[120px] justify-center',
-                'transition-all duration-200 ease-in-out rounded-lg',
-              )}
-            />
-            <ImportZipButton
-              importChat={importChat}
-              className={classNames(
-                'gap-2 bg-bolt-elements-background-depth-1',
-                'text-bolt-elements-textPrimary',
-                'hover:bg-bolt-elements-background-depth-2',
-                'h-10 px-4 py-2 min-w-[120px] justify-center',
-                'transition-all duration-200 ease-in-out rounded-lg',
-              )}
-            />
-            <GitCloneButton importChat={importChat} />
-          </div>
+          <Suspense fallback={null}>
+            <div className="flex flex-wrap justify-center gap-2">
+              <ImportFolderButton
+                importChat={importChat}
+                className={classNames(
+                  'gap-2 bg-bolt-elements-background-depth-1',
+                  'text-bolt-elements-textPrimary',
+                  'hover:bg-bolt-elements-background-depth-2',
+                  'h-10 px-4 py-2 min-w-[120px] justify-center',
+                  'transition-all duration-200 ease-in-out rounded-lg',
+                )}
+              />
+              <ImportZipButton
+                importChat={importChat}
+                className={classNames(
+                  'gap-2 bg-bolt-elements-background-depth-1',
+                  'text-bolt-elements-textPrimary',
+                  'hover:bg-bolt-elements-background-depth-2',
+                  'h-10 px-4 py-2 min-w-[120px] justify-center',
+                  'transition-all duration-200 ease-in-out rounded-lg',
+                )}
+              />
+              <GitCloneButton importChat={importChat} />
+            </div>
+          </Suspense>
         </div>
       ) : null}
     </div>

@@ -1,12 +1,15 @@
 import { atom, map } from 'nanostores';
 import { create } from 'zustand';
 import { hostedModeStore } from './hosted';
+import { LOCAL_PROVIDERS } from './provider-kinds';
 import { toggleTheme } from './theme';
 import { DEFAULT_TAB_CONFIG } from '~/components/@settings/core/constants';
 import type { TabVisibilityConfig, TabWindowConfig, UserTabConfig } from '~/components/@settings/core/types';
 import { readPref } from '~/lib/api/prefs-storage';
 import type { IProviderConfig } from '~/types/model';
 import { PROVIDER_LIST } from '~/utils/constants';
+
+export { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from './provider-kinds';
 
 export interface Shortcut {
   key: string;
@@ -24,9 +27,6 @@ export interface Shortcuts {
   toggleTheme: Shortcut;
   toggleTerminal: Shortcut;
 }
-
-export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
-export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio', 'Ollama'];
 
 export type ProviderSetting = Record<string, IProviderConfig>;
 

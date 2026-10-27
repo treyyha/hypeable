@@ -9,7 +9,7 @@ import {
   writePref,
 } from './prefs-storage';
 import { PROVIDER_SETTINGS_STORAGE_KEY } from './provider-settings';
-import { PROMPT_COOKIE_KEY } from '~/utils/constants';
+import { PROMPT_COOKIE_KEY } from '~/utils/constants-core';
 
 describe('prefs-storage', () => {
   beforeEach(() => {

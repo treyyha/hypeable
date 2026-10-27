@@ -39,7 +39,6 @@ const seeds = [
   findOne(/^entry\.client-.*\.js$/),
   findOne(/^root-.*\.js$/),
   findOne(/^_index-.*\.js$/),
-  findOne(/^Chat\.client-.*\.js$/),
   findOne(/^root-.*\.css$/),
   findOne(/^index-BpWZv4JI\.css$|^index-.*\.css$/),
   names.find((name) => /^ReactToastify-.*\.css$/.test(name)),
@@ -113,9 +112,21 @@ console.log(`Requests (JS+CSS in static graph): ${files.length}`);
 console.log(`JS  raw ${(jsRaw / 1024).toFixed(1)} KiB  gzip ${(jsGzip / 1024).toFixed(1)} KiB`);
 console.log(`CSS raw ${(cssRaw / 1024).toFixed(1)} KiB  gzip ${(cssGzip / 1024).toFixed(1)} KiB`);
 
+const top = [...files].sort((a, b) => b.gzip - a.gzip).slice(0, 15);
+console.log('Largest in graph:');
+
+for (const file of top) {
+  console.log(`  ${(file.gzip / 1024).toFixed(1).padStart(6)} KiB gzip  ${file.ref.replace('/assets/', '')}`);
+}
+
 const forbidden = [...seen].filter(
   (name) =>
-    name.startsWith('Workbench.client') || name.startsWith('xterm-') || /^(typescript|cpp|wasm|emacs-lisp)-/.test(name),
+    name.startsWith('Workbench.client') ||
+    name.startsWith('Chat.client') ||
+    name.startsWith('ControlPanel') ||
+    name.startsWith('provider-list') ||
+    name.startsWith('xterm-') ||
+    /^(typescript|cpp|wasm|emacs-lisp)-/.test(name),
 );
 
 if (forbidden.length > 0) {

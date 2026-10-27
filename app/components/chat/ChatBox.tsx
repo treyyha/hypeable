@@ -1,17 +1,12 @@
 import { useStore } from '@nanostores/react';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { AttachmentMenu } from './AttachmentMenu';
 import FilePreview from './FilePreview';
-import { McpTools } from './MCPTools';
-import { ModelKeyPopover } from './ModelKeyPopover';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { SendButton } from './SendButton.client';
-import { SupabaseConnection } from './SupabaseConnection';
 import { PlanFirstChip } from '~/components/plan/PlanFirstChip';
 import { Chip } from '~/components/ui/Chip';
-import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
-import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { formatDollars } from '~/lib/cost/calc';
 import { estimateRequestCost } from '~/lib/stores/cost';
@@ -25,6 +20,19 @@ import { vercelConnection } from '~/lib/stores/vercel';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
+
+const McpTools = lazy(() => import('./MCPTools').then((module) => ({ default: module.McpTools })));
+const ModelKeyPopover = lazy(() => import('./ModelKeyPopover').then((module) => ({ default: module.ModelKeyPopover })));
+
+const ColorSchemeDialog = lazy(() =>
+  import('~/components/ui/ColorSchemeDialog').then((module) => ({ default: module.ColorSchemeDialog })),
+);
+const ExpoQrModal = lazy(() =>
+  import('~/components/workbench/ExpoQrModal').then((module) => ({ default: module.ExpoQrModal })),
+);
+const SupabaseConnection = lazy(() =>
+  import('./SupabaseConnection').then((module) => ({ default: module.SupabaseConnection })),
+);
 
 interface ChatBoxProps {
   provider: any;
@@ -67,6 +75,7 @@ interface ChatBoxProps {
   setDesignScheme?: (scheme: DesignScheme) => void;
   selectedElement?: ElementInfo | null;
   setSelectedElement?: ((element: ElementInfo | null) => void) | undefined;
+  onComposerFocus?: () => void;
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
@@ -224,6 +233,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           id="composer"
           ref={props.textareaRef}
+          onFocus={() => props.onComposerFocus?.()}
           className={classNames(
             'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
             'transition-all duration-200',
@@ -333,10 +343,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             )}
           </ClientOnly>
           <div className="hidden">
-            <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <SupabaseConnection />
+            <Suspense fallback={null}>
+              <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
+              <SupabaseConnection />
+            </Suspense>
           </div>
-          <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
+          {isMcpToolsOpen ? (
+            <Suspense fallback={null}>
+              <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
+            </Suspense>
+          ) : null}
           <PlanFirstChip chatMode={props.chatMode} />
           {!props.chatStarted ? (
             <span className="hidden text-[11px] text-hype-muted sm:inline" data-testid="composer-shortcut-hint">
@@ -345,19 +361,21 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           ) : null}
           <ClientOnly>
             {() => (
-              <ModelKeyPopover
-                open={modelKeyOpen}
-                onOpenChange={setModelKeyOpen}
-                provider={props.provider}
-                providerList={props.providerList}
-                model={props.model}
-                modelList={props.modelList}
-                apiKeys={props.apiKeys}
-                isModelLoading={props.isModelLoading}
-                setProvider={props.setProvider}
-                setModel={props.setModel}
-                onApiKeysChange={props.onApiKeysChange}
-              />
+              <Suspense fallback={null}>
+                <ModelKeyPopover
+                  open={modelKeyOpen}
+                  onOpenChange={setModelKeyOpen}
+                  provider={props.provider}
+                  providerList={props.providerList}
+                  model={props.model}
+                  modelList={props.modelList}
+                  apiKeys={props.apiKeys}
+                  isModelLoading={props.isModelLoading}
+                  setProvider={props.setProvider}
+                  setModel={props.setModel}
+                  onApiKeysChange={props.onApiKeysChange}
+                />
+              </Suspense>
             )}
           </ClientOnly>
           <div className="ml-auto flex min-w-0 items-center gap-1.5">
@@ -384,7 +402,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               )}
             </ClientOnly>
           </div>
-          <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
+          {props.qrModalOpen ? (
+            <Suspense fallback={null}>
+              <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
+            </Suspense>
+          ) : null}
         </div>
       </div>
     </div>

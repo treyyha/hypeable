@@ -11,7 +11,7 @@ import {
   type AnyMessage,
 } from '~/lib/persistence/messageMigration';
 import { useToolAccessStore } from '~/lib/stores/toolAccess';
-import { TOOL_EXECUTION_APPROVAL } from '~/utils/constants';
+import { TOOL_EXECUTION_APPROVAL } from '~/utils/constants-core';
 
 type ApprovalMessage = AnyMessage & { id?: string };
 type ToolOutputHandler = (options: { tool: string; toolCallId: string; output: unknown }) => void;

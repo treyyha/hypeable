@@ -7,7 +7,7 @@
 import Cookies from 'js-cookie';
 import { safeJsonParse } from '~/lib/api/cookies';
 import { asProviderSettings, PROVIDER_SETTINGS_STORAGE_KEY } from '~/lib/api/provider-settings';
-import { PROMPT_COOKIE_KEY } from '~/utils/constants';
+import { PROMPT_COOKIE_KEY } from '~/utils/constants-core';
 
 export const PREF_STORAGE_KEYS = {
   selectedModel: 'hypeable:pref:selectedModel',

@@ -4,26 +4,52 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
 import { EmptyState } from '~/components/ui/EmptyState';
-import { db, getAll, type ChatHistoryItem } from '~/lib/persistence';
+
+type RecentItem = {
+  id: string;
+  urlId?: string;
+  description?: string;
+  timestamp: string;
+};
 
 export function RecentProjects() {
-  const [items, setItems] = useState<ChatHistoryItem[] | null>(null);
+  const [items, setItems] = useState<RecentItem[] | null>(null);
 
   useEffect(() => {
-    if (!db) {
-      setItems([]);
-      return;
-    }
+    let cancelled = false;
 
-    getAll(db)
-      .then((list) =>
-        list
-          .filter((item) => item.urlId && item.description)
-          .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-          .slice(0, 6),
-      )
-      .then(setItems)
-      .catch(() => setItems([]));
+    void import('~/lib/persistence').then(({ db, getAll }) => {
+      if (cancelled) {
+        return;
+      }
+
+      if (!db) {
+        setItems([]);
+        return;
+      }
+
+      getAll(db)
+        .then((list) =>
+          list
+            .filter((item) => item.urlId && item.description)
+            .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+            .slice(0, 6),
+        )
+        .then((next) => {
+          if (!cancelled) {
+            setItems(next);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setItems([]);
+          }
+        });
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (items === null) {

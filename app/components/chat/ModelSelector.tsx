@@ -5,7 +5,7 @@ import { ProviderChip } from '~/components/ui/ProviderChip';
 import { RunLocallyHint } from '~/components/ui/RunLocallyHint';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { hostedModeStore } from '~/lib/stores/hosted';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
+import { LOCAL_PROVIDERS } from '~/lib/stores/provider-kinds';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
 import { escapeHtml } from '~/utils/escapeHtml';

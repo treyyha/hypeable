@@ -6,10 +6,9 @@ import * as Popover from '@radix-ui/react-popover';
 import { APIKeyManager } from './APIKeyManager';
 import { ModelSelector } from '~/components/chat/ModelSelector';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
+import { LOCAL_PROVIDERS } from '~/lib/stores/provider-kinds';
 import type { ProviderInfo } from '~/types/model';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
 
 export function providerNeedsUiKey(name: string | undefined): boolean {
   if (!name) {
@@ -89,7 +88,7 @@ export function ModelKeyPopover({
             modelList={modelList}
             provider={provider}
             setProvider={setProvider}
-            providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+            providerList={providerList || []}
             apiKeys={apiKeys}
             modelLoading={isModelLoading}
           />
