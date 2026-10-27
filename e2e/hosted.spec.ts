@@ -15,6 +15,7 @@ test.describe('hosted mode', () => {
     await expect(page.getByTestId('run-locally-hint').first()).toBeVisible({ timeout: 20_000 });
 
     const llmcall = await request.post('/api/llmcall', {
+      headers: { Origin: 'http://localhost:5173' },
       data: {
         message: 'hello',
         model: 'mock-model',

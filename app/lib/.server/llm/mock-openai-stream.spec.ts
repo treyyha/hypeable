@@ -128,6 +128,7 @@ describe('OpenAI-like chat pipeline against a local mock', () => {
     const request = new Request('https://example.com/api/llmcall', {
       method: 'POST',
       headers: {
+        Origin: 'https://example.com',
         'Content-Type': 'application/json',
         [HYPEABLE_KEY_HEADER]: encodeURIComponent(JSON.stringify({ OpenAILike: FAKE_KEY })),
         Cookie: `providers=${providersCookie}`,

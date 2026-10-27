@@ -75,6 +75,7 @@ describe('POST /api/chat against a local OpenAI-compatible mock', () => {
     const request = new Request('https://example.com/api/chat', {
       method: 'POST',
       headers: {
+        Origin: 'https://example.com',
         'Content-Type': 'application/json',
         [HYPEABLE_KEY_HEADER]: encodeURIComponent(JSON.stringify({ OpenAILike: FAKE_KEY })),
         Cookie: `providers=${providersCookie}`,

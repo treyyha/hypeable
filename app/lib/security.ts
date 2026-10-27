@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { isLlmRoute, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
 
 installSafeConsole();
@@ -284,6 +285,21 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         status: 405,
         headers: createSecurityHeaders(),
       });
+    }
+
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      try {
+        assertSameOrigin(request);
+      } catch (error) {
+        if (error instanceof Response) {
+          const headers = new Headers(error.headers);
+          Object.entries(createSecurityHeaders()).forEach(([key, value]) => headers.set(key, value));
+
+          return new Response(error.body, { status: error.status, statusText: error.statusText, headers });
+        }
+
+        throw error;
+      }
     }
 
     // Apply rate limiting

@@ -85,6 +85,7 @@ describe('POST /api/llmcall missing key', () => {
     const request = new Request('https://example.com/api/llmcall', {
       method: 'POST',
       headers: {
+        Origin: 'https://example.com',
         'Content-Type': 'application/json',
         Cookie: `apiKeys=${encodeURIComponent(JSON.stringify({ OpenAI: FAKE_KEY }))}`,
       },

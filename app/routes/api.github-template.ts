@@ -338,7 +338,6 @@ export async function loader({ request, context }: { request: Request; context: 
     return Response.json(
       {
         error: 'Failed to fetch template files',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

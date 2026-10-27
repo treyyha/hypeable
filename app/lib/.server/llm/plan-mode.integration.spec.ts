@@ -78,6 +78,7 @@ describe('plan mode against the mock OpenAI server', () => {
       request: new Request('https://example.com/api/chat', {
         method: 'POST',
         headers: {
+          Origin: 'https://example.com',
           'Content-Type': 'application/json',
           [HYPEABLE_KEY_HEADER]: keyHeader,
           Cookie: `providers=${providersCookie}`,
@@ -120,6 +121,7 @@ describe('plan mode against the mock OpenAI server', () => {
       request: new Request('https://example.com/api/chat', {
         method: 'POST',
         headers: {
+          Origin: 'https://example.com',
           'Content-Type': 'application/json',
           [HYPEABLE_KEY_HEADER]: keyHeader,
           Cookie: `providers=${providersCookie}`,

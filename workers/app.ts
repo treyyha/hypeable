@@ -1,7 +1,7 @@
 import { createRequestHandler, type ServerBuild } from 'react-router';
 import { BoltRouterContext } from '../app/lib/cloudflare-context';
 import { applyApiSecurityHeaders, isApiRequest } from '../app/lib/security/headers';
-import { hostnameFromRequest, isHostedMode } from '../app/lib/security/hosted';
+import { hostnameFromRequest, isHostedMode, isPrivateOrLoopbackHost } from '../app/lib/security/hosted';
 
 declare global {
   interface CloudflareEnvironment extends Env {}
@@ -17,13 +17,6 @@ const requestHandler = createRequestHandler(
 export default {
   async fetch(request, env, ctx) {
     /*
-     * Production edge always sets cf-connecting-ip. Local workerd / vite preview
-     * often leave it empty, and withSecurity then 503s every /api/chat because
-     * rate limiting has no trusted client IP. Electron already passes 127.0.0.1.
-     */
-    const cfIp = request.headers.get('cf-connecting-ip')?.trim();
-    const clientAddress = cfIp || '127.0.0.1';
-    /*
      * URL host only. Do not read Host / X-Forwarded-Host / Forwarded — those
      * are caller-controlled. Missing or unparseable hostname fail-closes.
      */
@@ -34,6 +27,15 @@ export default {
      * was forgotten. Proxy the binding so every isHostedMode(env) call sees it.
      */
     const hosted = isHostedMode(env as unknown as Record<string, unknown>, hostname);
+    /*
+     * Production edge always sets cf-connecting-ip. Local workerd / vite preview
+     * often leave it empty, and withSecurity then 503s every /api/chat because
+     * rate limiting has no trusted client IP. Fallback to 127.0.0.1 only on
+     * loopback; a public hostname without the Cloudflare header shares no
+     * bucket and is refused instead.
+     */
+    const cfIp = request.headers.get('cf-connecting-ip')?.trim();
+    const clientAddress = cfIp || (hosted && !isPrivateOrLoopbackHost(hostname) ? '' : '127.0.0.1');
     const workerEnv = hosted
       ? new Proxy(env, {
           get(target, prop, receiver) {

@@ -46,7 +46,6 @@ async function githubUserLoader({ request, context }: { request: Request; contex
     return Response.json(
       {
         error: 'Failed to fetch GitHub user information',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );
@@ -244,7 +243,6 @@ async function githubUserAction({ request, context }: { request: Request; contex
     return Response.json(
       {
         error: 'Failed to process GitHub request',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

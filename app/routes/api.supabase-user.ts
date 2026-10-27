@@ -60,7 +60,6 @@ async function supabaseUserLoader({ request, context }: { request: Request; cont
     return Response.json(
       {
         error: 'Failed to fetch Supabase user information',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );
@@ -169,7 +168,6 @@ async function supabaseUserAction({ request, context }: { request: Request; cont
     return Response.json(
       {
         error: 'Failed to process Supabase request',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

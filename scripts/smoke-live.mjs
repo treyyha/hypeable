@@ -218,7 +218,7 @@ if (exported.response.status !== 410) {
 
 const llm = await get('/api/llmcall', {
   method: 'POST',
-  headers: { 'content-type': 'application/json' },
+  headers: { 'content-type': 'application/json', Origin: origin },
   body: JSON.stringify({ message: 'hello', model: 'mock-model', provider: { name: 'OpenAILike' } }),
 });
 

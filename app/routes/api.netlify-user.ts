@@ -45,7 +45,6 @@ async function netlifyUserLoader({ request, context }: { request: Request; conte
     return Response.json(
       {
         error: 'Failed to fetch Netlify user information',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );
@@ -112,7 +111,6 @@ async function netlifyUserAction({ request, context }: { request: Request; conte
     return Response.json(
       {
         error: 'Failed to process Netlify request',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

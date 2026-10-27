@@ -174,7 +174,6 @@ async function githubStatsLoader({ request, context }: { request: Request; conte
     return Response.json(
       {
         error: 'Failed to fetch GitHub statistics',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { checkRateLimit, createSecurityHeaders, withSecurity } from './security';
+import { checkRateLimit, createSecurityHeaders, getTrustedClientIP, withSecurity } from './security';
 
 describe('security middleware', () => {
   describe('checkRateLimit', () => {
@@ -66,7 +66,10 @@ describe('security middleware', () => {
 
     function invoke(handler: Parameters<typeof withSecurity>[0]) {
       return withSecurity(handler, { allowedMethods: ['POST'] })({
-        request: new Request('https://example.com/api/thing', { method: 'POST' }),
+        request: new Request('https://example.com/api/thing', {
+          method: 'POST',
+          headers: { Origin: 'https://example.com' },
+        }),
         context,
         params: {},
       } as never);
@@ -172,6 +175,7 @@ describe('security middleware', () => {
         request: new Request('https://example.com/api/llmcall', {
           method: 'POST',
           headers: {
+            Origin: 'https://example.com',
             Cookie: `apiKeys=${fakeKey}`,
             'x-hypeable-key': fakeKey,
           },
@@ -232,6 +236,39 @@ describe('security middleware', () => {
 
       expect(response.status).toBe(200);
       expect(response.headers.get('X-Frame-Options')).toBe('DENY');
+    });
+
+    it('rejects a cross-origin POST before the handler runs', async () => {
+      const response = await withSecurity(async () => new Response('ok'), { allowedMethods: ['POST'] })({
+        request: new Request('https://example.com/api/chat', {
+          method: 'POST',
+          headers: { Origin: 'https://evil.example' },
+        }),
+        context,
+        params: {},
+      } as never);
+
+      expect(response.status).toBe(403);
+      expect(await response.text()).not.toBe('ok');
+    });
+  });
+
+  describe('getTrustedClientIP', () => {
+    it('ignores X-Forwarded-For and empty adapter addresses', () => {
+      expect(
+        getTrustedClientIP(
+          new Request('https://hypeable.dev/api/chat', { headers: { 'x-forwarded-for': '203.0.113.9' } }),
+        ),
+      ).toBeUndefined();
+      expect(
+        getTrustedClientIP(
+          new Request('https://hypeable.dev/api/chat', { headers: { 'cf-connecting-ip': '203.0.113.9' } }),
+          { clientAddress: '' },
+        ),
+      ).toBeUndefined();
+      expect(getTrustedClientIP(new Request('https://hypeable.dev/api/chat'), { clientAddress: '203.0.113.9' })).toBe(
+        '203.0.113.9',
+      );
     });
   });
 });

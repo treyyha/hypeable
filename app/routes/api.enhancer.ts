@@ -10,6 +10,7 @@ import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse
 import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { envFromContext, hostFromContext } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import { stripIndents } from '~/utils/stripIndent';
 
@@ -18,6 +19,8 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 async function enhancerAction({ context, request }: ActionFunctionArgs) {
+  assertSameOrigin(request);
+
   /*
    * `provider` used to be destructured from an unvalidated body, so `{ provider: {} }`
    * threw a TypeError reading `.name` and surfaced as a 500. Validated up front now.
