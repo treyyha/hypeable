@@ -302,6 +302,7 @@ samp,
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  contain: paint;
 }
 
 .hype-aurora__grain {
@@ -341,6 +342,18 @@ samp,
 
 :root[data-theme='light'] .hype-aurora__layer {
   mix-blend-mode: normal;
+}
+
+@media (max-width: 1023px) {
+  .hype-aurora__grain {
+    display: none;
+  }
+
+  .hype-aurora__layer {
+    animation: none;
+    transform: none;
+    opacity: 0.78;
+  }
 }
 
 .hype-hero-heading {
