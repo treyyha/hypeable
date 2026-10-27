@@ -21,6 +21,7 @@ Upstream bolt.diy notes (before this fork): [docs/upstream-changelog.md](docs/up
 - Hosted first load no longer calls `/api/configured-providers` or `/api/check-env-key`
 - Plugin marketplace tab hidden (unvetted third-party content)
 - Settings no longer offers a "Main Branch Updates" toggle
+- `/privacy` and `/terms` now render in the HTML (no empty client-only shell)
 
 ## [0.1.0] - 2026-10-27
 
