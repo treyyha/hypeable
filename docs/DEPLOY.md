@@ -123,7 +123,7 @@ Values live in `app/lib/security/headers.ts`. Keep `public/_headers` in sync wit
 | Surface | Headers |
 |---|---|
 | HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, CSP-Report-Only |
-| Static assets (`public/_headers`) | Same as HTML |
+| Static assets (`public/_headers`) | Same security headers as HTML. Hashed `/assets/*` also send `Cache-Control: public, max-age=31536000, immutable`. HTML documents stay `no-store, no-transform`. Cloudflare already brotli-encodes those files. |
 | `/api/*` (`workers/app.ts`) | `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store`. No COOP, COEP, CSP, or Permissions-Policy. A route's existing stricter Cache-Control (already `no-store`) or Referrer-Policy is kept. The wrapper copies `status` / `headers` and passes the original body through so chat SSE is not buffered. |
 
 See `app/lib/security/headers.ts` for why CSP-Report-Only allows `blob:`, `wasm-unsafe-eval`, `https:` connect/frame, and localhost.

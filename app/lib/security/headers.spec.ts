@@ -28,6 +28,8 @@ describe('document CSP', () => {
     const headersFile = readFileSync(join(process.cwd(), 'public/_headers'), 'utf8');
     expect(headersFile).toContain(`Content-Security-Policy: ${CSP_ENFORCING}`);
     expect(headersFile).toContain(`Content-Security-Policy-Report-Only: ${CSP_REPORT_ONLY}`);
+    expect(headersFile).toMatch(/\/assets\/\*\r?\n\s+Cache-Control: public, max-age=31536000, immutable/);
+    expect(headersFile).not.toContain('no-store');
   });
 });
 

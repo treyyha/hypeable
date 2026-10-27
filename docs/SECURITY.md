@@ -26,7 +26,7 @@ Hypeable sets **no** first-party preference cookies. Drafts (`cachedPrompt`), ev
 | Surface | Headers |
 |---|---|
 | HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store, no-transform` (blocks Cloudflare HTML rewrites / Web Analytics injection), Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, enforcing `Content-Security-Policy`, stricter `Content-Security-Policy-Report-Only` |
-| Static assets (`public/_headers`) | Same as HTML |
+| Static assets (`public/_headers`) | Same as HTML, plus hashed `/assets/*` `Cache-Control: public, max-age=31536000, immutable` |
 | `/api/*` (`workers/app.ts`) | `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store`. No COOP, COEP, CSP, or Permissions-Policy. Existing stricter Cache-Control / Referrer-Policy on a route is kept. Body is passed through (not buffered) so chat/SSE still streams. |
 
 Enforcing CSP (`app/lib/security/headers.ts` `CSP_ENFORCING`) keeps `https:` on `connect-src` / `frame-src` / `img-src` because the user picks a provider at runtime and WebContainer preview frames are per-session. Tightening those to a static host list would break Connect, preview, and publish. A stricter report-only policy (`CSP_REPORT_ONLY`) lists known provider and WebContainer hosts so new origins show up in the console without breaking a flow.
