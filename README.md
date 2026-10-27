@@ -119,7 +119,7 @@ Built in public. See [docs/ROADMAP.md](docs/ROADMAP.md). Next up includes direct
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org). Price corrections use the **Wrong price** issue template and the `pricing` label.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Commits follow [Conventional Commits](https://www.conventionalcommits.org). Price corrections use the **Wrong price** issue template. See [CHANGELOG.md](CHANGELOG.md).
 
 Related unit tests: `npm run test:related`. Commit locally with `npm run ship -- "type(scope): summary"`; push and watch CI once with `npm run finish`. Details: [docs/TESTING.md](docs/TESTING.md).
 
