@@ -5,7 +5,9 @@ A first-time visitor on `/` should not download the code editor, Shiki grammars,
 | What | When it loads |
 |---|---|
 | Home chrome, composer, OpenRouter connect | First visit |
-| Workbench / CodeMirror | Started chat (lazy `Workbench`) |
+| Chat.client / Workbench | Composer intent (focus, pointerenter, keypress) |
+| `provider-list` | Model picker open, or first send |
+| Workbench / CodeMirror UI | Started chat (lazy `Workbench`) |
 | Editor / terminal / resize-handle CSS | Workbench chunk |
 | Shiki message CSS | Messages chunk |
 | Shiki grammars | First highlighted code block after the stream ends |
@@ -23,15 +25,15 @@ node scripts/check-first-load-budget.mjs
 
 CI runs that after `pnpm build`. This app is SSR, so there is no `build/client/index.html`. The checker walks static imports from `entry.client`, `root`, and `_index`. Chat, the sidebar, the workbench, ControlPanel, and `provider-list` (LLM SDKs) must stay behind `import()`. Dynamic `import()` (Chat.client, Workbench, Shiki, xterm CSS, `@webcontainer/api`) stays out of the graph or the job fails.
 
-Measured on 2026-10-27 after code-splitting Chat/Menu/LLM SDKs and latin-only fonts (gzip level 9):
+Measured on 2026-10-27 after keeping the SSR hero and deferring Chat to composer intent (gzip level 9):
 
 | | Raw | Gzip |
 |---|---|---|
-| JS | 939 KiB | 304 KiB |
+| JS | 940 KiB | 305 KiB |
 | CSS | 344 KiB | 62 KiB |
-| Files in static graph | 72 | |
+| Files in static graph | 73 | |
 
-Budget is 351 KiB JS gzip / 73 KiB CSS gzip. The empty home no longer static-imports Chat.client, ControlPanel, Workbench, or `provider-list`. Idle/composer-focus prefetch warms those chunks so the first build is not a cold import. Hashed `/assets/*` are immutable; HTML stays `no-store`.
+Budget is 351 KiB JS gzip / 73 KiB CSS gzip. The empty home no longer static-imports Chat.client, ControlPanel, Workbench, or `provider-list`. The SSR hero stays mounted until a build starts. Chat and Workbench prefetch on composer focus, pointerenter, or first keypress; `provider-list` loads when the model picker opens or on first send. Hashed `/assets/*` are immutable; HTML stays `no-store`.
 
 Throttled Fast 4G (Chrome DevTools: 9 Mbps down, 1.5 Mbps up, 170 ms RTT) against local `pnpm start` on 2026-10-27:
 

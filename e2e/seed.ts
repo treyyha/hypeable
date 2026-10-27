@@ -76,17 +76,33 @@ export async function seedOpenAILikeMock(page: Page): Promise<void> {
   }, payload);
 }
 
+async function showComposerIntent(page: Page): Promise<void> {
+  const composer = page.locator('#composer');
+
+  if ((await composer.count()) === 0) {
+    return;
+  }
+
+  await composer.waitFor({ state: 'visible', timeout: 20_000 });
+  await composer.hover({ timeout: 20_000 });
+  await composer.click({ timeout: 20_000 });
+}
+
 /** React has attached home-shell handlers (chips, OpenRouter connect). */
 export async function waitForHomeHydrated(page: Page): Promise<void> {
   await page.locator('[data-home-hydrated="true"]').waitFor({ state: 'visible', timeout: 20_000 });
 }
 
-/** ChatImpl has replaced the SSR shell, so send/model/key handlers are live. */
+/** ChatImpl is a live island (composer intent has loaded send/model/key). */
 export async function waitForChatReady(page: Page): Promise<void> {
+  await waitForHomeHydrated(page);
+  await showComposerIntent(page);
   await page.locator('[data-chat-ready="true"]').waitFor({ state: 'visible', timeout: 20_000 });
 }
 
 /** debugStarted / a real chat has flipped the empty-home layout off. */
 export async function waitForChatStarted(page: Page): Promise<void> {
+  await waitForHomeHydrated(page);
+  await showComposerIntent(page);
   await page.locator('[data-chat-started="true"]').waitFor({ state: 'visible', timeout: 20_000 });
 }

@@ -1,5 +1,5 @@
 {
   "jsGzipBytes": 360000,
   "cssGzipBytes": 75000,
-  "notes": "Home route static JS/CSS graph (entry.client + root + _index). Gzip level 9. Chat.client, Workbench, ControlPanel, provider-list, Shiki grammars, and xterm CSS must stay out of this graph. Measured 2026-10-27: JS gzip 304 KiB, CSS gzip 62 KiB, 72 files."
+  "notes": "Home route static JS/CSS graph (entry.client + root + _index). Gzip level 9. Chat.client, Workbench, ControlPanel, provider-list, Shiki grammars, and xterm CSS must stay out of this graph. Measured 2026-10-27: JS gzip 305 KiB, CSS gzip 62 KiB, 73 files."
 }

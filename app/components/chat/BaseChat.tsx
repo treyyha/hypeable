@@ -27,8 +27,13 @@ import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/api
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks/StickToBottom';
 import useViewport from '~/lib/hooks/useViewport';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { prefetchWorkbench } from '~/lib/performance/prefetch-home';
-import { homeComposerDraft, requestHomeComposerSend, setHomeComposerDraft } from '~/lib/stores/home-composer';
+import { requestHomeChatLoad, requestProviderListLoad } from '~/lib/performance/prefetch-home';
+import {
+  homeChatRuntime,
+  homeComposerDraft,
+  requestHomeComposerSend,
+  setHomeComposerDraft,
+} from '~/lib/stores/home-composer';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import type { ActionAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import type { ProgressAnnotation } from '~/types/context';
@@ -152,6 +157,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
   ) => {
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const draft = useStore(homeComposerDraft);
+    const runtime = useStore(homeChatRuntime);
+    const resolvedSendMessage = sendMessage ?? runtime.sendMessage;
+    const resolvedProviderList = providerList?.length ? providerList : runtime.providerList;
+    const resolvedProvider = provider ?? runtime.provider;
+    const resolvedModel = model ?? runtime.model;
+    const resolvedSetModel = setModel ?? runtime.setModel;
+    const resolvedSetProvider = setProvider ?? runtime.setProvider;
+    const resolvedEnhancePrompt = enhancePrompt ?? runtime.enhancePrompt;
+    const resolvedLlmErrorAlert = llmErrorAlert ?? runtime.llmErrorAlert;
+    const resolvedClearLlmErrorAlert = clearLlmErrorAlert ?? runtime.clearLlmErrorAlert;
     const [homeHydrated, setHomeHydrated] = useState(false);
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
@@ -253,14 +268,14 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
         setIsModelLoading('all');
 
-        if (!providerList?.length) {
+        if (!resolvedProviderList?.length) {
           setModelList([]);
           setIsModelLoading(undefined);
 
           return;
         }
 
-        const activeProviderNames = providerList.map((activeProvider) => activeProvider.name).join(',');
+        const activeProviderNames = resolvedProviderList.map((activeProvider) => activeProvider.name).join(',');
 
         llmFetch(`/api/models?providers=${encodeURIComponent(activeProviderNames)}`)
           .then((response) => response.json())
@@ -275,7 +290,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             setIsModelLoading(undefined);
           });
       }
-    }, [providerList, provider]);
+    }, [resolvedProviderList, resolvedProvider]);
 
     const onApiKeysChange = async (providerName: string, apiKey: string) => {
       if ((apiKeys[providerName] || '') === apiKey) {
@@ -354,12 +369,14 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     };
 
     const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
-      if (!sendMessage) {
+      requestHomeChatLoad();
+
+      if (!resolvedSendMessage) {
         requestHomeComposerSend();
         return;
       }
 
-      sendMessage(event, messageInput);
+      resolvedSendMessage(event, messageInput ?? composerInput);
       setSelectedElement?.(null);
       setHomeComposerDraft('');
 
@@ -435,7 +452,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         ref={ref}
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
-        data-chat-ready={sendMessage ? 'true' : undefined}
+        data-chat-ready={resolvedSendMessage || runtime.ready ? 'true' : undefined}
         data-chat-started={chatStarted ? 'true' : undefined}
         data-home-hydrated={homeHydrated ? 'true' : undefined}
       >
@@ -508,23 +525,23 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 >
                   <div className="flex flex-col gap-2">
                     <LoopBreakerHost
-                      sendMessage={(text) => sendMessage?.({} as never, text)}
-                      currentModel={model}
-                      currentProvider={provider?.name}
+                      sendMessage={(text) => resolvedSendMessage?.({} as never, text)}
+                      currentModel={resolvedModel}
+                      currentProvider={resolvedProvider?.name}
                       models={modelList}
                       apiKeys={apiKeys}
                     />
                     <PlanHost
-                      sendMessage={(text) => sendMessage?.({} as never, text)}
-                      model={model ?? ''}
-                      provider={provider?.name}
+                      sendMessage={(text) => resolvedSendMessage?.({} as never, text)}
+                      model={resolvedModel ?? ''}
+                      provider={resolvedProvider?.name}
                     />
                     {deployAlert && (
                       <DeployChatAlert
                         alert={deployAlert}
                         clearAlert={() => _clearDeployAlert?.()}
                         postMessage={(message: string | undefined) => {
-                          sendMessage?.({} as any, message);
+                          resolvedSendMessage?.({} as any, message);
                         }}
                       />
                     )}
@@ -533,12 +550,14 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         alert={actionAlert}
                         clearAlert={() => clearAlert?.()}
                         postMessage={(message) => {
-                          sendMessage?.({} as any, message);
+                          resolvedSendMessage?.({} as any, message);
                           clearAlert?.();
                         }}
                       />
                     )}
-                    {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
+                    {resolvedLlmErrorAlert && (
+                      <LlmErrorAlert alert={resolvedLlmErrorAlert} clearAlert={() => resolvedClearLlmErrorAlert?.()} />
+                    )}
                   </div>
                   {chatStarted ? (
                     <Suspense fallback={null}>
@@ -551,12 +570,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     </Suspense>
                   ) : null}
                   <ChatBox
-                    provider={provider}
-                    setProvider={setProvider}
-                    providerList={providerList || []}
-                    onComposerFocus={prefetchWorkbench}
-                    model={model}
-                    setModel={setModel}
+                    provider={resolvedProvider}
+                    setProvider={resolvedSetProvider}
+                    providerList={resolvedProviderList || []}
+                    onComposerFocus={requestHomeChatLoad}
+                    onModelPickerOpen={requestProviderListLoad}
+                    model={resolvedModel}
+                    setModel={resolvedSetModel}
                     modelList={modelList}
                     apiKeys={apiKeys}
                     isModelLoading={isModelLoading}
@@ -575,7 +595,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     handleStop={handleStop}
                     handleSendMessage={handleSendMessage}
                     enhancingPrompt={enhancingPrompt}
-                    enhancePrompt={enhancePrompt}
+                    enhancePrompt={resolvedEnhancePrompt}
                     isListening={isListening}
                     startListening={startListening}
                     stopListening={stopListening}
@@ -599,6 +619,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <div className="flex flex-col gap-4 pb-6">
                   <ExamplePrompts
                     onFill={(text) => {
+                      requestHomeChatLoad();
                       setHomeComposerDraft(text);
                       fillPrompt?.(text);
                     }}

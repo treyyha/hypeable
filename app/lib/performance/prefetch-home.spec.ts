@@ -1,10 +1,24 @@
-import { describe, expect, it } from 'vitest';
-import { scheduleHomePrefetch } from './prefetch-home';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { homeChatShouldLoad, requestHomeChatLoad, requestProviderListLoad } from './prefetch-home';
 
 describe('prefetch-home', () => {
-  it('returns a cancel function', () => {
-    const cancel = scheduleHomePrefetch();
-    expect(typeof cancel).toBe('function');
-    cancel();
+  beforeEach(() => {
+    homeChatShouldLoad.set(false);
+  });
+
+  it('does not load Chat until the composer shows intent', () => {
+    expect(homeChatShouldLoad.get()).toBe(false);
+  });
+
+  it('marks Chat to load on composer intent', () => {
+    requestHomeChatLoad();
+    expect(homeChatShouldLoad.get()).toBe(true);
+    requestHomeChatLoad();
+    expect(homeChatShouldLoad.get()).toBe(true);
+  });
+
+  it('loads Chat when the model picker needs provider-list', () => {
+    requestProviderListLoad();
+    expect(homeChatShouldLoad.get()).toBe(true);
   });
 });

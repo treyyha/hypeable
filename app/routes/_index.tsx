@@ -1,9 +1,11 @@
-import { lazy, Suspense, useEffect } from 'react';
-import type { MetaFunction } from 'react-router';
+import { useStore } from '@nanostores/react';
+import { lazy, Suspense } from 'react';
+import { useLocation, type MetaFunction } from 'react-router';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
 import { Header } from '~/components/header/Header';
-import { scheduleHomePrefetch } from '~/lib/performance/prefetch-home';
+import { homeChatShouldLoad } from '~/lib/performance/prefetch-home';
+import { chatStore } from '~/lib/stores/chat';
 import { brandMeta } from '~/utils/brand';
 
 const Chat = lazy(() => import('~/components/chat/Chat.client').then((module) => ({ default: module.Chat })));
@@ -19,9 +21,17 @@ export const loader = () => Response.json({});
 
 /**
  * App shell: collapsible sidebar + header + workbench. Home stays a clean prompt.
+ * The SSR hero stays mounted until a build starts so LCP is not the Chat.client swap.
  */
 export default function Index() {
-  useEffect(() => scheduleHomePrefetch(), []);
+  const { pathname, search } = useLocation();
+  const restoredChat = pathname.startsWith('/chat/');
+  const started = useStore(chatStore).started;
+  const shouldLoad = useStore(homeChatShouldLoad);
+  const params = new URLSearchParams(search);
+  const debugLoad = params.get('debugStarted') === '1' || params.get('debugLoop') === '1';
+  const loadChat = shouldLoad || started || restoredChat || debugLoad;
+  const showHomeShell = !started && !restoredChat;
 
   return (
     <div className="flex h-full w-full min-w-0 overflow-x-clip bg-hype-bg">
@@ -45,13 +55,16 @@ export default function Index() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
         <div className="relative min-h-0 flex-1">
-          <ClientOnly fallback={<BaseChat />}>
-            {() => (
-              <Suspense fallback={<BaseChat />}>
-                <Chat />
-              </Suspense>
-            )}
-          </ClientOnly>
+          {showHomeShell ? <BaseChat /> : null}
+          {loadChat ? (
+            <ClientOnly fallback={restoredChat ? <BaseChat /> : null}>
+              {() => (
+                <Suspense fallback={restoredChat ? <BaseChat /> : null}>
+                  <Chat suppressHome={showHomeShell} />
+                </Suspense>
+              )}
+            </ClientOnly>
+          ) : null}
         </div>
       </div>
       <ClientOnly>

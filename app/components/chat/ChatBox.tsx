@@ -76,6 +76,7 @@ interface ChatBoxProps {
   selectedElement?: ElementInfo | null;
   setSelectedElement?: ((element: ElementInfo | null) => void) | undefined;
   onComposerFocus?: () => void;
+  onModelPickerOpen?: () => void;
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
@@ -166,6 +167,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   React.useEffect(() => {
     const onOpenPicker = (event: Event) => {
       const detail = (event as CustomEvent<{ model?: string; provider?: string }>).detail ?? {};
+      props.onModelPickerOpen?.();
       setModelKeyOpen(true);
 
       if (detail.model) {
@@ -184,9 +186,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
     window.addEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
 
     return () => window.removeEventListener(OPEN_MODEL_PICKER_EVENT, onOpenPicker);
-  }, [props.providerList, props.setModel, props.setProvider]);
+  }, [props.providerList, props.setModel, props.setProvider, props.onModelPickerOpen]);
 
   const canSend = props.input.length > 0 || props.uploadedFiles.length > 0;
+
+  const onComposerIntent = () => {
+    props.onComposerFocus?.();
+  };
 
   return (
     <div
@@ -194,6 +200,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         'hype-composer relative z-[1] mx-auto w-full p-3',
         props.chatStarted ? 'max-w-chat' : 'max-w-[520px]',
       )}
+      onPointerEnter={onComposerIntent}
     >
       <FilePreview
         files={props.uploadedFiles}
@@ -233,7 +240,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <textarea
           id="composer"
           ref={props.textareaRef}
-          onFocus={() => props.onComposerFocus?.()}
+          onFocus={onComposerIntent}
           className={classNames(
             'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
             'transition-all duration-200',
@@ -269,6 +276,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             });
           }}
           onKeyDown={(event) => {
+            onComposerIntent();
+
             if (event.key === 'Enter') {
               if (event.shiftKey) {
                 return;
@@ -364,7 +373,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               <Suspense fallback={null}>
                 <ModelKeyPopover
                   open={modelKeyOpen}
-                  onOpenChange={setModelKeyOpen}
+                  onOpenChange={(open) => {
+                    setModelKeyOpen(open);
+
+                    if (open) {
+                      props.onModelPickerOpen?.();
+                    }
+                  }}
                   provider={props.provider}
                   providerList={props.providerList}
                   model={props.model}

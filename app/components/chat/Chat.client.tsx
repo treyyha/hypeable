@@ -34,7 +34,12 @@ import type { PluginManifest } from '~/lib/plugins/schema';
 import { pluginManifestSchema } from '~/lib/plugins/schema';
 import { callProjectMcpTool, PROJECT_TOOL_NAMES } from '~/lib/runtime/projectMcp';
 import { chatStore } from '~/lib/stores/chat';
-import { homeComposerDraft, homeComposerSendNonce } from '~/lib/stores/home-composer';
+import {
+  emptyHomeChatRuntime,
+  homeChatRuntime,
+  homeComposerDraft,
+  homeComposerSendNonce,
+} from '~/lib/stores/home-composer';
 import { logStore } from '~/lib/stores/logs';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { consumePlanTurnFlags, ingestPlanReply, planSettingsStore, rememberPlanningPrompt } from '~/lib/stores/plan';
@@ -61,7 +66,7 @@ import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTempla
 
 const logger = createScopedLogger('Chat');
 
-export function Chat() {
+export function Chat({ suppressHome = false }: { suppressHome?: boolean } = {}) {
   renderLogger.trace('Chat');
 
   const { ready, initialMessages, chatChanged, storeMessageHistory, importChat, exportChat } = useChatHistory();
@@ -71,11 +76,12 @@ export function Chat() {
   }, [initialMessages]);
 
   if (!ready) {
-    return <BaseChat />;
+    return suppressHome ? null : <BaseChat />;
   }
 
   return (
     <ChatImpl
+      suppressHome={suppressHome}
       description={title}
       initialMessages={initialMessages}
       chatChanged={chatChanged}
@@ -115,10 +121,24 @@ interface ChatProps {
   importChat: (description: string, messages: UIMessage[]) => Promise<void>;
   exportChat: () => void;
   description?: string;
+
+  /**
+   * Keep the SSR home shell painted. ChatImpl still runs (send, model, keys)
+   * but does not mount a second hero until a build starts.
+   */
+  suppressHome?: boolean;
 }
 
 export const ChatImpl = memo(
-  ({ description, initialMessages, chatChanged, storeMessageHistory, importChat, exportChat }: ChatProps) => {
+  ({
+    description,
+    initialMessages,
+    chatChanged,
+    storeMessageHistory,
+    importChat,
+    exportChat,
+    suppressHome = false,
+  }: ChatProps) => {
     useShortcuts();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -930,10 +950,12 @@ export const ChatImpl = memo(
         return;
       }
 
-      await Promise.all([
-        animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
-        animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn }),
-      ]);
+      if (!suppressHome) {
+        await Promise.all([
+          animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
+          animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn }),
+        ]);
+      }
 
       chatStore.setKey('started', true);
 
@@ -1299,6 +1321,44 @@ export const ChatImpl = memo(
       setProvider(newProvider);
       writePref('selectedProvider', newProvider.name);
     };
+
+    useEffect(() => {
+      homeChatRuntime.set({
+        ready: true,
+        providerList: activeProviders,
+        provider,
+        model,
+        setProvider: handleProviderChange,
+        setModel: handleModelChange,
+        sendMessage: (event, messageInput) => {
+          void sendMessageRef.current(event, messageInput);
+        },
+        enhancePrompt: () => {
+          enhancePrompt(
+            homeComposerDraft.get() || input,
+            (nextInput) => {
+              setInput(nextInput);
+              scrollTextArea();
+            },
+            model,
+            provider,
+            apiKeys,
+          );
+        },
+        llmErrorAlert,
+        clearLlmErrorAlert: clearApiErrorAlert,
+      });
+    }, [activeProviders, provider, model, apiKeys, enhancePrompt, llmErrorAlert, clearApiErrorAlert]);
+
+    useEffect(() => {
+      return () => {
+        homeChatRuntime.set(emptyHomeChatRuntime);
+      };
+    }, []);
+
+    if (suppressHome && !chatStarted) {
+      return null;
+    }
 
     return (
       <BaseChat

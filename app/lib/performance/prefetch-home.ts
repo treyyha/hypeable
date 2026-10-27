@@ -1,7 +1,12 @@
 /**
- * Warm the chat runtime and workbench after first paint so the first build
- * is not waiting on a cold dynamic import.
+ * Warm chat/workbench only after the user shows intent. Idle prefetch of
+ * Chat, Workbench, and provider-list pulled hundreds of KiB of unused JS
+ * into the first-load Lighthouse trace and delayed LCP on Slow 4G.
  */
+import { atom } from 'nanostores';
+
+export const homeChatShouldLoad = atom(false);
+
 export function prefetchChatRuntime(): void {
   void import('~/components/chat/Chat.client');
 }
@@ -10,29 +15,21 @@ export function prefetchWorkbench(): void {
   void import('~/components/workbench/Workbench.client');
 }
 
-export function prefetchMenu(): void {
-  void import('~/components/sidebar/Menu.client');
+export function prefetchProviderList(): void {
+  void import('~/utils/provider-list');
 }
 
-export function prefetchHomeChunks(): void {
+export function prefetchOnComposerIntent(): void {
   prefetchChatRuntime();
   prefetchWorkbench();
-  prefetchMenu();
 }
 
-export function scheduleHomePrefetch(): () => void {
-  if (typeof window === 'undefined') {
-    return () => undefined;
-  }
+export function requestHomeChatLoad(): void {
+  prefetchOnComposerIntent();
+  homeChatShouldLoad.set(true);
+}
 
-  const win = window;
-
-  if (typeof win.requestIdleCallback === 'function') {
-    const id = win.requestIdleCallback(() => prefetchHomeChunks());
-    return () => win.cancelIdleCallback(id);
-  }
-
-  const id = win.setTimeout(() => prefetchHomeChunks(), 1);
-
-  return () => win.clearTimeout(id);
+export function requestProviderListLoad(): void {
+  prefetchProviderList();
+  requestHomeChatLoad();
 }
