@@ -4,6 +4,7 @@
  * into the first-load Lighthouse trace and delayed LCP on Slow 4G.
  */
 import { atom } from 'nanostores';
+import { settingsPanelStore } from '~/lib/stores/settings-panel';
 
 export const homeChatShouldLoad = atom(false);
 export const homeMenuShouldLoad = atom(false);
@@ -54,3 +55,9 @@ export function requestSettingsLoad(): void {
   prefetchSettings();
   homeMenuShouldLoad.set(true);
 }
+
+settingsPanelStore.subscribe((state) => {
+  if (state.open) {
+    requestSettingsLoad();
+  }
+});

@@ -25,6 +25,23 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
     }
   }, [hasKeys]);
 
+  useEffect(() => {
+    if (!visible) {
+      return undefined;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        dismissFirstRun();
+        setVisible(false);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [visible]);
+
   const dismiss = () => {
     dismissFirstRun();
     setVisible(false);

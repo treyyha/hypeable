@@ -42,13 +42,9 @@ export default function Index() {
         Skip to composer
       </a>
       {menuShouldLoad ? (
-        <ClientOnly fallback={<SidebarShell />}>
-          {() => (
-            <Suspense fallback={<SidebarShell />}>
-              <Menu />
-            </Suspense>
-          )}
-        </ClientOnly>
+        <Suspense fallback={<SidebarShell />}>
+          <Menu />
+        </Suspense>
       ) : (
         <SidebarShell onIntent={requestMenuLoad} />
       )}

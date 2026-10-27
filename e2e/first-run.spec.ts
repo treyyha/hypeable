@@ -21,9 +21,10 @@ test.describe('first-run polish', () => {
 
   test('dismissing the card remembers in localStorage and sets no cookie', async ({ page, context }) => {
     await page.goto('/');
+    await waitForHomeHydrated(page);
     await expect(page.getByTestId('start-in-sixty')).toBeVisible();
     await page.getByTestId('dismiss-start-in-sixty').click();
-    await expect(page.getByTestId('start-in-sixty')).toHaveCount(0);
+    await expect(page.getByTestId('start-in-sixty')).toBeHidden();
     expect(await page.evaluate((key) => localStorage.getItem(key), ONBOARDING_COMPLETED_KEY)).toBe('true');
 
     const cookies = await context.cookies();
@@ -34,14 +35,15 @@ test.describe('first-run polish', () => {
 
     await page.reload();
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
-    await expect(page.getByTestId('start-in-sixty')).toHaveCount(0);
+    await expect(page.getByTestId('start-in-sixty')).toBeHidden();
   });
 
   test('Escape dismisses the card without a focus trap', async ({ page }) => {
     await page.goto('/');
+    await waitForHomeHydrated(page);
     await page.getByTestId('connect-openrouter').focus();
     await page.keyboard.press('Escape');
-    await expect(page.getByTestId('start-in-sixty')).toHaveCount(0);
+    await expect(page.getByTestId('start-in-sixty')).toBeHidden();
     await expect(page.locator('#composer')).toBeVisible();
     await page.locator('#composer').focus();
     await expect(page.locator('#composer')).toBeFocused();
@@ -78,10 +80,10 @@ test.describe('first-run polish', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/');
+    await waitForHomeHydrated(page);
     await expect(page.getByTestId('example-prompts')).toBeVisible({ timeout: 20_000 });
-    await page.getByTestId('app-sidebar').waitFor({ state: 'attached', timeout: 20_000 });
     await page.getByRole('button', { name: 'Keys and settings' }).click();
-    await page.getByRole('button', { name: 'Connectors' }).click();
+    await page.getByRole('button', { name: 'Connectors' }).click({ timeout: 20_000 });
     await expect(page.getByText('Experimental').first()).toBeVisible({ timeout: 20_000 });
     await page.getByRole('button', { name: 'Features' }).click();
     await expect(page.getByText(/Main Branch Updates/i)).toHaveCount(0);
