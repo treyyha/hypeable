@@ -18,6 +18,7 @@ Upstream bolt.diy notes (before this fork): [docs/upstream-changelog.md](docs/up
 
 ### Changed
 
+- Preference cookies (`selectedProvider`, `selectedModel`, `providers`, `cachedPrompt`, `agentMode`, `isDebugEnabled`, `eventLogs`) moved to `localStorage`. Leftover cookies are migrated once and deleted.
 - Hosted first load no longer calls `/api/configured-providers` or `/api/check-env-key`
 - Plugin marketplace tab hidden (unvetted third-party content)
 - Settings no longer offers a "Main Branch Updates" toggle

@@ -10,12 +10,16 @@ Longer write-up: [THREAT-MODEL.md](THREAT-MODEL.md). Report privately via [GitHu
 | OpenRouter Connect (PKCE) | Verifier + `state` in sessionStorage; `?code=` stripped from the URL before React; exchange is browser→`openrouter.ai` (CORS `*`); key never hops our server; `sk-or-` redacted |
 | Abuse of any server route | rate limit + bot protection + origin check |
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
-| Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |
+| Session theft | No login sessions and no session cookies. Preference state is localStorage, not a cookie. |
 | Missing auth | check inside every server handler |
 | XSS / clickjacking | HTML/static: enforcing CSP + stricter CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
 | Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
 | Operator env keys on hosted | Hosted ignores `serverEnv` / `process.env` API keys and `GITHUB_TOKEN`. `wrangler.jsonc` has no secrets; only `API_RATE_LIMITER`. |
+
+## Cookies
+
+Hypeable sets **no** first-party preference cookies. Drafts (`cachedPrompt`), event logs, selected provider/model, agent mode, and debug flags live in `localStorage` (`app/lib/api/prefs-storage.ts`). Keys were already not cookies (`hypeable_api_keys`). Leftover cookies from earlier builds are migrated once and deleted (`migrateLegacyPrefCookies` in `app/entry.client.tsx`). Cloudflare may set its own cookies for delivery; `/privacy` states that. E2E: `e2e/cookies.spec.ts`.
 
 ## Response headers
 

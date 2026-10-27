@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   applyOpenRouterKey,
@@ -9,6 +8,7 @@ import {
 } from './connect';
 import { OPENROUTER_DEFAULT_MODEL, OPENROUTER_OAUTH_FLAG_KEY, OPENROUTER_PROVIDER } from './constants';
 import { API_KEYS_STORAGE_KEY, clearStoredApiKeys } from '~/lib/api/api-key-storage';
+import { PREF_STORAGE_KEYS } from '~/lib/api/prefs-storage';
 
 const FAKE_OR_KEY = 'sk-or-e2e-mock';
 
@@ -16,8 +16,6 @@ describe('OpenRouter connect helpers', () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
-    Cookies.remove('selectedProvider');
-    Cookies.remove('selectedModel');
   });
 
   afterEach(() => {
@@ -54,8 +52,8 @@ describe('OpenRouter connect helpers', () => {
       [OPENROUTER_PROVIDER]: FAKE_OR_KEY,
     });
     expect(window.localStorage.getItem(OPENROUTER_OAUTH_FLAG_KEY)).toBe('1');
-    expect(Cookies.get('selectedProvider')).toBe(OPENROUTER_PROVIDER);
-    expect(Cookies.get('selectedModel')).toBe(OPENROUTER_DEFAULT_MODEL);
+    expect(window.localStorage.getItem(PREF_STORAGE_KEYS.selectedProvider)).toBe(OPENROUTER_PROVIDER);
+    expect(window.localStorage.getItem(PREF_STORAGE_KEYS.selectedModel)).toBe(OPENROUTER_DEFAULT_MODEL);
     expect(isOpenRouterOAuthConnected()).toBe(true);
   });
 

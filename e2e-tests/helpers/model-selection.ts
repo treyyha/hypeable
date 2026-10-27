@@ -113,23 +113,11 @@ export async function selectFreeModel(page: Page) {
 }
 
 /**
- * Alternative approach: Set model via cookies before page loads
- * Call this before navigating to the page
- * Note: The app reads provider and model from 'selectedProvider' and 'selectedModel' cookies
+ * Set provider/model in localStorage before page loads.
  */
 export async function setFreeModelInStorage(page: Page) {
-  await page.context().addCookies([
-    {
-      name: 'selectedProvider',
-      value: 'OpenRouter',
-      domain: 'localhost',
-      path: '/',
-    },
-    {
-      name: 'selectedModel',
-      value: 'meta-llama/llama-3.2-3b-instruct:free',
-      domain: 'localhost',
-      path: '/',
-    },
-  ]);
+  await page.addInitScript(() => {
+    localStorage.setItem('hypeable:pref:selectedProvider', 'OpenRouter');
+    localStorage.setItem('hypeable:pref:selectedModel', 'meta-llama/llama-3.2-3b-instruct:free');
+  });
 }

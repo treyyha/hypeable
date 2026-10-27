@@ -1,8 +1,8 @@
 /**
  * OpenAILike (and other URL-configurable providers) need a base URL on the
- * server. That used to travel only in the `providers` cookie, which is written
- * from a useEffect and can miss the first /api/models fetch. LLM requests now
- * send the same payload in `x-hypeable-providers` as well.
+ * server. LLM requests send it in `x-hypeable-providers`. A leftover
+ * `providers` cookie is still read as a one-release fallback, then deleted
+ * by `migrateLegacyPrefCookies` — we no longer write that cookie.
  */
 import { getProviderSettingsFromCookie, safeJsonParse } from '~/lib/api/cookies';
 import { readEncodedJsonHeader } from '~/lib/api/request-keys';
@@ -87,7 +87,7 @@ export function getProviderSettingsFromRequest(request: Request): Record<string,
 }
 
 /**
- * Browser-only. Reads the live store snapshot, then the providers cookie.
+ * Browser-only. Reads localStorage, then a leftover `providers` cookie.
  * Safe to call during SSR: returns {}.
  */
 export function readClientProviderSettings(): Record<string, IProviderSetting> {

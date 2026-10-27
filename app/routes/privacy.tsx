@@ -44,13 +44,16 @@ export default function Privacy() {
 
       <h2 className="pt-4 text-base font-semibold text-hype-text">Cookies we set</h2>
       <p>
-        We do not set tracking cookies. The app does set first-party preference cookies in your browser:{' '}
+        We do not set tracking cookies. Hypeable itself does not set first-party cookies for preferences, drafts, or
+        logs. Provider, model, agent mode, the composer draft, debug flags, and event logs live in{' '}
+        <code className="text-hype-text">localStorage</code>. Keys are not cookies. Theme is{' '}
+        <code className="text-hype-text">localStorage</code>. Cloudflare may still set its own cookies to deliver the
+        page. Older browsers that still have leftover preference cookies (
         <code className="text-hype-text">selectedProvider</code>, <code className="text-hype-text">selectedModel</code>,{' '}
-        <code className="text-hype-text">providers</code> (which local/custom endpoints are on),{' '}
-        <code className="text-hype-text">cachedPrompt</code> (the draft in the box),{' '}
-        <code className="text-hype-text">agentMode</code>, <code className="text-hype-text">isDebugEnabled</code>, and{' '}
-        <code className="text-hype-text">eventLogs</code>. Keys are not cookies. Theme is{' '}
-        <code className="text-hype-text">localStorage</code>, not a cookie.
+        <code className="text-hype-text">providers</code>, <code className="text-hype-text">cachedPrompt</code>,{' '}
+        <code className="text-hype-text">agentMode</code>, <code className="text-hype-text">isDebugEnabled</code>,{' '}
+        <code className="text-hype-text">eventLogs</code>) are copied into{' '}
+        <code className="text-hype-text">localStorage</code> on the next visit and those cookies are deleted.
       </p>
     </LegalPage>
   );

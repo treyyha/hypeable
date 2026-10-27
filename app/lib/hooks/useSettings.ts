@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
-import Cookies from 'js-cookie';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { TabWindowConfig } from '~/components/@settings/core/types';
+import { writePref } from '~/lib/api/prefs-storage';
 import { getLocalStorage, setLocalStorage } from '~/lib/persistence';
 import { logStore } from '~/lib/stores/logs';
 import {
@@ -112,8 +112,8 @@ export function useSettings(): UseSettingsReturn {
 
   const enableDebugMode = useCallback((enabled: boolean) => {
     isDebugMode.set(enabled);
+    writePref('debug', String(enabled));
     logStore.logSystem(`Debug mode ${enabled ? 'enabled' : 'disabled'}`);
-    Cookies.set('isDebugEnabled', String(enabled));
   }, []);
 
   const setEventLogs = useCallback((enabled: boolean) => {
@@ -168,15 +168,6 @@ export function useSettings(): UseSettingsReturn {
     },
     [saveSettings],
   );
-
-  useEffect(() => {
-    const providers = providersStore.get();
-    const providerSetting: Record<string, IProviderSetting> = {}; // preserve the entire settings object for each provider
-    Object.keys(providers).forEach((provider) => {
-      providerSetting[provider] = providers[provider].settings;
-    });
-    Cookies.set('providers', JSON.stringify(providerSetting));
-  }, [providers]);
 
   return {
     ...settings,

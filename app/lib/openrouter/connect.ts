@@ -4,7 +4,6 @@
  * The minted key is stored exactly like a pasted OpenRouter key
  * (`hypeable_api_keys`). Verifier and state never leave sessionStorage.
  */
-import Cookies from 'js-cookie';
 import {
   OPENROUTER_AUTH_URL,
   OPENROUTER_CALLBACK_PATH,
@@ -18,6 +17,7 @@ import {
 import { createPkcePair } from './pkce';
 import { clearPkceSession, writePkceSession } from './session';
 import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
+import { writePref } from '~/lib/api/prefs-storage';
 
 export type AuthUrlInput = {
   origin: string;
@@ -49,8 +49,8 @@ export async function startOpenRouterConnect(win: Pick<Window, 'location' | 'ses
 export function applyOpenRouterKey(key: string): void {
   writeStoredApiKeys({ ...readStoredApiKeys(), [OPENROUTER_PROVIDER]: key }, OPENROUTER_PROVIDER);
   persistOauthFlag(true);
-  Cookies.set('selectedProvider', OPENROUTER_PROVIDER, { expires: 30 });
-  Cookies.set('selectedModel', OPENROUTER_DEFAULT_MODEL, { expires: 30 });
+  writePref('selectedProvider', OPENROUTER_PROVIDER);
+  writePref('selectedModel', OPENROUTER_DEFAULT_MODEL);
 }
 
 export function disconnectOpenRouter(): void {

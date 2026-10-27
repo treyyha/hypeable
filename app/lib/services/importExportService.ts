@@ -2,6 +2,7 @@ import { type UIMessage } from 'ai';
 import Cookies from 'js-cookie';
 import { readStoredApiKeys, writeStoredApiKeys } from '~/lib/api/api-key-storage';
 import { deleteLegacyTokenCookies } from '~/lib/api/git-auth-storage';
+import { type PrefName, deleteAppCookie, readPref, writePref } from '~/lib/api/prefs-storage';
 import { getAllChats, deleteChat } from '~/lib/persistence/chats';
 
 const TOKEN_COOKIE_NAMES = new Set([
@@ -18,6 +19,19 @@ function isTokenCookie(name: string): boolean {
 
 function cookiesWithoutTokens(cookies: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(cookies).filter(([name]) => !isTokenCookie(name)));
+}
+
+const COOKIE_PREF_NAMES: Record<string, PrefName> = {
+  selectedModel: 'selectedModel',
+  selectedProvider: 'selectedProvider',
+  cachedPrompt: 'cachedPrompt',
+  agentMode: 'agentMode',
+  isDebugEnabled: 'debug',
+  eventLogs: 'eventLogs',
+};
+
+function prefOrCookie(pref: PrefName, cookies: Record<string, string>, cookieName: string): string | undefined {
+  return readPref(pref) ?? cookies[cookieName];
 }
 
 interface ExtendedMessage extends UIMessage {
@@ -97,12 +111,10 @@ export class ImportExportService {
 
           apiKeys: readStoredApiKeys(),
 
-          // Selected provider and model
-          selectedModel: allCookies.selectedModel,
-          selectedProvider: allCookies.selectedProvider,
+          selectedModel: prefOrCookie('selectedModel', allCookies, 'selectedModel'),
+          selectedProvider: prefOrCookie('selectedProvider', allCookies, 'selectedProvider'),
 
-          // Provider-specific settings
-          providers: allCookies.providers,
+          providers: this._safeGetItem('provider_settings') ?? allCookies.providers,
         },
 
         // Feature settings
@@ -136,7 +148,7 @@ export class ImportExportService {
 
           // Prompt settings
           promptId: this._safeGetItem('promptId'),
-          cachedPrompt: allCookies.cachedPrompt,
+          cachedPrompt: prefOrCookie('cachedPrompt', allCookies, 'cachedPrompt'),
         },
 
         // Connections
@@ -151,7 +163,7 @@ export class ImportExportService {
         // Debug and logs
         debug: {
           // Debug settings
-          isDebugEnabled: allCookies.isDebugEnabled,
+          isDebugEnabled: prefOrCookie('debug', allCookies, 'isDebugEnabled'),
           acknowledged_debug_issues: this._safeGetItem('bolt_acknowledged_debug_issues'),
           acknowledged_connection_issue: this._safeGetItem('bolt_acknowledged_connection_issue'),
 
@@ -160,7 +172,7 @@ export class ImportExportService {
           bolt_read_logs: this._safeGetItem('bolt_read_logs'),
 
           // Event logs
-          eventLogs: allCookies.eventLogs,
+          eventLogs: prefOrCookie('eventLogs', allCookies, 'eventLogs'),
         },
 
         // Update settings
@@ -413,13 +425,13 @@ export class ImportExportService {
         }
       }
 
-      const providerCookies = ['selectedModel', 'selectedProvider', 'providers'];
-      providerCookies.forEach((key) => {
+      const providerPrefs = ['selectedModel', 'selectedProvider'] as const;
+      providerPrefs.forEach((key) => {
         if (data.providers[key]) {
           try {
             this._safeSetCookie(key, data.providers[key]);
           } catch (err) {
-            console.error(`Error importing provider cookie ${key}:`, err);
+            console.error(`Error importing provider pref ${key}:`, err);
           }
         }
       });
@@ -457,17 +469,21 @@ export class ImportExportService {
         }
       }
 
-      // Import UI cookies
-      const uiCookies = ['tabConfiguration', 'cachedPrompt'];
-      uiCookies.forEach((key) => {
-        if (data.ui[key]) {
-          try {
-            this._safeSetCookie(key, data.ui[key]);
-          } catch (err) {
-            console.error(`Error importing UI cookie ${key}:`, err);
-          }
+      if (data.ui.cachedPrompt) {
+        try {
+          this._safeSetCookie('cachedPrompt', data.ui.cachedPrompt);
+        } catch (err) {
+          console.error('Error importing cached prompt:', err);
         }
-      });
+      }
+
+      if (data.ui.tabConfiguration) {
+        try {
+          this._safeSetItem('bolt_tab_configuration', data.ui.tabConfiguration);
+        } catch (err) {
+          console.error('Error importing tab configuration:', err);
+        }
+      }
     }
 
     // Import connections
@@ -513,14 +529,13 @@ export class ImportExportService {
         }
       });
 
-      // Import debug cookies
-      const debugCookies = ['isDebugEnabled', 'eventLogs'];
-      debugCookies.forEach((key) => {
+      const debugPrefs = ['isDebugEnabled', 'eventLogs'] as const;
+      debugPrefs.forEach((key) => {
         if (data.debug[key]) {
           try {
             this._safeSetCookie(key, data.debug[key]);
           } catch (err) {
-            console.error(`Error importing debug cookie ${key}:`, err);
+            console.error(`Error importing debug pref ${key}:`, err);
           }
         }
       });
@@ -586,17 +601,7 @@ export class ImportExportService {
             return;
           }
 
-          const isCookie = [
-            'selectedModel',
-            'selectedProvider',
-            'providers',
-            'tabConfiguration',
-            'cachedPrompt',
-            'isDebugEnabled',
-            'eventLogs',
-          ].includes(key);
-
-          if (isCookie) {
+          if (key in COOKIE_PREF_NAMES || key === 'providers' || key === 'tabConfiguration') {
             this._safeSetCookie(key, value);
           } else {
             this._safeSetItem(key, value);
@@ -709,9 +714,8 @@ export class ImportExportService {
   }
 
   /**
-   * Safely set a cookie
-   * @param key The key to set
-   * @param value The value to set
+   * Import a value that used to be a cookie. Writes localStorage and deletes
+   * any leftover cookie of the same name.
    */
   private static _safeSetCookie(key: string, value: any): void {
     if (isTokenCookie(key)) {
@@ -720,9 +724,33 @@ export class ImportExportService {
     }
 
     try {
-      Cookies.set(key, typeof value === 'string' ? value : JSON.stringify(value), { expires: 365 });
+      const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+      const pref = COOKIE_PREF_NAMES[key];
+
+      if (pref) {
+        writePref(pref, serialized);
+
+        return;
+      }
+
+      if (key === 'providers') {
+        this._safeSetItem('provider_settings', value);
+        deleteAppCookie('providers');
+
+        return;
+      }
+
+      if (key === 'tabConfiguration') {
+        this._safeSetItem('bolt_tab_configuration', value);
+        deleteAppCookie('tabConfiguration');
+
+        return;
+      }
+
+      this._safeSetItem(key, value);
+      deleteAppCookie(key);
     } catch (err) {
-      console.error(`Error setting cookie ${key}:`, err);
+      console.error(`Error importing leftover cookie ${key}:`, err);
     }
   }
 }

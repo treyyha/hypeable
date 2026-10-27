@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie';
 import { atom, map } from 'nanostores';
+import { migrateLegacyPrefCookies, readPref, writePref } from '~/lib/api/prefs-storage';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('LogStore');
@@ -52,7 +52,6 @@ class LogStore {
   private _readLogs = new Set<string>();
 
   constructor() {
-    // Load saved logs from cookies on initialization
     this._loadLogs();
 
     // Only load read logs in browser environment
@@ -67,14 +66,20 @@ class LogStore {
   }
 
   private _loadLogs() {
-    const savedLogs = Cookies.get('eventLogs');
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    migrateLegacyPrefCookies();
+
+    const savedLogs = readPref('eventLogs');
 
     if (savedLogs) {
       try {
         const parsedLogs = JSON.parse(savedLogs);
         this._logs.set(parsedLogs);
       } catch (error) {
-        logger.error('Failed to parse logs from cookies:', error);
+        logger.error('Failed to parse logs from localStorage:', error);
       }
     }
   }
@@ -97,8 +102,11 @@ class LogStore {
   }
 
   private _saveLogs() {
-    const currentLogs = this._logs.get();
-    Cookies.set('eventLogs', JSON.stringify(currentLogs));
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    writePref('eventLogs', JSON.stringify(this._logs.get()));
   }
 
   private _saveReadLogs() {

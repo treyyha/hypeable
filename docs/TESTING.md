@@ -35,7 +35,7 @@ OpenAILike needs **both** a fake key and a base URL. The models route returns `[
 3. Enter any non-empty key in the OpenAILike key field on the chat composer (Ollama/LM Studio hide this field; OpenAILike does not).
 4. Pick provider OpenAILike, model `mock-model`.
 
-The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM routes as `x-hypeable-key`. The base URL is sent as `x-hypeable-providers` (and also copied into the `providers` cookie). See [KEY-FLOW.md](./KEY-FLOW.md).
+The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM routes as `x-hypeable-key`. The base URL is sent as `x-hypeable-providers` from `localStorage` `provider_settings`. See [KEY-FLOW.md](./KEY-FLOW.md).
 
 ## Playwright smoke (`pnpm e2e`)
 

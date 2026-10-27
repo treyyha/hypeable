@@ -2,7 +2,6 @@ import { useChat } from '@ai-sdk/react';
 import { useStore } from '@nanostores/react';
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls, type UIMessage } from 'ai';
 import { useAnimate } from 'framer-motion';
-import Cookies from 'js-cookie';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
@@ -10,6 +9,7 @@ import { BaseChat } from './BaseChat';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { getLlmRequestHeaders, readStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT, type ApiKeysUpdatedDetail } from '~/lib/api/apiKeys';
+import { readPref, removePref, writePref } from '~/lib/api/prefs-storage';
 import { isServerAgentTool } from '~/lib/common/agentLoop';
 import { STARTER_BUILD_FLAG } from '~/lib/common/starterBuild';
 import { classifyUserError } from '~/lib/errors/user-facing';
@@ -47,13 +47,7 @@ import type { ProgressAnnotation } from '~/types/context';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
 import type { ProviderInfo } from '~/types/model';
 import { shouldPreserveChatMessagesOnRefresh } from '~/utils/chatHistoryRefresh';
-import {
-  DEFAULT_MODEL,
-  DEFAULT_PROVIDER,
-  PROMPT_COOKIE_KEY,
-  PROVIDER_LIST,
-  TOOL_EXECUTION_APPROVAL,
-} from '~/utils/constants';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST, TOOL_EXECUTION_APPROVAL } from '~/utils/constants';
 import { debounce } from '~/utils/debounce';
 import { cubicEasingFn } from '~/utils/easings';
 import { filesToArtifacts } from '~/utils/fileUtils';
@@ -148,11 +142,11 @@ export const ChatImpl = memo(
     const [llmErrorAlert, setLlmErrorAlert] = useState<LlmErrorAlertType | undefined>(undefined);
 
     const [model, setModel] = useState(() => {
-      const savedModel = Cookies.get('selectedModel');
+      const savedModel = readPref('selectedModel');
       return savedModel || DEFAULT_MODEL;
     });
     const [provider, setProvider] = useState(() => {
-      const savedProvider = Cookies.get('selectedProvider');
+      const savedProvider = readPref('selectedProvider');
       return (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
     });
 
@@ -160,7 +154,7 @@ export const ChatImpl = memo(
     const [animationScope, animate] = useAnimate();
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
-    const [agentMode, setAgentMode] = useState(() => Cookies.get('agentMode') === 'true');
+    const [agentMode, setAgentMode] = useState(() => readPref('agentMode') === 'true');
     const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
     const mcpSettings = useMCPStore((state) => state.settings);
     const installedPlugins = usePluginStore((state) => state.plugins);
@@ -175,7 +169,7 @@ export const ChatImpl = memo(
      * `handleInputChange` are gone, so it is local state here. `initialInput` is
      * gone too, hence the useState initializer.
      */
-    const [input, setInput] = useState(Cookies.get(PROMPT_COOKIE_KEY) || '');
+    const [input, setInput] = useState(readPref('cachedPrompt') || '');
 
     /*
      * v5 removed the data array from useChat in favour of an onData
@@ -1131,7 +1125,7 @@ export const ChatImpl = memo(
                 },
               ] as any);
               setInput('');
-              Cookies.remove(PROMPT_COOKIE_KEY);
+              removePref('cachedPrompt');
 
               setUploadedFiles([]);
               setImageDataList([]);
@@ -1157,7 +1151,7 @@ export const ChatImpl = memo(
         } as any);
         setFakeLoading(false);
         setInput('');
-        Cookies.remove(PROMPT_COOKIE_KEY);
+        removePref('cachedPrompt');
 
         setUploadedFiles([]);
         setImageDataList([]);
@@ -1191,7 +1185,7 @@ export const ChatImpl = memo(
       }
 
       setInput('');
-      Cookies.remove(PROMPT_COOKIE_KEY);
+      removePref('cachedPrompt');
 
       setUploadedFiles([]);
       setImageDataList([]);
@@ -1242,13 +1236,17 @@ export const ChatImpl = memo(
     };
 
     /**
-     * Debounced function to cache the prompt in cookies.
-     * Caches the trimmed value of the textarea input after a delay to optimize performance.
+     * Debounced draft cache. localStorage, never a cookie — drafts are user text.
      */
     const debouncedCachePrompt = useCallback(
       debounce((event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const trimmedValue = event.target.value.trim();
-        Cookies.set(PROMPT_COOKIE_KEY, trimmedValue, { expires: 30 });
+
+        if (trimmedValue) {
+          writePref('cachedPrompt', trimmedValue);
+        } else {
+          removePref('cachedPrompt');
+        }
       }, 1000),
       [],
     );
@@ -1268,12 +1266,12 @@ export const ChatImpl = memo(
 
     const handleModelChange = (newModel: string) => {
       setModel(newModel);
-      Cookies.set('selectedModel', newModel, { expires: 30 });
+      writePref('selectedModel', newModel);
     };
 
     const handleProviderChange = (newProvider: ProviderInfo) => {
       setProvider(newProvider);
-      Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
+      writePref('selectedProvider', newProvider.name);
     };
 
     return (
@@ -1351,7 +1349,7 @@ export const ChatImpl = memo(
         agentMode={agentMode}
         setAgentMode={(enabled) => {
           setAgentMode(enabled);
-          Cookies.set('agentMode', String(enabled), { expires: 30 });
+          writePref('agentMode', String(enabled));
         }}
         designScheme={designScheme}
         setDesignScheme={setDesignScheme}

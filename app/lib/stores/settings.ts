@@ -4,6 +4,7 @@ import { hostedModeStore } from './hosted';
 import { toggleTheme } from './theme';
 import { DEFAULT_TAB_CONFIG } from '~/components/@settings/core/constants';
 import type { TabVisibilityConfig, TabWindowConfig, UserTabConfig } from '~/components/@settings/core/types';
+import { readPref } from '~/lib/api/prefs-storage';
 import type { IProviderConfig } from '~/types/model';
 import { PROVIDER_LIST } from '~/utils/constants';
 
@@ -259,7 +260,7 @@ const updateAutoEnabledTracking = (providerName: string, isEnabled: boolean) => 
   }
 };
 
-export const isDebugMode = atom(false);
+export const isDebugMode = atom(isBrowser && readPref('debug') === 'true');
 
 // Define keys for localStorage
 const SETTINGS_KEYS = {

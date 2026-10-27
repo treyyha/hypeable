@@ -11,6 +11,8 @@ export const API_KEYS_STORAGE_KEY = 'hypeable_api_keys';
 export const COST_STORAGE_KEY = 'hypeable:cost:v1';
 export const PLAN_SETTINGS_KEY = 'hypeable:plan:v1';
 export const ONBOARDING_COMPLETED_KEY = 'bolt_onboarding_completed';
+export const SELECTED_MODEL_STORAGE_KEY = 'hypeable:pref:selectedModel';
+export const SELECTED_PROVIDER_STORAGE_KEY = 'hypeable:pref:selectedProvider';
 
 function localDayKey(now: Date): string {
   const year = now.getFullYear();
@@ -43,8 +45,8 @@ export function costSnapshotWithMockPrice(now = new Date()) {
 }
 
 /**
- * Writes the same keys the app uses: localStorage for BYO keys / OpenAILike
- * settings / cost prices, plus cookies the model picker and server fallback read.
+ * Writes the same keys the app uses: localStorage for BYO keys, OpenAILike
+ * settings, cost prices, and the selected provider/model. No cookies.
  */
 export async function seedOpenAILikeMock(page: Page): Promise<void> {
   const payload = {
@@ -55,6 +57,8 @@ export async function seedOpenAILikeMock(page: Page): Promise<void> {
     costStorage: COST_STORAGE_KEY,
     planStorage: PLAN_SETTINGS_KEY,
     onboardingKey: ONBOARDING_COMPLETED_KEY,
+    modelStorage: SELECTED_MODEL_STORAGE_KEY,
+    providerStorage: SELECTED_PROVIDER_STORAGE_KEY,
     costSnapshot: costSnapshotWithMockPrice(),
   };
 
@@ -67,22 +71,7 @@ export async function seedOpenAILikeMock(page: Page): Promise<void> {
     localStorage.setItem(seed.costStorage, JSON.stringify(seed.costSnapshot));
     localStorage.setItem(seed.planStorage, JSON.stringify({ enabled: true, everyRequest: false }));
     localStorage.setItem(seed.onboardingKey, 'true');
-
-    const providersCookie = encodeURIComponent(
-      JSON.stringify({ OpenAILike: { enabled: true, baseUrl: seed.baseUrl } }),
-    );
-    document.cookie = `selectedProvider=OpenAILike; path=/`;
-    document.cookie = `selectedModel=mock-model; path=/`;
-    document.cookie = `providers=${providersCookie}; path=/`;
+    localStorage.setItem(seed.modelStorage, 'mock-model');
+    localStorage.setItem(seed.providerStorage, 'OpenAILike');
   }, payload);
-
-  await page.context().addCookies([
-    { name: 'selectedProvider', value: 'OpenAILike', url: 'http://localhost:5173' },
-    { name: 'selectedModel', value: 'mock-model', url: 'http://localhost:5173' },
-    {
-      name: 'providers',
-      value: encodeURIComponent(JSON.stringify({ OpenAILike: { enabled: true, baseUrl: MOCK_OPENAI_BASE_URL } })),
-      url: 'http://localhost:5173',
-    },
-  ]);
 }

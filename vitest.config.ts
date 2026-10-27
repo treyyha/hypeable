@@ -54,6 +54,7 @@ const DOM_TESTS = [
   // Browser storage / globals
   'app/lib/api/cookies.spec.ts',
   'app/lib/api/api-key-storage.spec.ts',
+  'app/lib/api/prefs-storage.spec.ts',
   'app/lib/openrouter/connect.spec.ts',
   'app/lib/persistence/chatCache.spec.ts',
   'app/lib/services/importExportService.spec.ts',
