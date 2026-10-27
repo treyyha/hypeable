@@ -14,13 +14,13 @@ runs:
   using: composite
 
   steps:
-    - uses: pnpm/action-setup@v4
+    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
         version: ${{ inputs.pnpm-version }}
         run_install: false
 
     - name: Set Node.js version to ${{ inputs.node-version }}
-      uses: actions/setup-node@v7
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: pnpm
@@ -28,5 +28,5 @@ runs:
     - name: Install dependencies and build project
       shell: bash
       run: |
-        pnpm install
+        pnpm install --frozen-lockfile --prefer-offline
         pnpm run build

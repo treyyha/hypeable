@@ -12,19 +12,23 @@ concurrency:
 jobs:
   secrets:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with: { fetch-depth: 0 }
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       heavy: ${{ steps.filter.outputs.heavy }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with: { fetch-depth: 0 }
       - id: filter
         env:
@@ -36,11 +40,13 @@ jobs:
     needs: changes
     if: needs.changes.outputs.heavy == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with: { version: 9.15.9 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm run --if-present typecheck
@@ -52,23 +58,25 @@ jobs:
         run: node scripts/check-first-load-budget.mjs
       - name: Scan production build for secrets
         run: node scripts/secret-scan.mjs --dir build
-      - run: pnpm audit --audit-level=high || true
+      - run: pnpm audit --prod --audit-level=high || true
 
   e2e:
     needs: changes
     if: needs.changes.outputs.heavy == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with: { version: 9.15.9 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Playwright version
         id: playwright
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
+      - uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
@@ -82,11 +90,13 @@ jobs:
     if: needs.changes.outputs.heavy == 'true'
     runs-on: ubuntu-latest
     continue-on-error: true
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with: { version: 9.15.9 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Wall-clock perf (non-blocking)
@@ -95,8 +105,10 @@ jobs:
   commits:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with: { fetch-depth: 0 }
       - name: Conventional commit titles
         run: |
