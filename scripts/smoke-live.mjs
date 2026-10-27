@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /*
  * Live smoke against a deployed Hypeable. Exit 1 on any failure.
- *   npm run smoke:live -- https://hypeable.dev
+ *   npm run smoke:live
+ *   npm run smoke:live -- --expect-commit <sha>
  *   npm run smoke:live -- https://hypeable.dev --expect-commit <sha>
  */
 import { readFileSync } from 'node:fs';
@@ -27,12 +28,10 @@ const catalog = JSON.parse(
 
 const KEY_PATTERNS = catalog.patterns.map((row) => new RegExp(row.source, row.flags || ''));
 
-const { url: target, expectCommit } = parseSmokeLiveArgs(process.argv.slice(2));
+const DEFAULT_ORIGIN = 'https://hypeable.dev';
 
-if (!target) {
-  console.error('usage: npm run smoke:live -- <url> [--expect-commit <sha>]');
-  process.exit(2);
-}
+const { url: parsedUrl, expectCommit } = parseSmokeLiveArgs(process.argv.slice(2));
+const target = parsedUrl || DEFAULT_ORIGIN;
 
 const origin = new URL(target).origin;
 

@@ -6,8 +6,8 @@
   "main": "./workers/app.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Keep the workers.dev test URL until hypeable.dev is live and verified.
-  "workers_dev": true,
+  // Custom domain only. Check deploys on hypeable.dev or with `wrangler tail`.
+  "workers_dev": false,
   "preview_urls": false,
   // Invocation logs can capture request metadata; the BYO key travels in a header.
   "observability": {

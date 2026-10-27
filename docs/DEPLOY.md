@@ -31,20 +31,18 @@ No secrets are required on the public deployment. Model keys and connector token
 After a deploy, wait until the Worker is serving this commit:
 
 ```bash
-npm run smoke:live -- https://hypeable.gentle-scene-0c4c.workers.dev --expect-commit $(git rev-parse HEAD)
+npm run smoke:live -- --expect-commit $(git rev-parse HEAD)
 ```
 
-`commit` is the SHA baked in at build time (`WORKERS_CI_COMMIT_SHA` from Workers Builds, else `git rev-parse HEAD`). You do not add that variable in the dashboard. The home footer shows `v0.1.0 . abc1234` and links to that commit on GitHub.
+That defaults to `https://hypeable.dev`. `commit` is the SHA baked in at build time (`WORKERS_CI_COMMIT_SHA` from Workers Builds, else `git rev-parse HEAD`). You do not add that variable in the dashboard. The home footer shows `v0.1.0 . abc1234` and links to that commit on GitHub.
 
-Once `hypeable.dev` is verified, run the same command against `https://hypeable.dev`.
+There is no `*.workers.dev` test URL (`workers_dev` is **false**). Check a deploy on the custom domain, or stream logs with `npx wrangler tail` (do not leave it running; do not paste tail output that might contain headers).
 
 ## Primary path: Cloudflare Worker via Workers Builds
 
 `wrangler.jsonc` is the source of truth (`name`: `hypeable`, `main`: `./workers/app.ts`). The Vite Cloudflare plugin emits static assets from `build/client`. There are no secrets in `wrangler.jsonc`.
 
-`workers_dev` is **true** so deploys keep the `*.workers.dev` test URL. `preview_urls` is **false**.
-
-TODO: turn `workers_dev` off once `hypeable.dev` is live and verified.
+`workers_dev` is **false**. `preview_urls` is **false**. Observability is off. Production is `hypeable.dev` only.
 
 ## Observability and logs (never stored or logged)
 

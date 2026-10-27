@@ -62,7 +62,7 @@ Times are local (Windows) after this speed pass. CI still runs gitleaks, typeche
 | `pnpm build` | Production build | ~34s |
 | `pnpm e2e` | Playwright smoke. Locally only if you touched routes, chat, or the shell UI. Blocking in CI. | ~60s |
 | `node scripts/check-first-load-budget.mjs` | After `pnpm build`, fail if home JS/CSS gzip exceeds `docs/first-load-budget.json`. | seconds |
-| `npm run smoke:live -- <url> [--expect-commit <sha>]` | Live deploy checks. With `--expect-commit`, poll `/api/health` up to 5 minutes until `commit` matches, then run the rest. | |
+| `npm run smoke:live -- [--expect-commit <sha>]` | Live deploy checks against `https://hypeable.dev` (override with a URL). With `--expect-commit`, poll `/api/health` up to 5 minutes until `commit` matches, then run the rest. | |
 
 ## Git hooks
 Husky (`.husky/`) is the only hook system. `pnpm install` sets `core.hooksPath` to `.husky/_`. Do not set `core.hooksPath` yourself.

@@ -12,6 +12,14 @@ describe('parseSmokeLiveArgs', () => {
       expectCommit: 'deadbeef',
     });
   });
+
+  it('leaves url empty when omitted so the script defaults to hypeable.dev', () => {
+    expect(parseSmokeLiveArgs([])).toEqual({ url: '', expectCommit: '' });
+    expect(parseSmokeLiveArgs(['--expect-commit', 'abc1234'])).toEqual({
+      url: '',
+      expectCommit: 'abc1234',
+    });
+  });
 });
 
 describe('commitsMatch', () => {
