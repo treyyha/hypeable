@@ -13,14 +13,10 @@ type ActionRowProps = {
 };
 
 export function ActionRow({ children, className, columns = 3 }: ActionRowProps) {
-  return (
-    <div
-      className={classNames('grid gap-2', className)}
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-    >
-      {children}
-    </div>
-  );
+  const cols =
+    columns === 4 ? 'grid-cols-2 sm:grid-cols-4' : columns === 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-3';
+
+  return <div className={classNames('grid gap-2', cols, className)}>{children}</div>;
 }
 
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -35,14 +31,14 @@ export function ActionButton({ icon, children, className, tone = 'ghost', ...res
       type="button"
       className={classNames(
         tone === 'accent'
-          ? 'inline-flex items-center justify-center gap-1.5 rounded-[var(--hype-radius-md)] bg-hype-accent px-3 py-2 text-xs font-medium text-hype-on-accent hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring'
-          : 'hype-action-btn',
+          ? 'inline-flex w-full items-center justify-center gap-1.5 rounded-[var(--hype-radius-md)] bg-hype-accent px-3 py-2 text-xs font-medium text-hype-on-accent hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring'
+          : 'hype-action-btn w-full',
         className,
       )}
       {...rest}
     >
-      {icon ? <span className={classNames(icon, 'h-3.5 w-3.5')} /> : null}
-      <span className="truncate">{children}</span>
+      {icon ? <span className={classNames(icon, 'h-3.5 w-3.5 shrink-0')} /> : null}
+      <span>{children}</span>
     </button>
   );
 }
