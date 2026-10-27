@@ -20,12 +20,14 @@ export function scheduleHomePrefetch(): () => void {
     return () => undefined;
   }
 
-  if ('requestIdleCallback' in window) {
-    const id = window.requestIdleCallback(() => prefetchHomeChunks());
-    return () => window.cancelIdleCallback(id);
+  const win = window;
+
+  if (typeof win.requestIdleCallback === 'function') {
+    const id = win.requestIdleCallback(() => prefetchHomeChunks());
+    return () => win.cancelIdleCallback(id);
   }
 
-  const id = window.setTimeout(() => prefetchHomeChunks(), 1);
+  const id = win.setTimeout(() => prefetchHomeChunks(), 1);
 
-  return () => window.clearTimeout(id);
+  return () => win.clearTimeout(id);
 }
