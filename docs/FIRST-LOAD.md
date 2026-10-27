@@ -1,6 +1,6 @@
 # First-load budget
 
-A first-time visitor on `/` should not download the code editor, Shiki grammars, xterm, or WebContainer until they start a build.
+A first-time visitor on `/` should not download the code editor, Shiki grammars, xterm, or WebContainer until they start a build. The first HTML must include the home hero and composer so LCP is not blocked on client JS.
 
 | What | When it loads |
 |---|---|

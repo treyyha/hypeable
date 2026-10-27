@@ -36,6 +36,17 @@ export function FirstRunOnboarding() {
   const [selectedTheme, setSelectedTheme] = useState<Theme>(() => normalizeTheme(themeStore.get()));
 
   const [interfaceOptions, setInterfaceOptions] = useState(() => {
+    const fallback = {
+      accentIntensity: 50,
+      cornerRadius: 'soft' as const,
+      compactMode: false,
+      animatedTransitions: true,
+    };
+
+    if (typeof window === 'undefined') {
+      return fallback;
+    }
+
     try {
       const saved = JSON.parse(localStorage.getItem('bolt_interface_options') || '{}');
       return {
@@ -45,7 +56,7 @@ export function FirstRunOnboarding() {
         animatedTransitions: saved.animatedTransitions !== false,
       };
     } catch {
-      return { accentIntensity: 50, cornerRadius: 'soft', compactMode: false, animatedTransitions: true };
+      return fallback;
     }
   });
 

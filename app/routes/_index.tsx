@@ -23,14 +23,18 @@ export default function Index() {
       >
         Skip to composer
       </a>
-      <ClientOnly>{() => <Menu />}</ClientOnly>
+      <ClientOnly
+        fallback={<div className="hidden shrink-0 lg:block lg:w-[var(--hype-sidebar-width)]" aria-hidden="true" />}
+      >
+        {() => <Menu />}
+      </ClientOnly>
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
         <div className="relative min-h-0 flex-1">
           <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
         </div>
       </div>
-      <FirstRunOnboarding />
+      <ClientOnly>{() => <FirstRunOnboarding />}</ClientOnly>
     </div>
   );
 }

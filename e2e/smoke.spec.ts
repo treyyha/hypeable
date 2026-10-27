@@ -117,6 +117,9 @@ test.describe('OpenAILike mock smoke', () => {
 
     const documentResponse = await page.goto('/');
     expect(documentResponse).toBeTruthy();
+    const homeHtml = await documentResponse!.text();
+    expect(homeHtml).toContain('What do you want to');
+    expect(homeHtml).toContain('Skip to composer');
     expect(documentResponse?.headers()['cross-origin-embedder-policy']).toBe('credentialless');
     expect(documentResponse?.headers()['cross-origin-opener-policy']).toBe('same-origin');
     expect(documentResponse?.headers()['content-security-policy']).toContain("default-src 'self'");

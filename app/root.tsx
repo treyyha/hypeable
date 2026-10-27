@@ -1,8 +1,6 @@
 import { useStore } from '@nanostores/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { useEffect } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
   isRouteErrorResponse,
   Links,
@@ -11,7 +9,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation,
   useRouteError,
   type LinksFunction,
   type LoaderFunctionArgs,
@@ -26,7 +23,6 @@ import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
-import { ClientOnly } from 'remix-utils/client-only';
 
 import 'virtual:uno.css';
 
@@ -90,12 +86,8 @@ const inlineOpenRouterCallbackStrip = stripIndents`
   })();
 `;
 
-const SSR_DOCUMENT_PATHS = new Set(['/privacy', '/terms']);
-
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
-  const { pathname } = useLocation();
-  const ssrDocument = SSR_DOCUMENT_PATHS.has(pathname);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -115,8 +107,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="w-full h-full">
         {/*
-          Privacy/terms must be in the HTML for crawlers. Chat still uses window
-          on first paint, so every other route stays behind ClientOnly.
+          Home chrome (hero, composer, skip link) must be in the first HTML so
+          LCP is not blocked on 1 MiB of client JS. Window-only trees stay
+          behind ClientOnly in the routes (Chat, Menu, onboarding).
         */}
         <noscript>
           <p style={{ margin: '1.5rem', fontFamily: 'system-ui, sans-serif' }}>
@@ -124,13 +117,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             /terms.
           </p>
         </noscript>
-        {ssrDocument ? (
-          children
-        ) : (
-          <ClientOnly fallback={<div className="w-full h-full" />}>
-            {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
-          </ClientOnly>
-        )}
+        {children}
         <ToastContainer
           closeButton={({ closeToast }) => {
             return (
