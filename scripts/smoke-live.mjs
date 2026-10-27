@@ -247,6 +247,58 @@ if (!healthJson || healthJson.ok !== true || healthJson.hosted !== true) {
   pass(`/api/health says hosted:true commit=${healthJson.commit.slice(0, 7)}`);
 }
 
+const healthHeaders = health.response.headers;
+
+const apiNeeded = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+};
+
+for (const [name, value] of Object.entries(apiNeeded)) {
+  const got = healthHeaders.get(name);
+
+  if (!got) {
+    fail(`/api/health missing ${name}`);
+  } else if (got.toLowerCase() !== value) {
+    fail(`/api/health ${name} is ${got}, expected ${value}`);
+  } else {
+    pass(`/api/health ${name}: ${got}`);
+  }
+}
+
+const healthCache = healthHeaders.get('cache-control') || '';
+
+if (!/(?:^|,)\s*no-store\s*(?:,|$)/i.test(healthCache)) {
+  fail(`/api/health Cache-Control is ${healthCache || '(missing)'}, expected no-store`);
+} else {
+  pass(`/api/health cache-control: ${healthCache}`);
+}
+
+const documentOnlyOnApi = [
+  'cross-origin-opener-policy',
+  'cross-origin-embedder-policy',
+  'content-security-policy-report-only',
+  'permissions-policy',
+];
+
+for (const name of documentOnlyOnApi) {
+  const got = healthHeaders.get(name);
+
+  if (got) {
+    fail(`/api/health unexpected document header ${name}: ${got}`);
+  } else {
+    pass(`/api/health has no ${name}`);
+  }
+}
+
+const healthCors = healthHeaders.get('access-control-allow-origin');
+
+if (healthCors) {
+  fail(`/api/health Access-Control-Allow-Origin is ${healthCors}`);
+} else {
+  pass('/api/health has no Access-Control-Allow-Origin');
+}
+
 for (const { path, text } of bodies) {
   assertKeys(path, text);
 }

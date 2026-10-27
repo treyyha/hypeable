@@ -10,9 +10,26 @@
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
 | Session theft | HttpOnly + Secure + SameSite cookie, short lifetime, rotation |
 | Missing auth | check inside every server handler |
-| XSS / clickjacking | CSP, X-Frame-Options, no inline eval |
+| XSS / clickjacking | HTML/static: CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
 | Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
+
+## Response headers
+
+| Surface | Headers |
+|---|---|
+| HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, CSP-Report-Only |
+| Static assets (`public/_headers`) | Same as HTML |
+| `/api/*` (`workers/app.ts`) | `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store`. No COOP, COEP, CSP, or Permissions-Policy. Existing stricter Cache-Control / Referrer-Policy on a route is kept. Body is passed through (not buffered) so chat/SSE still streams. |
+
+Constants: `app/lib/security/headers.ts`.
+
+Hosted JSON does not send `Access-Control-Allow-Origin`. Routes that still set `Access-Control-Allow-Origin: *`:
+
+| Route | Why |
+|---|---|
+| `/api/git-proxy/*` | isomorphic-git cors-proxy (`useGit.ts` `corsProxy: '/api/git-proxy'`). GitHub/GitLab do not send CORS; the proxy implements the cors-proxy contract (OPTIONS + `*`). The product path is same-origin (relative URL). Hosted still allowlists GitHub/GitLab only. |
+| `/api/system/git-info`, `/api/system/diagnostics` | Leftover local debug `*`. Both return 404 on hosted, so they never appear on hypeable.dev. |
 
 ## Where each snippet is
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.

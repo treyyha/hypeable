@@ -57,7 +57,7 @@ The test seeds the app's own storage keys, then:
 3. Unticks the optional feature, clicks **Approve & build**, waits for a `boltArtifact`.
 4. Asserts the cost pill is above `$0.00` (`mock-model` has a custom price in the seed).
 5. Visits `/?debugLoop=1` and asserts the loop panel (dev bundle only).
-6. Asserts the fake key never appears in console output or response bodies, and `/api/chat` sends `Cache-Control: no-store`.
+6. Asserts the fake key never appears in console output or response bodies, and `/api/chat` SSE sends `Cache-Control: no-store`, nosniff, and Referrer-Policy without COOP/COEP/CSP-Report-Only.
 
 It does **not** assert that the WebContainer preview boots. That preview fetches `*.webcontainer-api.io` and needs external network.
 

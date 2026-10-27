@@ -28,6 +28,10 @@ test.describe('hosted mode', () => {
     const gitProxy = await request.get('/api/git-proxy/evil.example/repo.git/info/refs?service=git-upload-pack');
     expect(gitProxy.status()).toBe(403);
     expect(await gitProxy.text()).toContain(CUSTOM_ENDPOINT_MESSAGE);
+    expect(gitProxy.headers()['x-content-type-options']).toBe('nosniff');
+    expect(gitProxy.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
+    expect(gitProxy.headers()['cache-control']).toContain('no-store');
+    expect(gitProxy.headers()['access-control-allow-origin']).toBeFalsy();
 
     expect((await request.get('/api/mcp-check')).status()).toBe(404);
     expect((await request.post('/api/mcp-update-config', { data: { mcpServers: {} } })).status()).toBe(404);
@@ -42,6 +46,14 @@ test.describe('hosted mode', () => {
 
     const health = await request.get('/api/health');
     expect(health.status()).toBe(200);
+    expect(health.headers()['x-content-type-options']).toBe('nosniff');
+    expect(health.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
+    expect(health.headers()['cache-control']).toContain('no-store');
+    expect(health.headers()['cross-origin-opener-policy']).toBeFalsy();
+    expect(health.headers()['cross-origin-embedder-policy']).toBeFalsy();
+    expect(health.headers()['content-security-policy-report-only']).toBeFalsy();
+    expect(health.headers()['permissions-policy']).toBeFalsy();
+    expect(health.headers()['access-control-allow-origin']).toBeFalsy();
 
     const healthJson = (await health.json()) as { ok: boolean; hosted: boolean; commit: string };
     expect(healthJson).toMatchObject({ ok: true, hosted: true });

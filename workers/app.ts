@@ -1,5 +1,6 @@
 import { createRequestHandler, type ServerBuild } from 'react-router';
 import { BoltRouterContext } from '../app/lib/cloudflare-context';
+import { applyApiSecurityHeaders, isApiRequest } from '../app/lib/security/headers';
 import { hostnameFromRequest, isHostedMode } from '../app/lib/security/hosted';
 
 declare global {
@@ -45,7 +46,17 @@ export default {
         })
       : env;
     const context = new BoltRouterContext({ env: workerEnv, ctx }, clientAddress, hostname);
+    const response = await requestHandler(request, context);
 
-    return requestHandler(request, context);
+    /*
+     * Document COOP/COEP/CSP stay on HTML. Every /api/* response (including
+     * routes that skip withSecurity) gets the small API set. The wrapper
+     * rebuilds Response from the original body so chat SSE is not buffered.
+     */
+    if (!isApiRequest(request)) {
+      return response;
+    }
+
+    return applyApiSecurityHeaders(response);
   },
 } satisfies ExportedHandler<CloudflareEnvironment>;

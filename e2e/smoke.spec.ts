@@ -7,6 +7,13 @@ function collectLeaks(page: Page) {
   const consoleHits: string[] = [];
   const bodyHits: string[] = [];
   const chatCacheControl: string[] = [];
+  const chatApiHeaders: Array<{
+    nosniff: string;
+    referrer: string;
+    coop: string;
+    coep: string;
+    cspReportOnly: string;
+  }> = [];
 
   page.on('console', (message) => {
     if (message.text().includes(E2E_FAKE_KEY)) {
@@ -15,19 +22,38 @@ function collectLeaks(page: Page) {
   });
 
   page.on('response', (response) => {
-    void inspectResponse(response, bodyHits, chatCacheControl);
+    void inspectResponse(response, bodyHits, chatCacheControl, chatApiHeaders);
   });
 
-  return { consoleHits, bodyHits, chatCacheControl };
+  return { consoleHits, bodyHits, chatCacheControl, chatApiHeaders };
 }
 
-async function inspectResponse(response: Response, bodyHits: string[], chatCacheControl: string[]) {
+async function inspectResponse(
+  response: Response,
+  bodyHits: string[],
+  chatCacheControl: string[],
+  chatApiHeaders: Array<{
+    nosniff: string;
+    referrer: string;
+    coop: string;
+    coep: string;
+    cspReportOnly: string;
+  }>,
+) {
   const url = response.url();
   const path = new URL(url).pathname;
   const contentType = response.headers()['content-type'] ?? '';
 
   if (path === '/api/chat' || path.startsWith('/api/chat/')) {
-    chatCacheControl.push(response.headers()['cache-control'] ?? '');
+    const headers = response.headers();
+    chatCacheControl.push(headers['cache-control'] ?? '');
+    chatApiHeaders.push({
+      nosniff: headers['x-content-type-options'] ?? '',
+      referrer: headers['referrer-policy'] ?? '',
+      coop: headers['cross-origin-opener-policy'] ?? '',
+      coep: headers['cross-origin-embedder-policy'] ?? '',
+      cspReportOnly: headers['content-security-policy-report-only'] ?? '',
+    });
   }
 
   // Do not consume SSE bodies; Playwright reading them can stall the page stream.
@@ -130,5 +156,10 @@ test.describe('OpenAILike mock smoke', () => {
     expect(await page.content()).not.toContain(E2E_FAKE_KEY);
     expect(leaks.chatCacheControl.length).toBeGreaterThan(0);
     expect(leaks.chatCacheControl.every((value) => value.includes('no-store'))).toBe(true);
+    expect(leaks.chatApiHeaders.length).toBeGreaterThan(0);
+    expect(leaks.chatApiHeaders.every((headers) => headers.nosniff === 'nosniff')).toBe(true);
+    expect(leaks.chatApiHeaders.every((headers) => headers.referrer === 'strict-origin-when-cross-origin')).toBe(true);
+    expect(leaks.chatApiHeaders.every((headers) => headers.coop === '' && headers.coep === '')).toBe(true);
+    expect(leaks.chatApiHeaders.every((headers) => headers.cspReportOnly === '')).toBe(true);
   });
 });
