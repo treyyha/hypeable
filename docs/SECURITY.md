@@ -6,7 +6,7 @@ Longer write-up: [THREAT-MODEL.md](THREAT-MODEL.md). Report privately via [GitHu
 | Threat | Mitigation |
 |---|---|
 | Key leaks to GitHub | `.gitignore`, `.husky/pre-commit` secret-scan, CI gitleaks (`.gitleaks.toml` extends the default rule set), GitHub push protection |
-| Key leaks via our server | Stored in the browser; sent over HTTPS for the request (LLM: `x-hypeable-key`; connectors: Authorization/body); never stored or logged; `app/lib/security/redact.ts` |
+| Key leaks via our server | Stored in the browser; hosted LLM requests relay through the Worker (`x-hypeable-key`); we do not store or log keys; observability off (`wrangler.jsonc`); `app/lib/security/redact.ts` |
 | OpenRouter Connect (PKCE) | Verifier + `state` in sessionStorage; `?code=` stripped from the URL before React; exchange is browser→`openrouter.ai` (CORS `*`); key never hops our server; `sk-or-` redacted |
 | Abuse of any server route | rate limit + bot protection + origin check |
 | Field tampering (`role`, `price`, `userId`) | zod `.strict()` schemas; identity from session only |
@@ -100,8 +100,8 @@ git push --force --all && git push --force --tags
 Then ask GitHub Support to purge cached views if the repo was public, and tell collaborators to re-clone.
 
 ## Remaining Dependabot alerts
-After dropping Electron, unused MkDocs/`docs/poetry.lock`, and pinning `fast-uri@3.1.9`, npm production audit is one low finding.
+After dropping Electron, unused MkDocs/`docs/poetry.lock`, and pinning `fast-uri@3.1.9`, npm production audit is one low finding. Rechecked 2026-10-28: GitHub Dependabot still has **one open alert**, `elliptic` ([GHSA-848j-6mx2-7j84](https://github.com/advisories/GHSA-848j-6mx2-7j84)), severity low, `first_patched_version` null.
 
 | Package | Ships in prod bundle? | Action |
 |---|---|---|
-| `elliptic` 6.6.1 (low) | Yes — client, via `vite-plugin-node-polyfills` → `crypto-browserify` for WebContainer Node shims. | No real patch (`<0.0.0`). Keep until the polyfill stack replaces it. |
+| `elliptic` 6.6.1 (low, GHSA-848j-6mx2-7j84) | Yes — client, via `vite-plugin-node-polyfills` → `crypto-browserify` for WebContainer Node shims. | No real patch (`<0.0.0`). Keep until the polyfill stack replaces it. |

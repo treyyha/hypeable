@@ -15,6 +15,7 @@ import { URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
 import type { IProviderConfig } from '~/types/model';
 import { classNames } from '~/utils/classNames';
 import { providerBaseUrlEnvKeys } from '~/utils/constants';
+import { PRIVACY_KEY_HINT } from '~/utils/privacy-copy';
 
 // Add type for provider names to ensure type safety
 type ProviderName =
@@ -156,12 +157,11 @@ const CloudProvidersTab = () => {
             <div>
               <h4 className="text-md font-medium text-bolt-elements-textPrimary">Cloud Providers</h4>
               <p className="text-sm text-bolt-elements-textSecondary">
-                Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that
-                request to your provider, never stored or logged. Verify it in{' '}
+                {PRIVACY_KEY_HINT} Verify it in{' '}
                 <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
                   app/routes/api.chat.ts
                 </a>
-                . Want zero trust? Run Hypeable locally: pnpm dev.
+                .
               </p>
             </div>
           </div>

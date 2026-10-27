@@ -14,7 +14,7 @@
 
 ![Hypeable home](docs/assets/home-dark-1440.png)
 
-Describe an app, watch it get built, then (experimental) publish it to **your own** Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing and has no Hypeable-owned deploy target.
+Describe an app, watch it get built, then (experimental) publish it to **your own** Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. No accounts, no Hypeable-owned database, and no Hypeable-owned deploy target.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 
@@ -83,7 +83,7 @@ npm run setup        # creates .env.local if missing, runs a full secret scan
 npm run dev
 ```
 
-Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server — it lives in this browser. Sent over HTTPS for each model request, never stored or logged. We do not ship analytics. Fonts are self-hosted. Hypeable does not phone home for updates. WebContainer (`*.webcontainer-api.io`) starts only when you build. HTML is `Cache-Control: no-store, no-transform` so Cloudflare cannot inject its Web Analytics beacon. Report vulnerabilities at [hypeable.dev/.well-known/security.txt](https://hypeable.dev/.well-known/security.txt).
+Click **Connect with OpenRouter** on the empty home (or paste a key in Settings). You pay OpenRouter directly. No accounts and no database. In hosted mode, requests are relayed through our Cloudflare Worker to the provider you choose; we do not store or log prompts, keys or code, and observability is off. Run Hypeable locally to skip our relay. Your provider's own data policy applies to what you send them. Cloudflare, as our host, handles request metadata and sees traffic in transit. After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees. We do not ship analytics. Fonts are self-hosted. Hypeable does not phone home for updates. HTML is `Cache-Control: no-store, no-transform` so Cloudflare cannot inject its Web Analytics beacon. Report vulnerabilities at [hypeable.dev/.well-known/security.txt](https://hypeable.dev/.well-known/security.txt).
 
 ![Connect with OpenRouter](docs/assets/demo-openrouter.webp)
 
@@ -99,7 +99,7 @@ pnpm install
 pnpm dev
 ```
 
-Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the only network call with the key is from your local process to the model provider you chose.
+Then open the printed local URL (typically `http://localhost:5173`). Keys stay on your computer; the local process talks to the model provider you chose without our Cloudflare Worker.
 
 Deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
 
@@ -116,9 +116,9 @@ Deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## How your key and tokens travel
 
-Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser (`localStorage` or `sessionStorage`). They are sent **only** on the relevant request, over HTTPS, in a header or JSON body. The server never falls back to an operator env token. It is not written to disk, cookies, or a database. Logs run through redaction (`sk-…`, `Authorization`, `x-hypeable-key`, `glpat-`, `github_pat-`).
+Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser (`localStorage` or `sessionStorage`). They are sent **only** on the relevant request, over HTTPS, in a header or JSON body. On the public site, model calls and Vercel/Netlify/Supabase publish relay through our Cloudflare Worker. We do not store or log prompts, keys or code, and observability is off. The server never falls back to an operator env token. Logs run through redaction (`sk-…`, `Authorization`, `x-hypeable-key`, `glpat-`, `github_pat-`).
 
-GitHub and GitLab **publish** talk to the provider from the browser (CORS). Vercel and Netlify **publish** take a one-shot hop through Hypeable so we can scan files, then the files land in **your** account. Want zero trust? Run locally: `pnpm dev`.
+GitHub and GitLab **publish** go from the browser to that provider (CORS; our Worker is not on that path). Vercel and Netlify **publish** take a one-shot hop through Hypeable so we can scan files, then the files land in **your** account. Run locally (`pnpm dev`) to skip our relay.
 
 Verify the path in [`docs/KEY-FLOW.md`](docs/KEY-FLOW.md), LLM keys in [`app/routes/api.chat.ts`](app/routes/api.chat.ts), and connectors in [`app/lib/api/connector-tokens.ts`](app/lib/api/connector-tokens.ts).
 
@@ -167,7 +167,7 @@ Related unit tests: `npm run test:related`. Commit locally with `npm run ship --
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) and [docs/SECURITY.md](docs/SECURITY.md). Please do not open a public issue for vulnerabilities — use GitHub's private reporting.
+See [SECURITY.md](SECURITY.md), [docs/SECURITY.md](docs/SECURITY.md), and the public-claim table in [docs/CLAIMS.md](docs/CLAIMS.md). Please do not open a public issue for vulnerabilities — use GitHub's private reporting.
 
 ## Credits
 

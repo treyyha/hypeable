@@ -1,6 +1,6 @@
 # Hypeable 1.0.0
 
-**worth the hype.** A free, open-source AI app builder. You bring your own API key. Hypeable hosts nothing.
+**worth the hype.** A free, open-source AI app builder. You bring your own API key. No accounts and no Hypeable-owned database.
 
 This is the first numbered public release of the [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT) fork. Try it at [hypeable.dev](https://hypeable.dev).
 

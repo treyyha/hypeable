@@ -1,6 +1,6 @@
 # Threat model
 
-Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Worker**. Users bring their own model key. The public Worker stores nothing.
+Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Worker**. Users bring their own model key. No accounts and no database. In hosted mode, requests are relayed through our Cloudflare Worker to the provider you choose; we do not store or log prompts, keys or code, and observability is off. Run Hypeable locally to skip our relay. Your provider's own data policy applies to what you send them.
 
 ## Assets
 
@@ -9,7 +9,7 @@ Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Wo
 | Model API keys | `localStorage` / `sessionStorage` in the user's browser (`hypeable_api_keys`). Sent to our Worker only on LLM routes, in `x-hypeable-key`, then onward to the chosen provider. |
 | Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) | Browser storage. GitHub/GitLab publish go browser→provider. Vercel/Netlify take a one-shot hop through the Worker so we can scan files. |
 | Chat, files, spend ledger, plan, caps | This browser (IndexedDB / localStorage). |
-| Generated preview | WebContainer on `*.local-credentialless.webcontainer-api.io` — a **different origin** from `hypeable.dev`. |
+| Generated preview | WebContainer on `*.local-credentialless.webcontainer-api.io` — a **different origin** from `hypeable.dev`. After the first build, the runtime and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees. |
 | Operator secrets on `hypeable.dev` | None in `wrangler.jsonc`. The only production binding is `API_RATE_LIMITER`. Hosted code ignores operator `*_API_KEY` / `GITHUB_TOKEN` env vars even if someone set them in the dashboard. |
 
 ## Who can attack what
@@ -28,7 +28,9 @@ Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Wo
 - A **malicious or compromised browser extension** with access to `hypeable.dev` (it can read `localStorage`).
 - A **compromised user machine**, shared computer, or unlocked stolen laptop.
 - The user **pasting a key into the generated app** or a site that is not Hypeable.
-- **Provider-side** theft (OpenAI, OpenRouter, GitHub, …). Set caps there too.
+- **Provider-side** theft (OpenAI, OpenRouter, GitHub, …). Set caps there too. Their data policy applies to what you send them.
+- **Cloudflare** request metadata and traffic in transit (IP, User-Agent, URL, and the TLS hop). We do not persist that; Cloudflare still handles it as our host.
+- **StackBlitz WebContainer** traffic after the first build. We have not audited what StackBlitz sees.
 - **DNS rebinding** of an allowlisted hostname to a private IP. Workers follow DNS; we cannot pin resolved addresses.
 - **Physical access** to DevTools on an already-unlocked session.
 

@@ -9,6 +9,7 @@ import { startOpenRouterConnect } from '~/lib/openrouter/connect';
 import { OPENROUTER_CREDITS_URL, OPENROUTER_KEYS_URL } from '~/lib/openrouter/constants';
 import { requestProviderListLoad } from '~/lib/performance/prefetch-home';
 import { openModelPicker } from '~/lib/stores/loop';
+import { PRIVACY_OPENROUTER } from '~/utils/privacy-copy';
 
 const STEPS = [
   'Connect OpenRouter (one click)',
@@ -128,10 +129,7 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
         >
           I already have a key
         </button>
-        <p className="mt-3 text-xs text-hype-muted">
-          You pay OpenRouter directly. Hypeable never sees your card and does not store your key on a server. The key
-          lives in this browser.
-        </p>
+        <p className="mt-3 text-xs text-hype-muted">{PRIVACY_OPENROUTER}</p>
         <p className="mt-1 text-xs text-hype-muted">
           You can set a credit limit on the key at{' '}
           <a

@@ -24,11 +24,11 @@ Run typecheck and lint. Commit as: feat(brand): rebrand to Hypeable
 
 ## PROMPT 2: key handling audit (day 1)
 ```
-Audit how API keys flow in this app. Goal: the user's key stays in their browser and is only sent to their chosen model provider.
+Audit how API keys flow in this app. Goal: the user's key is stored in the browser; hosted requests relay through our Worker to the chosen provider; we do not store or log the key.
 1. List every place a key is read, stored, logged or sent.
 2. Make sure no server code persists or logs a key. Add templates/security/redact.ts as app/lib/security/redact.ts and use it wherever errors or requests are logged.
 3. Remove any hardcoded or default keys and any key placed in client bundles via env (nothing secret may use a PUBLIC_/VITE_ prefix).
-4. Add a short "Your key" explainer in settings: stays in your browser, never stored by Hypeable.
+4. Add a short "Your key" explainer in settings: stored in this browser; hosted requests relay through our Worker.
 Commit as: security(keys): redact logs and document BYO key flow
 ```
 

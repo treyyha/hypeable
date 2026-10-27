@@ -1,6 +1,6 @@
 # Deploy Hypeable on Cloudflare
 
-The public site (`hypeable.dev`) is a **stateless** Hypeable: users bring their own model key in the browser. Hypeable stores nothing.
+The public site (`hypeable.dev`) is a **stateless** Hypeable: users bring their own model key in the browser. No accounts and no database. Hosted requests relay through this Cloudflare Worker; we do not store or log prompts, keys or code, and observability is off.
 
 ## Hosted vs local (fail closed)
 
@@ -26,7 +26,7 @@ Set `HYPEABLE_SELF_HOSTED=1` only if you run Hypeable on a public hostname and *
 | `/api/health` | `{ ok: true, hosted: true, commit }` | `{ ok: true, hosted: false, commit }` |
 | WebContainer preview | Yes | Yes |
 
-No secrets are required on the public deployment. Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser and are sent over HTTPS for the request, never stored or logged, and never read from Worker env. There is no Hypeable-owned Vercel/Netlify/GitHub target.
+No secrets are required on the public deployment. Model keys and connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) live in the browser and are sent over HTTPS for the request. We do not store or log them, and they are never read from Worker env. Cloudflare still handles request metadata and sees traffic in transit. There is no Hypeable-owned Vercel/Netlify/GitHub target.
 
 After a deploy, wait until the Worker is serving this commit:
 
@@ -44,9 +44,9 @@ There is no `*.workers.dev` test URL (`workers_dev` is **false**). Check a deplo
 
 `workers_dev` is **false**. `preview_urls` is **false**. Observability is off. Production is `hypeable.dev` only.
 
-## Observability and logs (never stored or logged)
+## Observability and logs
 
-The privacy claim is that the BYO key is never stored or logged. Cloudflare Workers observability can persist **invocation logs** that include request metadata (URL, method, headers on some plans). Our key travels in `x-hypeable-key`. Production `wrangler.jsonc` therefore sets:
+We do not store or log prompts, keys or code, and production observability is off. Cloudflare Workers observability can persist **invocation logs** that include request metadata (URL, method, headers on some plans). Our key travels in `x-hypeable-key`. Production `wrangler.jsonc` therefore sets:
 
 - `observability.enabled`: `false`
 - `observability.traces.enabled`: `false`
@@ -105,7 +105,7 @@ Worker → **Deployments** → last good production deployment → **Rollback to
 
 ## WebContainer licence
 
-The in-browser runtime is [WebContainer](https://webcontainers.io/) from StackBlitz. **Free for open source and non-commercial use.** The public site must not show ads or paid features without a StackBlitz commercial licence.
+The in-browser runtime is [WebContainer](https://webcontainers.io/) from StackBlitz. **Free for open source and non-commercial use.** The public site must not show ads or paid features without a StackBlitz commercial licence. After the first build, the runtime and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.
 
 ## Cost and limits (Cloudflare Free, as of 2026)
 

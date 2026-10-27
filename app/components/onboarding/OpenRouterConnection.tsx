@@ -7,6 +7,7 @@ import { readStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT } from '~/lib/api/apiKeys';
 import { disconnectOpenRouter, isOpenRouterOAuthConnected, startOpenRouterConnect } from '~/lib/openrouter/connect';
 import { OPENROUTER_KEYS_URL, OPENROUTER_PROVIDER } from '~/lib/openrouter/constants';
+import { PRIVACY_OPENROUTER } from '~/utils/privacy-copy';
 
 export function OpenRouterConnection({ compact = false }: { compact?: boolean }) {
   const [hasKey, setHasKey] = useState(() => Boolean(readStoredApiKeys()[OPENROUTER_PROVIDER]));
@@ -33,9 +34,7 @@ export function OpenRouterConnection({ compact = false }: { compact?: boolean })
         <Button type="button" size="sm" data-testid="connect-openrouter" onClick={() => void startOpenRouterConnect()}>
           Connect with OpenRouter
         </Button>
-        <p className="mt-2 text-xs text-hype-muted">
-          You pay OpenRouter directly. The key stays in this browser. Hypeable does not store it on a server.
-        </p>
+        <p className="mt-2 text-xs text-hype-muted">{PRIVACY_OPENROUTER}</p>
       </div>
     );
   }

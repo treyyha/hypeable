@@ -2,6 +2,8 @@
 
 Where a user's BYO model key lives, how it reaches a provider, and where it could have been logged. Line numbers refer to `main` after the cookie removal.
 
+No accounts and no database. In hosted mode, requests are relayed through our Cloudflare Worker to the provider you choose; we do not store or log prompts, keys or code, and observability is off. Run Hypeable locally to skip our relay. Your provider's own data policy applies to what you send them. Cloudflare, as our host, handles request metadata and sees traffic in transit. After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.
+
 ## Connect with OpenRouter (PKCE)
 
 One-click alternative to pasting a key. Protocol: [OpenRouter OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth) (verified 2026-10-26).
@@ -11,7 +13,7 @@ One-click alternative to pasting a key. Protocol: [OpenRouter OAuth PKCE](https:
 3. `/auth/openrouter/callback` stashes `code` / `state` and immediately `history.replaceState`s them out of the URL (inline script in `app/root.tsx`, before React). It checks `state`, then POSTs `{ code, code_verifier, code_challenge_method: "S256" }` from the **browser** to `https://openrouter.ai/api/v1/auth/keys`. OpenRouter's CORS on that endpoint is `Access-Control-Allow-Origin: *`, so Hypeable's server never sees the code or the minted key.
 4. On success the key is written with `writeStoredApiKeys()` under provider `OpenRouter` — the same store as a pasted key — selected provider/model are written to `localStorage` (`hypeable:pref:selectedProvider` / `hypeable:pref:selectedModel`) as OpenRouter / `z-ai/glm-5.3-flash`, and a toast confirms it. Failure shows a plain error and the paste fallback. Disconnect removes the key from this browser; revoke the key on [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys).
 
-The user pays OpenRouter directly. Hypeable never sees their card and does not store the key on a server.
+The user pays OpenRouter directly. Hypeable never sees their card. The minted key is written only in this browser; hosted **model** requests after that still relay through our Worker.
 
 ## Client storage
 
@@ -38,7 +40,7 @@ Hypeable sets **no** first-party preference cookies. Cloudflare may set its own 
 
 The key is sent **only** on LLM routes, per request, in `x-hypeable-key` (URI-encoded JSON `{ "OpenAI": "…" }`). OpenAILike also needs its base URL on those same requests: `x-hypeable-providers` (URI-encoded JSON `{ "OpenAILike": { "enabled": true, "baseUrl": "http://127.0.0.1:8787/v1" } }`). We no longer write a `providers` cookie. A leftover cookie is still read as a one-release fallback, then deleted on the next visit.
 
-Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) are stored in the browser, sent over HTTPS for the request (Authorization or JSON body), never stored or logged, and **never** read from server env. They are **not** cookies. See `app/lib/api/connector-tokens.ts`.
+Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) are stored in the browser, sent over HTTPS for the request (Authorization or JSON body). We do not store or log them, and they are **never** read from server env. They are **not** cookies. See `app/lib/api/connector-tokens.ts`.
 
 | Connector | How publish travels |
 |---|---|
@@ -90,4 +92,4 @@ Redaction patterns (`app/lib/security/redact.ts`): `sk-ant-…`, `sk-or-…`, `s
 ## What we do not do
 
 - We do **not** store connector tokens on the server or fall back to an operator `VERCEL_TOKEN` / `GITHUB_TOKEN`.
-- GitHub and GitLab publish **do** send the user's token from the browser straight to the provider (CORS). Vercel and Netlify publish take a one-shot proxy hop so the server can scan files.
+- GitHub and GitLab publish send the user's token from the browser to GitHub/GitLab (CORS; our Worker is not on that path). Vercel and Netlify publish take a one-shot proxy hop so the server can scan files.

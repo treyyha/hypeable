@@ -9,6 +9,7 @@ import {
 } from '~/lib/api/api-key-storage';
 import { hostedModeStore } from '~/lib/stores/hosted';
 import type { ProviderInfo } from '~/types/model';
+import { PRIVACY_KEY_HINT } from '~/utils/privacy-copy';
 
 interface APIKeyManagerProps {
   provider: ProviderInfo;
@@ -180,12 +181,11 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
         </div>
       </div>
       <p className="text-xs text-bolt-elements-textSecondary max-w-3xl">
-        Stored in your browser. Sent over HTTPS to this app's server for each request, used once for that request to
-        your provider, never stored or logged. Verify it in{' '}
+        {PRIVACY_KEY_HINT} Verify it in{' '}
         <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
           app/routes/api.chat.ts
         </a>
-        . Want zero trust? Run Hypeable locally: pnpm dev.
+        .
       </p>
       <label className="flex items-center gap-2 text-xs text-bolt-elements-textSecondary cursor-pointer">
         <input type="checkbox" checked={forgetOnClose} onChange={(event) => handleForgetToggle(event.target.checked)} />

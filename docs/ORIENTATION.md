@@ -2,7 +2,7 @@
 
 Chat/LLM: the client (`app/components/chat/Chat.client.tsx`) posts via `useChat` to `/api/chat`; that route streams through `app/lib/.server/llm/stream-text.ts`. Extra LLM hops are `/api/llmcall` and `/api/enhancer`.
 
-API keys live in `localStorage` (or `sessionStorage` if "forget keys when I close the tab" is on). On LLM routes they are sent per request in `x-hypeable-key`. Selected provider/model, the composer draft, agent mode, debug flags, and event logs are also `localStorage` (`hypeable:pref:*`, `hypeable:eventLogs`) — not cookies. See `docs/KEY-FLOW.md`. Theme/profile sit in `localStorage` (`bolt_theme`, `bolt_user_profile`).
+API keys live in `localStorage` (or `sessionStorage` if "forget keys when I close the tab" is on). On LLM routes they are sent per request in `x-hypeable-key`. On the public site that request is relayed through our Cloudflare Worker; we do not store or log the key. Run locally to skip the relay. Selected provider/model, the composer draft, agent mode, debug flags, and event logs are also `localStorage` (`hypeable:pref:*`, `hypeable:eventLogs`) — not cookies. See `docs/KEY-FLOW.md`. Theme/profile sit in `localStorage` (`bolt_theme`, `bolt_user_profile`).
 
 Header/logo: `app/components/header/Header.tsx` (images `/logo-light-styled.png` and `/logo-dark-styled.png`, which are currently missing). Favicon is `/favicon.svg` from `app/root.tsx`. Landing copy is in `HomeHero` / `BaseChat`. First-run onboarding is the SSR `StartInSixty` card on home (dismissed via `localStorage` `bolt_onboarding_completed`, never a cookie). Home chrome is in the first HTML and stays mounted until a build starts. Chat loads on composer intent as a headless island; Menu loads on sidebar or settings intent.
 

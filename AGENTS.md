@@ -1,11 +1,11 @@
 # AGENTS.md: rules for AI coding agents (Cursor, Claude Code, Codex)
 
 Hypeable is a free, open-source AI app builder. Tagline: **worth the hype.**
-Base: fork of bolt.diy (MIT). Users bring their own API key. Hypeable hosts nothing.
+Base: fork of bolt.diy (MIT). Users bring their own API key. The public site is a stateless Worker relay, not a Hypeable-owned host for generated apps.
 
 ## Non-negotiables
 1. **Never write a real secret into any file.** Keys, tokens, passwords go in `.env.local` (git-ignored) and are read via `process.env`. Use `.env.example` for names only.
-2. **BYO key never leaves the user's browser** except in the single request to their chosen model provider. No server stores it. No logs print it. Redact `Authorization`, `x-api-key`, and anything matching `sk-`.
+2. **BYO key is stored in the browser** and sent only on LLM requests. In hosted mode it is relayed through our Cloudflare Worker to the chosen provider; we do not store or log it. No logs print it. Redact `Authorization`, `x-api-key`, and anything matching `sk-`.
 3. **Validate every server input with zod `.strict()`.** Never trust client-sent fields like `userId`, `role`, `price`, `plan`. Derive them server-side from the session.
 4. **Auth is enforced on the server**, in the route/loader/action. UI hiding is not security.
 5. **Conventional commits**: `type(scope): summary`. Types: feat fix docs style refactor perf test build ci chore security.

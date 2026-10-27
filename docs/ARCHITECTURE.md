@@ -3,12 +3,13 @@
 Browser (UI, WebContainer sandbox, BYO key in local storage)
    |  prompt + user's key (HTTPS)
    v
-Thin server route (stateless; validates input; rate-limits; never stores the key)
+Cloudflare Worker (stateless relay; validates input; rate-limits; we do not store or log the key; observability off)
    |
    v
 Model provider (user's account)
 
-Publish: browser -> user's GitHub / Vercel via their own OAuth token
+Publish: GitHub/GitLab from the browser (CORS); Vercel/Netlify via a one-shot Worker hop, then the user's account.
+Cloudflare handles request metadata and sees traffic in transit. After the first build, WebContainer/preview load from StackBlitz-hosted domains (unaudited).
 ```
 Key modules (added over the 10-day build): `cost-meter`, `loop-breaker`, `plan-mode`, `predeploy-check`.
 

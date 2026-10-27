@@ -1,6 +1,6 @@
 # Hypeable
 
-> Worth the hype. Free, open-source AI app builder. You bring your own model key. Hypeable hosts nothing.
+> Worth the hype. Free, open-source AI app builder. You bring your own model key. No accounts and no Hypeable-owned database.
 
 Hypeable is a fork of bolt.diy (MIT). Describe an app, watch it get built in a WebContainer, publish it to your own Vercel or GitHub.
 
@@ -28,4 +28,7 @@ Hypeable is a fork of bolt.diy (MIT). Describe an app, watch it get built in a W
 - Cost figures are estimates, not invoices. Accuracy against provider billing is not yet independently verified (docs/COST-ACCURACY.md). Set a limit on your provider too.
 - Publish connectors (GitHub, GitLab, Vercel, Netlify, Supabase) are experimental.
 - Some upstream tests are still being fixed; see docs/KNOWN-ISSUES.md.
-- Model keys take a server hop to the provider you chose. Hypeable does not store them. Direct browser-to-provider is not shipped yet.
+- No accounts and no database. In hosted mode, requests are relayed through our Cloudflare Worker to the provider you choose; we do not store or log prompts, keys or code, and observability is off. Run Hypeable locally to skip our relay. Your provider's own data policy applies to what you send them.
+- Cloudflare, as our host, handles request metadata and sees traffic in transit.
+- After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.
+- Direct browser-to-provider for model calls is not shipped yet. GitHub/GitLab publish already go browser→provider (CORS).

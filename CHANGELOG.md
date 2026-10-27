@@ -40,7 +40,7 @@ First numbered public release. Fill the date when the GitHub release is publishe
 
 ## [0.1.0] - 2026-10-27
 
-First public snapshot of Hypeable, a [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT) fork. Bring your own API key. Hypeable hosts nothing.
+First public snapshot of Hypeable, a [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT) fork. Bring your own API key. No Hypeable-owned database or deploy target.
 
 ### Added
 

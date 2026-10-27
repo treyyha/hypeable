@@ -1,0 +1,29 @@
+{
+  "$comment": "Phrases that overclaim where prompts, keys, or data go. The matcher is app/lib/security/privacy-claims.spec.ts. Documented in docs/CLAIMS.md. Do not quote these strings in scanned files.",
+  "phrases": [
+    "never leaves your browser",
+    "never leaves the user's browser",
+    "never leaves this browser",
+    "stores nothing",
+    "hosts nothing",
+    "straight to the provider",
+    "go only to the provider",
+    "goes only to the provider",
+    "they go only to the provider you chose"
+  ],
+  "roots": [
+    "README.md",
+    "SECURITY.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "public/llms.txt",
+    "public/site.webmanifest",
+    "docs",
+    "app"
+  ],
+  "exclude": [
+    "docs/CLAIMS.md",
+    "docs/banned-privacy-phrases.json",
+    "docs/upstream-changelog.md"
+  ]
+}
