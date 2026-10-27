@@ -129,7 +129,8 @@ function getColorForLevel(level: DebugLevel): string {
 
 export const renderLogger = createScopedLogger('Render');
 
-type DebugCapture = { captureLog: (level: DebugLevel, scope: string | undefined, messages: unknown[]) => void };
+type CapturableLevel = Exclude<DebugLevel, 'none'>;
+type DebugCapture = { captureLog: (level: CapturableLevel, scope: string | undefined, messages: unknown[]) => void };
 
 let debugCapture: DebugCapture | null = null;
 
@@ -138,12 +139,10 @@ export function attachDebugLogger(instance: DebugCapture | null): void {
   debugCapture = instance;
 }
 
-// Override the log function to also capture to debug logger
-
 function logWithDebugCapture(level: DebugLevel, scope: string | undefined, messages: any[]) {
-  // Call original log function (the one that does the actual console logging)
   log(level, scope, messages);
 
-  // Also capture to debug logger if available
-  debugCapture?.captureLog(level, scope, messages);
+  if (level !== 'none') {
+    debugCapture?.captureLog(level, scope, messages);
+  }
 }
