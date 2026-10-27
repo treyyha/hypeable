@@ -17,7 +17,7 @@ Hypeable is dark-first. Tokens live in **one place**: [`app/styles/tokens.scss`]
 | `--hype-on-accent` | `#0A0A0F` | `#0A0A0F` |
 | `--hype-ok` / `--hype-warn` / `--hype-danger` | lime / `#FFB020` / `#FF5A5F` | `#4D7A00` / warn / danger |
 
-Also: radii 8 / 12 / 18 / 999, a 4px spacing scale, shadows, motion durations, and a type scale. Font is **Geist Sans + Geist Mono**, self-hosted via `@fontsource`. Money always uses `tabular-nums`.
+Also: radii 8 / 12 / 18 / 999, a 4px spacing scale, shadows, motion durations, and a type scale. Font is **Geist Sans + Geist Mono**, self-hosted latin `@fontsource` files with `font-display: swap`. Home preloads Sans 400/600 and Mono 400. Money always uses `tabular-nums`.
 
 Uno classes: `bg-hype-bg`, `text-hype-text`, `border-hype-border`, `bg-hype-accent`, `text-hype-on-accent`, `text-hype-accent-text`, `bg-hype-ok`, `bg-hype-warn`, `bg-hype-danger`.
 

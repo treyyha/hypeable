@@ -1,3 +1,6 @@
+import geistMono400 from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url';
+import geistSans400 from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url';
+import geistSans600 from '@fontsource/geist-sans/files/geist-sans-latin-600-normal.woff2?url';
 import { useStore } from '@nanostores/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { useEffect } from 'react';
@@ -15,12 +18,12 @@ import {
   type MetaFunction,
 } from 'react-router';
 import { cssTransition, ToastContainer } from 'react-toastify';
-import '@fontsource/geist-sans/400.css';
-import '@fontsource/geist-sans/500.css';
-import '@fontsource/geist-sans/600.css';
-import '@fontsource/geist-sans/700.css';
-import '@fontsource/geist-mono/400.css';
-import '@fontsource/geist-mono/500.css';
+import '@fontsource/geist-sans/latin-400.css';
+import '@fontsource/geist-sans/latin-500.css';
+import '@fontsource/geist-sans/latin-600.css';
+import '@fontsource/geist-sans/latin-700.css';
+import '@fontsource/geist-mono/latin-400.css';
+import '@fontsource/geist-mono/latin-500.css';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 
@@ -39,6 +42,27 @@ export const links: LinksFunction = () => [
   },
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   { rel: 'manifest', href: '/site.webmanifest' },
+  {
+    rel: 'preload',
+    href: geistSans400,
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous',
+  },
+  {
+    rel: 'preload',
+    href: geistSans600,
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous',
+  },
+  {
+    rel: 'preload',
+    href: geistMono400,
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous',
+  },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
