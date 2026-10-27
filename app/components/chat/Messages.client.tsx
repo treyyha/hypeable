@@ -1,3 +1,4 @@
+import '~/styles/components/code.scss';
 import type { UIMessage } from 'ai';
 import { Fragment } from 'react';
 import { forwardRef } from 'react';

@@ -1,6 +1,6 @@
-import { globSync } from 'fast-glob';
 import fs from 'node:fs/promises';
 import { basename } from 'node:path';
+import { globSync } from 'fast-glob';
 import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss';
 
 const iconPaths = globSync('./icons/*.svg');
@@ -260,6 +260,11 @@ export default defineConfig({
   transformers: [transformerDirectives()],
   presets: [
     presetUno({
+      /*
+       * Tailwind-compat reset already loads from root.tsx. A second preflight
+       * duplicated normalize rules in the first-load CSS.
+       */
+      preflight: false,
       dark: {
         light: '[data-theme="light"]',
         dark: '[data-theme="dark"]',

@@ -1,3 +1,6 @@
+import '~/styles/components/editor.scss';
+import '~/styles/components/resize-handle.scss';
+import '~/styles/components/terminal.scss';
 import { useStore } from '@nanostores/react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Popover from '@radix-ui/react-popover';

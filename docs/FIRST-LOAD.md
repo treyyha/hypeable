@@ -6,6 +6,8 @@ A first-time visitor on `/` should not download the code editor, Shiki grammars,
 |---|---|
 | Home chrome, composer, OpenRouter connect | First visit |
 | Workbench / CodeMirror | Started chat (lazy `Workbench`) |
+| Editor / terminal / resize-handle CSS | Workbench chunk |
+| Shiki message CSS | Messages chunk |
 | Shiki grammars | First highlighted code block after the stream ends |
 | xterm CSS | Terminal panel mount |
 | WebContainer | First send, or workbench open |
