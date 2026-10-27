@@ -17,7 +17,14 @@ describe('prefetch-home', () => {
     expect(homeChatShouldLoad.get()).toBe(true);
   });
 
-  it('exposes a picker loader without importing provider-list in unit tests', () => {
+  it('exposes a picker loader that also requests Chat', () => {
+    /*
+     * Do not call requestProviderListLoad() here: it dynamic-imports
+     * provider-list (LLM SDKs) and Vitest tears down jsdom before that
+     * graph finishes loading.
+     */
     expect(typeof requestProviderListLoad).toBe('function');
+    requestHomeChatLoad();
+    expect(homeChatShouldLoad.get()).toBe(true);
   });
 });
