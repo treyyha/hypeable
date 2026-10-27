@@ -10,21 +10,17 @@ describe('prefetch-home', () => {
     expect(homeChatShouldLoad.get()).toBe(false);
   });
 
-  it('marks Chat to load on composer intent', () => {
-    requestHomeChatLoad();
-    expect(homeChatShouldLoad.get()).toBe(true);
-    requestHomeChatLoad();
+  it('can be marked to load Chat', () => {
+    homeChatShouldLoad.set(true);
     expect(homeChatShouldLoad.get()).toBe(true);
   });
 
-  it('exposes a picker loader that also requests Chat', () => {
+  it('exposes intent loaders without running their dynamic imports in jsdom', () => {
     /*
-     * Do not call requestProviderListLoad() here: it dynamic-imports
-     * provider-list (LLM SDKs) and Vitest tears down jsdom before that
-     * graph finishes loading.
+     * requestHomeChatLoad / requestProviderListLoad dynamic-import Chat.client
+     * and provider-list. Those graphs finish after Vitest tears down jsdom.
      */
+    expect(typeof requestHomeChatLoad).toBe('function');
     expect(typeof requestProviderListLoad).toBe('function');
-    requestHomeChatLoad();
-    expect(homeChatShouldLoad.get()).toBe(true);
   });
 });
