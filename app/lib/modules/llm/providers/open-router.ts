@@ -1,5 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -116,6 +117,7 @@ export default class OpenRouterProvider extends BaseProvider {
 
     const openRouter = createOpenRouter({
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     const instance = openRouter.chat(model);

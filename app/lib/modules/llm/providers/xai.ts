@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -63,6 +64,7 @@ export default class XAIProvider extends BaseProvider {
     const openai = createOpenAI({
       baseURL: 'https://api.x.ai/v1',
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     if ((model === 'grok-4.3' || model.startsWith('grok-build-')) && typeof (openai as any).responses === 'function') {

@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getEnv } from './env';
 import type { ProviderInfo, ProviderConfig, ModelInfo } from './types';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { isHostedMode } from '~/lib/security/hosted';
 import { assertHostedProviderAccess } from '~/lib/security/outbound';
 import type { IProviderSetting } from '~/types/model';
@@ -189,6 +190,7 @@ export function getOpenAILikeModel(baseURL: string, apiKey: OptionalApiKey, mode
   const openai = createOpenAI({
     baseURL,
     apiKey,
+    fetch: streamUsageFetch(),
   });
 
   return openai.chat(model);

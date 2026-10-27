@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -188,6 +189,7 @@ export default class ZaiProvider extends BaseProvider {
     const zaiClient = createOpenAI({
       baseURL: baseUrl,
       apiKey: token,
+      fetch: streamUsageFetch(),
     });
 
     return zaiClient.chat(model);

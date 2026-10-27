@@ -3,26 +3,43 @@
  * payloads fall back to zeros so a bad write can never crash the app.
  */
 import { DEFAULT_DAILY_CAP, DEFAULT_SESSION_CAP } from './caps';
+import { dollarsToNanos } from './money';
+import type { ApproximateReason, CallKind, UsagePrecision } from './usage';
 
 export const COST_STORAGE_KEY = 'hypeable:cost:v1';
 export const COST_STORAGE_VERSION = 1;
 
 export type MessageCostRecord = {
   dollars: number;
+  nanos?: number;
+  computedDollars?: number;
+  providerDollars?: number;
   unknown: boolean;
   model: string;
   provider?: string;
   promptTokens: number;
   completionTokens: number;
   cachedTokens: number;
+  cacheWriteTokens?: number;
+  cacheWrite1hTokens?: number;
+  reasoningTokens?: number;
+  imageTokens?: number;
   pending?: boolean;
 
   /** False when the list price was tagged unverified. Missing on older snapshots. */
   verified?: boolean;
+  approximate?: boolean;
+  approximateReasons?: ApproximateReason[];
+  precision?: UsagePrecision;
+  callKind?: CallKind;
+  aborted?: boolean;
+  maybeBilled?: boolean;
+  divergenceNanos?: number;
 };
 
 export type ModelBreakdown = {
   dollars: number;
+  nanos?: number;
   promptTokens: number;
   completionTokens: number;
   unknown?: boolean;
@@ -40,10 +57,12 @@ export type CostSnapshot = {
   sessionId: string;
   sessionStartedAt: number;
   sessionTotal: number;
+  sessionTotalNanos?: number;
   sessionPromptTokens: number;
   sessionCompletionTokens: number;
   dayKey: string;
   dailyTotal: number;
+  dailyTotalNanos?: number;
   dailyPromptTokens: number;
   dailyCompletionTokens: number;
   messages: Record<string, MessageCostRecord>;
@@ -80,10 +99,12 @@ export function emptySnapshot(
     sessionId: newSessionId(now),
     sessionStartedAt: now.getTime(),
     sessionTotal: 0,
+    sessionTotalNanos: 0,
     sessionPromptTokens: 0,
     sessionCompletionTokens: 0,
     dayKey: localDayKey(now),
     dailyTotal: 0,
+    dailyTotalNanos: 0,
     dailyPromptTokens: 0,
     dailyCompletionTokens: 0,
     messages: {},
@@ -156,14 +177,30 @@ function sanitizeMessages(value: unknown): Record<string, MessageCostRecord> {
     const row = entry as Record<string, unknown>;
     result[id] = {
       dollars: asNumber(row.dollars),
+      nanos: asNumber(row.nanos, dollarsToNanos(asNumber(row.dollars))),
+      computedDollars: typeof row.computedDollars === 'number' ? asNumber(row.computedDollars) : undefined,
+      providerDollars: typeof row.providerDollars === 'number' ? asNumber(row.providerDollars) : undefined,
       unknown: Boolean(row.unknown),
       model: typeof row.model === 'string' ? row.model : 'unknown',
       provider: typeof row.provider === 'string' ? row.provider : undefined,
       promptTokens: asNumber(row.promptTokens),
       completionTokens: asNumber(row.completionTokens),
       cachedTokens: asNumber(row.cachedTokens),
+      cacheWriteTokens: asNumber(row.cacheWriteTokens),
+      cacheWrite1hTokens: asNumber(row.cacheWrite1hTokens),
+      reasoningTokens: asNumber(row.reasoningTokens),
+      imageTokens: asNumber(row.imageTokens),
       pending: Boolean(row.pending),
       verified: row.verified === false ? false : row.verified === true ? true : undefined,
+      approximate: row.approximate === true ? true : undefined,
+      approximateReasons: Array.isArray(row.approximateReasons)
+        ? (row.approximateReasons.filter((item) => typeof item === 'string') as ApproximateReason[])
+        : undefined,
+      precision: row.precision === 'estimate' ? 'estimate' : row.precision === 'exact' ? 'exact' : undefined,
+      callKind: typeof row.callKind === 'string' ? (row.callKind as CallKind) : undefined,
+      aborted: row.aborted === true ? true : undefined,
+      maybeBilled: row.maybeBilled === true ? true : undefined,
+      divergenceNanos: typeof row.divergenceNanos === 'number' ? asNumber(row.divergenceNanos) : undefined,
     };
   }
 
@@ -181,6 +218,7 @@ function sanitizeBreakdown(value: unknown): Record<string, ModelBreakdown> {
     const row = entry as Record<string, unknown>;
     result[model] = {
       dollars: asNumber(row.dollars),
+      nanos: asNumber(row.nanos, dollarsToNanos(asNumber(row.dollars))),
       promptTokens: asNumber(row.promptTokens),
       completionTokens: asNumber(row.completionTokens),
       unknown: Boolean(row.unknown) || undefined,
@@ -189,6 +227,23 @@ function sanitizeBreakdown(value: unknown): Record<string, ModelBreakdown> {
   }
 
   return result;
+}
+
+/** True when the pill / Spend totals should show ≈. */
+export function snapshotIsApproximate(snapshot: CostSnapshot): boolean {
+  if (Object.values(snapshot.byModel).some((row) => row.unverified || row.unknown)) {
+    return true;
+  }
+
+  return Object.values(snapshot.messages).some(
+    (row) =>
+      row.approximate === true ||
+      row.verified === false ||
+      row.precision === 'estimate' ||
+      row.unknown ||
+      row.aborted === true ||
+      row.maybeBilled === true,
+  );
 }
 
 export function applyDayRollover(snapshot: CostSnapshot, now: Date): CostSnapshot {
@@ -202,6 +257,7 @@ export function applyDayRollover(snapshot: CostSnapshot, now: Date): CostSnapsho
     ...snapshot,
     dayKey: today,
     dailyTotal: 0,
+    dailyTotalNanos: 0,
     dailyPromptTokens: 0,
     dailyCompletionTokens: 0,
     warned80Daily: false,
@@ -229,10 +285,12 @@ export function parseSnapshot(raw: unknown, now: Date): CostSnapshot {
       sessionId,
       sessionStartedAt: asNumber(record.sessionStartedAt, now.getTime()),
       sessionTotal: asNumber(record.sessionTotal),
+      sessionTotalNanos: asNumber(record.sessionTotalNanos, dollarsToNanos(asNumber(record.sessionTotal))),
       sessionPromptTokens: asNumber(record.sessionPromptTokens),
       sessionCompletionTokens: asNumber(record.sessionCompletionTokens),
       dayKey: typeof record.dayKey === 'string' ? record.dayKey : localDayKey(now),
       dailyTotal: asNumber(record.dailyTotal),
+      dailyTotalNanos: asNumber(record.dailyTotalNanos, dollarsToNanos(asNumber(record.dailyTotal))),
       dailyPromptTokens: asNumber(record.dailyPromptTokens),
       dailyCompletionTokens: asNumber(record.dailyCompletionTokens),
       messages: sanitizeMessages(record.messages),

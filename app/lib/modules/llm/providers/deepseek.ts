@@ -1,5 +1,6 @@
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -138,6 +139,7 @@ export default class DeepseekProvider extends BaseProvider {
 
     const deepseek = createDeepSeek({
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     /*

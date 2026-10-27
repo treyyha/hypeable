@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -56,6 +57,7 @@ export default class PerplexityProvider extends BaseProvider {
     const perplexity = createOpenAI({
       baseURL: 'https://api.perplexity.ai/',
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     return perplexity.chat(model);

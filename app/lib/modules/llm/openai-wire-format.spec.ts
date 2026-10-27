@@ -132,6 +132,16 @@ describe('OpenAI provider wire format (characterization, v4)', () => {
     expect(typeof body === 'string' ? body : JSON.stringify(body)).toContain('gpt-4o-mini');
   });
 
+  it('requests stream_options.include_usage on Chat Completions streams', async () => {
+    const model = getOpenAILikeModel('https://api.openai.com/v1', 'test-key', 'gpt-4o-mini');
+    await requestUrl(model);
+
+    const raw = calls[0]?.init?.body;
+    const body = typeof raw === 'string' ? JSON.parse(raw) : raw;
+
+    expect(body.stream_options).toMatchObject({ include_usage: true });
+  });
+
   it('honours a custom baseURL, including one with a trailing slash', async () => {
     const withSlash = getOpenAILikeModel('https://api.hyperbolic.xyz/v1/', 'k', 'model-a');
     const urlA = await requestUrl(withSlash);

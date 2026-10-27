@@ -1,5 +1,6 @@
 import { createFireworks } from '@ai-sdk/fireworks';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -140,6 +141,7 @@ export default class FireworksProvider extends BaseProvider {
 
     const fireworks = createFireworks({
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     return fireworks(model);

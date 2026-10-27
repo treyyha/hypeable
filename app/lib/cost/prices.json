@@ -12,7 +12,9 @@
           "cachedInput": 0.25,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 12.5,
+          "cacheWrite1h": 20
         },
         {
           "pattern": "claude-mythos-5-1*",
@@ -21,7 +23,9 @@
           "cachedInput": 0.25,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 12.5,
+          "cacheWrite1h": 20
         },
         {
           "pattern": "claude-fable-5*",
@@ -30,7 +34,9 @@
           "cachedInput": 1,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 12.5,
+          "cacheWrite1h": 20
         },
         {
           "pattern": "claude-mythos-5*",
@@ -39,7 +45,9 @@
           "cachedInput": 1,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 12.5,
+          "cacheWrite1h": 20
         },
         {
           "pattern": "claude-opus-5-5*",
@@ -48,7 +56,9 @@
           "cachedInput": 0.2,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 5,
+          "cacheWrite1h": 8
         },
         {
           "pattern": "claude-opus-5*",
@@ -57,7 +67,9 @@
           "cachedInput": 0.5,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 6.25,
+          "cacheWrite1h": 10
         },
         {
           "pattern": "claude-opus-4-8*",
@@ -66,7 +78,9 @@
           "cachedInput": 0.5,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 6.25,
+          "cacheWrite1h": 10
         },
         {
           "pattern": "claude-opus-4-7*",
@@ -75,7 +89,9 @@
           "cachedInput": 0.5,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 6.25,
+          "cacheWrite1h": 10
         },
         {
           "pattern": "claude-opus-4-6*",
@@ -84,7 +100,9 @@
           "cachedInput": 0.5,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 6.25,
+          "cacheWrite1h": 10
         },
         {
           "pattern": "claude-opus-4-5*",
@@ -93,7 +111,9 @@
           "cachedInput": 0.5,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 6.25,
+          "cacheWrite1h": 10
         },
         {
           "pattern": "claude-sonnet-5-5*",
@@ -102,7 +122,9 @@
           "cachedInput": 0.1,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 2.5,
+          "cacheWrite1h": 4
         },
         {
           "pattern": "claude-sonnet-5*",
@@ -111,7 +133,9 @@
           "cachedInput": 0.2,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 2.5,
+          "cacheWrite1h": 4
         },
         {
           "pattern": "claude-sonnet-4-6*",
@@ -120,7 +144,9 @@
           "cachedInput": 0.3,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 3.75,
+          "cacheWrite1h": 6
         },
         {
           "pattern": "claude-sonnet-4-5*",
@@ -129,7 +155,9 @@
           "cachedInput": 0.3,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 3.75,
+          "cacheWrite1h": 6
         },
         {
           "pattern": "claude-sonnet-4*",
@@ -138,7 +166,9 @@
           "cachedInput": 0.3,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 3.75,
+          "cacheWrite1h": 6
         },
         {
           "pattern": "claude-haiku-5-5*",
@@ -147,7 +177,9 @@
           "cachedInput": 0.01,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 0.125,
+          "cacheWrite1h": 0.2
         },
         {
           "pattern": "claude-haiku-4-5*",
@@ -156,7 +188,9 @@
           "cachedInput": 0.1,
           "verified": true,
           "source": "https://platform.claude.com/docs/en/about-claude/pricing",
-          "checkedAt": "2026-10-27"
+          "checkedAt": "2026-10-27",
+          "cacheWrite": 1.25,
+          "cacheWrite1h": 2
         }
       ]
     },

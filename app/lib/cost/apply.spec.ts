@@ -1,9 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { applyCustomPrice, applyNewSession, applyRaiseCap, applyUsage, preSendDecision, removeUsage } from './apply';
+import { dollarsFromNanos } from './money';
 import { emptySnapshot } from './persist';
 
 describe('cost state transitions', () => {
   const now = new Date('2026-10-25T15:00:00');
+
+  it('keeps pill, session total, and cap check on the same dollar figure', () => {
+    const first = applyUsage(
+      emptySnapshot(now),
+      { id: 'm1', model: 'gpt-4o-mini', promptTokens: 333_333, completionTokens: 111_111 },
+      now,
+    );
+    const second = applyUsage(
+      first.snapshot,
+      { id: 'm2', model: 'gpt-4o-mini', promptTokens: 333_333, completionTokens: 111_111 },
+      now,
+    );
+
+    const pill = second.snapshot.sessionTotal;
+    const byModel = second.snapshot.byModel['gpt-4o-mini']?.dollars;
+    expect(pill).toBe(byModel);
+    expect(pill).toBe(second.snapshot.dailyTotal);
+    expect(pill).toBe(
+      dollarsFromNanos((second.snapshot.messages.m1.nanos ?? 0) + (second.snapshot.messages.m2.nanos ?? 0)),
+    );
+  });
 
   it('records a known-model spend against session, day, and per-model totals', () => {
     const { snapshot } = applyUsage(

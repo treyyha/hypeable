@@ -73,4 +73,30 @@ describe('cost persistence', () => {
     expect(raw).toContain('"version":1');
     expect(loadSnapshot(raw, noon).sessionTotal).toBe(0.043);
   });
+
+  it('keeps nano-dollar totals on messages and byModel after reload', () => {
+    const snapshot = emptySnapshot(noon);
+    snapshot.sessionTotalNanos = 6;
+    snapshot.sessionTotal = 0;
+    snapshot.messages.m1 = {
+      dollars: 0,
+      nanos: 6,
+      unknown: false,
+      model: 'gpt-4o-mini',
+      promptTokens: 1,
+      completionTokens: 0,
+      cachedTokens: 0,
+    };
+    snapshot.byModel['gpt-4o-mini'] = {
+      dollars: 0,
+      nanos: 6,
+      promptTokens: 1,
+      completionTokens: 0,
+    };
+
+    const loaded = loadSnapshot(JSON.stringify(snapshot), noon);
+    expect(loaded.sessionTotalNanos).toBe(6);
+    expect(loaded.messages.m1.nanos).toBe(6);
+    expect(loaded.byModel['gpt-4o-mini']?.nanos).toBe(6);
+  });
 });

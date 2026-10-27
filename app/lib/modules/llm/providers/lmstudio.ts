@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -99,6 +100,7 @@ export default class LMStudioProvider extends BaseProvider {
     const lmstudio = createOpenAI({
       baseURL: `${baseUrl}/v1`,
       apiKey: '',
+      fetch: streamUsageFetch(),
     });
 
     return lmstudio.chat(model);

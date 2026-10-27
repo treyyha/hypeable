@@ -4,7 +4,9 @@
  */
 import { cost, type CostResult } from './calc';
 import { evaluateCaps, raisedCap, type CapDecision, type CapKind } from './caps';
+import { dollarsFromNanos } from './money';
 import { applyDayRollover, emptySnapshot, type CostSnapshot, type MessageCostRecord } from './persist';
+import type { ApproximateReason, CallKind, UsagePrecision } from './usage';
 
 export type UsageEntry = {
   id: string;
@@ -13,40 +15,67 @@ export type UsageEntry = {
   promptTokens: number;
   completionTokens: number;
   cachedTokens?: number;
+  cacheWriteTokens?: number;
+  cacheWrite1hTokens?: number;
+  reasoningTokens?: number;
+  reasoningIncludedInOutput?: boolean;
+  imageTokens?: number;
   actualCost?: number;
   pending?: boolean;
+  precision?: UsagePrecision;
+  aborted?: boolean;
+  maybeBilled?: boolean;
+  callKind?: CallKind;
 };
 
 function toRecord(entry: UsageEntry, result: CostResult): MessageCostRecord {
+  const approximate = result.unknown || result.approximate || entry.precision === 'estimate';
+  const reasons: ApproximateReason[] = result.unknown ? result.approximateReasons : result.approximateReasons;
+
   return {
     dollars: result.dollars,
+    nanos: result.unknown ? 0 : result.nanos,
+    computedDollars: result.computedDollars,
+    providerDollars: result.unknown ? undefined : result.providerDollars,
     unknown: result.unknown,
     model: entry.model,
     provider: entry.provider,
     promptTokens: result.promptTokens,
     completionTokens: result.completionTokens,
     cachedTokens: result.cachedTokens,
+    cacheWriteTokens: result.cacheWriteTokens,
+    cacheWrite1hTokens: result.cacheWrite1hTokens,
+    reasoningTokens: result.reasoningTokens,
+    imageTokens: result.imageTokens,
     pending: entry.pending,
     verified: result.unknown ? undefined : result.verified,
+    approximate: approximate || undefined,
+    approximateReasons: reasons.length > 0 ? reasons : undefined,
+    precision: entry.precision ?? (result.unknown ? 'estimate' : result.precision),
+    callKind: entry.callKind,
+    aborted: entry.aborted || undefined,
+    maybeBilled: entry.maybeBilled || undefined,
+    divergenceNanos: result.unknown ? undefined : result.divergenceNanos,
   };
 }
 
 function addBreakdown(snapshot: CostSnapshot, record: MessageCostRecord, sign: 1 | -1): void {
   const key = record.model || 'unknown';
-  const current = snapshot.byModel[key] ?? { dollars: 0, promptTokens: 0, completionTokens: 0 };
-  const dollars = current.dollars + sign * record.dollars;
+  const current = snapshot.byModel[key] ?? { dollars: 0, nanos: 0, promptTokens: 0, completionTokens: 0 };
+  const nanos = (current.nanos ?? 0) + sign * recordNanos(record);
   const promptTokens = current.promptTokens + sign * record.promptTokens;
   const completionTokens = current.completionTokens + sign * record.completionTokens;
   const unknown = record.unknown || Boolean(current.unknown);
-  const unverified = record.verified === false || Boolean(current.unverified);
+  const unverified = record.verified === false || record.approximate === true || Boolean(current.unverified);
 
-  if (promptTokens <= 0 && completionTokens <= 0 && Math.abs(dollars) < 1e-9) {
+  if (promptTokens <= 0 && completionTokens <= 0 && Math.abs(nanos) < 1) {
     delete snapshot.byModel[key];
     return;
   }
 
   snapshot.byModel[key] = {
-    dollars,
+    dollars: dollarsFromNanos(nanos),
+    nanos,
     promptTokens: Math.max(0, promptTokens),
     completionTokens: Math.max(0, completionTokens),
     unknown: unknown || undefined,
@@ -54,9 +83,18 @@ function addBreakdown(snapshot: CostSnapshot, record: MessageCostRecord, sign: 1
   };
 }
 
+function recordNanos(record: MessageCostRecord): number {
+  return typeof record.nanos === 'number' && Number.isFinite(record.nanos)
+    ? record.nanos
+    : Math.round(record.dollars * 1_000_000_000);
+}
+
 function subtractRecord(snapshot: CostSnapshot, record: MessageCostRecord): void {
-  snapshot.sessionTotal -= record.dollars;
-  snapshot.dailyTotal -= record.dollars;
+  const nanos = recordNanos(record);
+  snapshot.sessionTotalNanos = (snapshot.sessionTotalNanos ?? 0) - nanos;
+  snapshot.dailyTotalNanos = (snapshot.dailyTotalNanos ?? 0) - nanos;
+  snapshot.sessionTotal = dollarsFromNanos(snapshot.sessionTotalNanos);
+  snapshot.dailyTotal = dollarsFromNanos(snapshot.dailyTotalNanos);
   snapshot.sessionPromptTokens -= record.promptTokens;
   snapshot.sessionCompletionTokens -= record.completionTokens;
   snapshot.dailyPromptTokens -= record.promptTokens;
@@ -65,8 +103,11 @@ function subtractRecord(snapshot: CostSnapshot, record: MessageCostRecord): void
 }
 
 function addRecord(snapshot: CostSnapshot, record: MessageCostRecord): void {
-  snapshot.sessionTotal += record.dollars;
-  snapshot.dailyTotal += record.dollars;
+  const nanos = recordNanos(record);
+  snapshot.sessionTotalNanos = (snapshot.sessionTotalNanos ?? 0) + nanos;
+  snapshot.dailyTotalNanos = (snapshot.dailyTotalNanos ?? 0) + nanos;
+  snapshot.sessionTotal = dollarsFromNanos(snapshot.sessionTotalNanos);
+  snapshot.dailyTotal = dollarsFromNanos(snapshot.dailyTotalNanos);
   snapshot.sessionPromptTokens += record.promptTokens;
   snapshot.sessionCompletionTokens += record.completionTokens;
   snapshot.dailyPromptTokens += record.promptTokens;
@@ -77,9 +118,17 @@ function addRecord(snapshot: CostSnapshot, record: MessageCostRecord): void {
 export function costFromEntry(snapshot: CostSnapshot, entry: UsageEntry): CostResult {
   return cost(entry.model, entry.promptTokens, entry.completionTokens, {
     cachedTokens: entry.cachedTokens,
+    cacheWriteTokens: entry.cacheWriteTokens,
+    cacheWrite1hTokens: entry.cacheWrite1hTokens,
+    reasoningTokens: entry.reasoningTokens,
+    reasoningIncludedInOutput: entry.reasoningIncludedInOutput,
+    imageTokens: entry.imageTokens,
     actualCost: entry.actualCost,
     customPrices: snapshot.customPrices,
     provider: entry.provider,
+    precision: entry.precision,
+    aborted: entry.aborted,
+    maybeBilled: entry.maybeBilled,
   });
 }
 
@@ -137,6 +186,7 @@ export function applyNewSession(snapshot: CostSnapshot, now: Date): CostSnapshot
   const rolled = applyDayRollover(snapshot, now);
   const fresh = emptySnapshot(now, { caps: rolled.caps, customPrices: rolled.customPrices });
   fresh.dailyTotal = rolled.dailyTotal;
+  fresh.dailyTotalNanos = rolled.dailyTotalNanos ?? 0;
   fresh.dailyPromptTokens = rolled.dailyPromptTokens;
   fresh.dailyCompletionTokens = rolled.dailyCompletionTokens;
   fresh.dayKey = rolled.dayKey;

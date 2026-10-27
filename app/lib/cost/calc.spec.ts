@@ -78,6 +78,18 @@ describe('cost calculator', () => {
     expect(result.dollars).toBe(3);
   });
 
+  it('bills Anthropic 5-minute cache writes at the official cacheWrite rate', () => {
+    const result = cost('claude-sonnet-4-6', 1_000_000, 0, { cacheWriteTokens: 1_000_000 });
+    expect(result.unknown).toBe(false);
+
+    if (result.unknown) {
+      return;
+    }
+
+    expect(result.dollars).toBe(3.75);
+    expect(result.approximate).toBe(false);
+  });
+
   it('uses cached input rates when cache-read tokens are present', () => {
     const result = cost('claude-sonnet-4-6', 1_000_000, 0, { cachedTokens: 1_000_000 });
     expect(result.unknown).toBe(false);
@@ -114,7 +126,7 @@ describe('cost calculator', () => {
     expect(result.dollars).toBe(0.59);
   });
 
-  it('prefers OpenRouter billed cost over the list-price estimate', () => {
+  it('prefers OpenRouter billed cost over the list-price estimate and records divergence', () => {
     const result = cost('openai/gpt-4o', 1000, 1000, { actualCost: 0.0123 });
     expect(result.unknown).toBe(false);
 
@@ -124,6 +136,20 @@ describe('cost calculator', () => {
 
     expect(result.dollars).toBe(0.0123);
     expect(result.source).toBe('provider');
+    expect(result.computedDollars).not.toBe(0.0123);
+    expect(result.divergenceNanos).toBeDefined();
+  });
+
+  it('marks the total as an estimate when a received category has no price', () => {
+    const result = cost('gpt-5.5-pro', 1_000_000, 0, { cacheWriteTokens: 1_000 });
+    expect(result.unknown).toBe(false);
+
+    if (result.unknown) {
+      return;
+    }
+
+    expect(result.approximate).toBe(true);
+    expect(result.approximateReasons).toContain('unpriced-category');
   });
 
   it('prices the OpenRouter GLM 5.3 Flash default from the verified table', () => {

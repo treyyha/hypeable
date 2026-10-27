@@ -9,11 +9,12 @@ describe('usage extraction', () => {
         outputTokens: 7,
         totalTokens: 18,
       }),
-    ).toEqual({
+    ).toMatchObject({
       promptTokens: 11,
       completionTokens: 7,
       totalTokens: 18,
       cachedTokens: 0,
+      precision: 'exact',
     });
   });
 
@@ -24,7 +25,7 @@ describe('usage extraction', () => {
         outputTokens: { total: 20 },
         cost: 0.0042,
       }),
-    ).toEqual({
+    ).toMatchObject({
       promptTokens: 100,
       completionTokens: 20,
       totalTokens: 120,
@@ -41,11 +42,13 @@ describe('usage extraction', () => {
         cache_creation_input_tokens: 20,
         output_tokens: 10,
       }),
-    ).toEqual({
+    ).toMatchObject({
       promptTokens: 160,
+      uncachedPromptTokens: 100,
       completionTokens: 10,
       totalTokens: 170,
       cachedTokens: 40,
+      cacheWriteTokens: 20,
     });
   });
 
@@ -53,9 +56,16 @@ describe('usage extraction', () => {
     const marker = encodeUsageMarker({
       model: 'gpt-4o',
       promptTokens: 10,
+      uncachedPromptTokens: 10,
       completionTokens: 4,
       totalTokens: 14,
       cachedTokens: 0,
+      cacheWriteTokens: 0,
+      cacheWrite1hTokens: 0,
+      reasoningTokens: 0,
+      reasoningIncludedInOutput: true,
+      imageTokens: 0,
+      precision: 'exact',
       cost: 0.001,
     });
 

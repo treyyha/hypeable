@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { streamUsageFetch } from '~/lib/cost/include-usage-fetch';
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
@@ -132,6 +133,7 @@ export default class GroqProvider extends BaseProvider {
     const openai = createOpenAI({
       baseURL: 'https://api.groq.com/openai/v1',
       apiKey,
+      fetch: streamUsageFetch(),
     });
 
     return openai.chat(model);
