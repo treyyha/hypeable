@@ -110,17 +110,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="w-full h-full">
         {/*
-          The app boots a WebContainer and reads IndexedDB/localStorage, so it is
-          genuinely client-only. `ClientOnly` renders `fallback` on the server and
-          on the first client render (keeping hydration in sync), then swaps in the
-          real tree once mounted.
+          Privacy/terms (and other static pages) must be in the HTML for crawlers
+          and for anyone without JS. DnD wraps after mount; it is not needed to
+          read those pages. Chat still has its own ClientOnly around WebContainer.
         */}
         <noscript>
           <p style={{ margin: '1.5rem', fontFamily: 'system-ui, sans-serif' }}>
-            Hypeable needs JavaScript to build apps in your browser.
+            Hypeable needs JavaScript to build apps in your browser. Privacy and terms below still apply.
           </p>
         </noscript>
-        <ClientOnly fallback={<div className="w-full h-full" />}>
+        <ClientOnly fallback={children}>
           {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
         </ClientOnly>
         <ToastContainer
