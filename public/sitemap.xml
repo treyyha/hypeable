@@ -4,4 +4,16 @@
     <loc>https://hypeable.dev/</loc>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://hypeable.dev/spend</loc>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://hypeable.dev/privacy</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://hypeable.dev/terms</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>

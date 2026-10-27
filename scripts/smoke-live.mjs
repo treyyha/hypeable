@@ -151,10 +151,28 @@ if (robots.response.status !== 200 || !robots.text.includes('Disallow: /api/')) 
 
 const sitemap = await get('/sitemap.xml');
 
-if (sitemap.response.status !== 200 || !sitemap.text.includes('https://hypeable.dev/')) {
+if (
+  sitemap.response.status !== 200 ||
+  !sitemap.text.includes('https://hypeable.dev/') ||
+  !sitemap.text.includes('https://hypeable.dev/privacy') ||
+  !sitemap.text.includes('https://hypeable.dev/terms')
+) {
   fail(`/sitemap.xml → ${sitemap.response.status}`);
 } else {
-  pass('sitemap.xml lists the home page');
+  pass('sitemap.xml lists home, privacy, and terms');
+}
+
+for (const [path, needle] of [
+  ['/privacy', 'selectedProvider'],
+  ['/terms', 'MIT licence'],
+]) {
+  const page = await get(path);
+
+  if (page.response.status !== 200 || !page.text.includes(needle) || /legal advice/i.test(page.text)) {
+    fail(`GET ${path} → ${page.response.status}`);
+  } else {
+    pass(`GET ${path} is 200`);
+  }
 }
 
 const securityTxt = await get('/.well-known/security.txt');

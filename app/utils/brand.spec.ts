@@ -32,6 +32,21 @@ describe('brandMeta', () => {
     expect(absoluteUrl('/spend')).toBe('https://hypeable.dev/spend');
   });
 
+  it('uses per-route titles for privacy and terms', () => {
+    expect(brandMeta('Privacy · Hypeable', '/privacy')).toEqual(
+      expect.arrayContaining([
+        { title: 'Privacy · Hypeable' },
+        { tagName: 'link', rel: 'canonical', href: 'https://hypeable.dev/privacy' },
+      ]),
+    );
+    expect(brandMeta('Terms · Hypeable', '/terms')).toEqual(
+      expect.arrayContaining([
+        { title: 'Terms · Hypeable' },
+        { tagName: 'link', rel: 'canonical', href: 'https://hypeable.dev/terms' },
+      ]),
+    );
+  });
+
   it('uses per-route titles for git and 404', () => {
     expect(brandMeta('Import from Git · Hypeable', '/git')).toEqual(
       expect.arrayContaining([{ title: 'Import from Git · Hypeable' }]),

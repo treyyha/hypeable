@@ -15,6 +15,8 @@ export default [
     ],
   },
   { file: 'routes/spend.tsx', path: '/spend' },
+  { file: 'routes/privacy.tsx', path: '/privacy' },
+  { file: 'routes/terms.tsx', path: '/terms' },
   { file: 'routes/auth.openrouter.callback.tsx', path: '/auth/openrouter/callback' },
   { file: 'routes/git.tsx', path: '/git' },
   { file: 'routes/starter.tsx', path: '/starter' },

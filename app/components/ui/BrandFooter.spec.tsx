@@ -10,5 +10,7 @@ describe('BrandFooter', () => {
 
     expect(screen.getByText(versionLine(BUILD_VERSION, BUILD_COMMIT))).toBeTruthy();
     expect(screen.getByText(APP_AFFILIATION)).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Privacy' }).getAttribute('href')).toBe('/privacy');
+    expect(screen.getByRole('link', { name: 'Terms' }).getAttribute('href')).toBe('/terms');
   });
 });

@@ -31,6 +31,18 @@ test.describe('axe-core', () => {
     await assertNoSeriousAxeViolations(page);
   });
 
+  test('privacy and terms have no serious or critical violations', async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, ONBOARDING_COMPLETED_KEY);
+    await page.goto('/privacy');
+    await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible({ timeout: 20_000 });
+    await assertNoSeriousAxeViolations(page);
+    await page.goto('/terms');
+    await expect(page.getByRole('heading', { name: 'Terms' })).toBeVisible({ timeout: 20_000 });
+    await assertNoSeriousAxeViolations(page);
+  });
+
   test('Spend has no serious or critical violations', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.goto('/spend');

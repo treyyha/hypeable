@@ -90,7 +90,12 @@ test.describe('hosted mode', () => {
     expect(healthJson.commit.length).toBeGreaterThan(0);
 
     expect((await request.get('/robots.txt')).status()).toBe(200);
-    expect((await request.get('/sitemap.xml')).status()).toBe(200);
+
+    const sitemap = await request.get('/sitemap.xml');
+    expect(sitemap.status()).toBe(200);
+    expect(await sitemap.text()).toContain('https://hypeable.dev/privacy');
+    expect((await request.get('/privacy')).status()).toBe(200);
+    expect((await request.get('/terms')).status()).toBe(200);
     expect((await request.get('/llms.txt')).status()).toBe(200);
     expect((await request.get('/site.webmanifest')).status()).toBe(200);
     expect((await request.get('/webcontainer/connect/x')).status()).toBe(404);
