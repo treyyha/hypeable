@@ -7,7 +7,7 @@ import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 import { brandMeta } from '~/utils/brand';
 
-export const meta: MetaFunction = () => brandMeta();
+export const meta: MetaFunction = () => brandMeta('Import from Git · Hypeable', '/git');
 
 export async function loader(args: LoaderFunctionArgs) {
   return Response.json({ url: args.params.url });

@@ -52,4 +52,5 @@ export default [
   { file: 'routes/api.vercel-deploy.ts', path: '/api/vercel-deploy' },
   { file: 'routes/api.vercel-user.ts', path: '/api/vercel-user' },
   { file: 'routes/api.web-search.ts', path: '/api/web-search' },
+  { file: 'routes/$.tsx', path: '*' },
 ] satisfies RouteConfig;

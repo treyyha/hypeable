@@ -30,7 +30,15 @@ export function Header() {
   const chat = useStore(chatStore);
   const mobileOpen = useStore(sidebarMobileOpenStore);
   const location = useLocation();
-  const isSpend = location.pathname === '/spend';
+
+  const crumb =
+    location.pathname === '/spend'
+      ? 'spend'
+      : location.pathname === '/privacy'
+        ? 'privacy'
+        : location.pathname === '/terms'
+          ? 'terms'
+          : null;
 
   return (
     <header
@@ -55,8 +63,8 @@ export function Header() {
           /
         </span>
         <span className="min-w-0 truncate text-hype-text">
-          {isSpend ? (
-            'spend'
+          {crumb ? (
+            crumb
           ) : chat.started ? (
             <ClientOnly fallback="new build">{() => <HeaderChatTitle />}</ClientOnly>
           ) : (

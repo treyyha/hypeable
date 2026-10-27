@@ -1,5 +1,7 @@
 # Frequently Asked Questions (FAQ)
 
+This FAQ was inherited from bolt.diy. For Hypeable, start at [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
 <details>
 <summary><strong>What are the best models for bolt.diy?</strong></summary>
 

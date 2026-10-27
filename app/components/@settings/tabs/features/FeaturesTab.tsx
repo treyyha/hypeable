@@ -108,11 +108,9 @@ const FeatureSection = memo(
 export default function FeaturesTab() {
   const {
     autoSelectTemplate,
-    isLatestBranch,
     contextOptimizationEnabled,
     eventLogs,
     setAutoSelectTemplate,
-    enableLatestBranch,
     enableContextOptimization,
     setEventLogs,
     setPromptId,
@@ -121,11 +119,6 @@ export default function FeaturesTab() {
 
   // Enable features by default on first load
   React.useEffect(() => {
-    // Only set defaults if values are undefined
-    if (isLatestBranch === undefined) {
-      enableLatestBranch(false); // Default: OFF - Don't auto-update from main branch
-    }
-
     if (contextOptimizationEnabled === undefined) {
       enableContextOptimization(true); // Default: ON - Enable context optimization
     }
@@ -146,12 +139,6 @@ export default function FeaturesTab() {
   const handleToggleFeature = useCallback(
     (id: string, enabled: boolean) => {
       switch (id) {
-        case 'latestBranch': {
-          enableLatestBranch(enabled);
-          toast.success(`Main branch updates ${enabled ? 'enabled' : 'disabled'}`);
-          break;
-        }
-
         case 'autoSelectTemplate': {
           setAutoSelectTemplate(enabled);
           toast.success(`Auto select template ${enabled ? 'enabled' : 'disabled'}`);
@@ -174,19 +161,11 @@ export default function FeaturesTab() {
           break;
       }
     },
-    [enableLatestBranch, setAutoSelectTemplate, enableContextOptimization, setEventLogs],
+    [setAutoSelectTemplate, enableContextOptimization, setEventLogs],
   );
 
   const features = {
     stable: [
-      {
-        id: 'latestBranch',
-        title: 'Main Branch Updates',
-        description: 'Get the latest updates from the main branch',
-        icon: 'i-ph:git-branch',
-        enabled: isLatestBranch,
-        tooltip: 'Enabled by default to receive updates from the main development branch',
-      },
       {
         id: 'autoSelectTemplate',
         title: 'Auto Select Template',

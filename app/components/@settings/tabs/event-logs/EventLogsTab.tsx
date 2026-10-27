@@ -515,7 +515,7 @@ export function EventLogsTab() {
       doc.setFont('helvetica', 'bold');
       doc.text('Event Logs Report', margin, 35);
 
-      // Add subtitle with bolt.diy
+      // Subtitle under the report header
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
       doc.text('Hypeable - AI app builder', margin, 45);

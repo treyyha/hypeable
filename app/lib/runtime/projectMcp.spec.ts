@@ -85,7 +85,7 @@ describe('project command tools', () => {
       reused: true,
     });
   });
-  it('executes in the default project directory and forwards real output to Bolt Terminal', async () => {
+  it('executes in the default project directory and forwards real output to the terminal', async () => {
     spawn.mockResolvedValueOnce(processWithOutput('command-marker\n', 0));
     bridge = await createProjectMcpBridge();
 

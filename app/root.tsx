@@ -4,12 +4,14 @@ import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
+  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
   type LinksFunction,
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -113,6 +115,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           on the first client render (keeping hydration in sync), then swaps in the
           real tree once mounted.
         */}
+        <noscript>
+          <p style={{ margin: '1.5rem', fontFamily: 'system-ui, sans-serif' }}>
+            Hypeable needs JavaScript to build apps in your browser.
+          </p>
+        </noscript>
         <ClientOnly fallback={<div className="w-full h-full" />}>
           {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
         </ClientOnly>
@@ -148,6 +155,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { AppErrorPage } from './components/ui/AppErrorPage';
 import { journeys, observeWebVitals } from './lib/performance/metrics';
 import { isHostedFromContext } from './lib/security/hosted';
 import { hostedModeStore, setHostedMode } from './lib/stores/hosted';
@@ -220,4 +228,12 @@ export default function App() {
    * React Router 8 does not.
    */
   return <Outlet />;
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const status = isRouteErrorResponse(error) ? error.status : 500;
+  const detail = error instanceof Error ? error.message : undefined;
+
+  return <AppErrorPage status={status} detail={status === 404 ? undefined : detail} />;
 }

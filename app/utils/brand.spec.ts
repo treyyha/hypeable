@@ -31,4 +31,11 @@ describe('brandMeta', () => {
     expect(absoluteUrl('/')).toBe('https://hypeable.dev/');
     expect(absoluteUrl('/spend')).toBe('https://hypeable.dev/spend');
   });
+
+  it('uses per-route titles for git and 404', () => {
+    expect(brandMeta('Import from Git · Hypeable', '/git')).toEqual(
+      expect.arrayContaining([{ title: 'Import from Git · Hypeable' }]),
+    );
+    expect(brandMeta('Not found · Hypeable')).toEqual(expect.arrayContaining([{ title: 'Not found · Hypeable' }]));
+  });
 });
