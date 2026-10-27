@@ -23,15 +23,15 @@ node scripts/check-first-load-budget.mjs
 
 CI runs that after `pnpm build`. This app is SSR, so there is no `build/client/index.html`. The checker walks static imports from `entry.client`, `root`, and `_index`. Chat, the sidebar, the workbench, ControlPanel, and `provider-list` (LLM SDKs) must stay behind `import()`. Dynamic `import()` (Chat.client, Workbench, Shiki, xterm CSS, `@webcontainer/api`) stays out of the graph or the job fails.
 
-Measured on 2026-10-27 after code-splitting Chat/Menu/LLM SDKs off `/` (gzip level 9):
+Measured on 2026-10-27 after code-splitting Chat/Menu/LLM SDKs and latin-only fonts (gzip level 9):
 
 | | Raw | Gzip |
 |---|---|---|
-| JS | 938 KiB | 304 KiB |
-| CSS | 391 KiB | 90 KiB |
+| JS | 939 KiB | 304 KiB |
+| CSS | 344 KiB | 62 KiB |
 | Files in static graph | 72 | |
 
-Budget is still 1250 KiB JS gzip / 120 KiB CSS gzip until the unused-CSS pass; then CI will lower it. The empty home no longer static-imports Chat.client, ControlPanel, Workbench, or `provider-list`. Idle/composer-focus prefetch warms those chunks so the first build is not a cold import.
+Budget is 351 KiB JS gzip / 73 KiB CSS gzip. The empty home no longer static-imports Chat.client, ControlPanel, Workbench, or `provider-list`. Idle/composer-focus prefetch warms those chunks so the first build is not a cold import. Hashed `/assets/*` are immutable; HTML stays `no-store`.
 
 Throttled Fast 4G (Chrome DevTools: 9 Mbps down, 1.5 Mbps up, 170 ms RTT) against local `pnpm start` on 2026-10-27:
 
