@@ -1,47 +1,34 @@
-import JSZip from 'jszip';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { loader } from './api.github-template';
+import { afterEach, describe, expect, it } from 'vitest';
+import { githubTemplateAuthToken } from './api.github-template';
 
-describe('GitHub template loader', () => {
-  afterEach(() => vi.unstubAllGlobals());
+describe('githubTemplateAuthToken', () => {
+  const original = process.env.GITHUB_TOKEN;
 
-  it('uses the default branch archive when GitHub has no available release', async () => {
-    const zip = new JSZip();
-    zip.file('bolt-astro-basic-template-main/package.json', '{"scripts":{"dev":"astro dev"}}');
-
-    const archive = await zip.generateAsync({ type: 'arraybuffer' });
-
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(new Response(null, { status: 403 }))
-      .mockResolvedValueOnce(new Response(archive));
-    vi.stubGlobal('fetch', fetchMock);
-
-    const response = await loader({
-      request: new Request('http://localhost/api/github-template?repo=blueberry-llm/bolt-astro-basic-template'),
-      context: { cloudflare: { ctx: { waitUntil: () => undefined } } },
-    });
-
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual([
-      {
-        name: 'package.json',
-        path: 'package.json',
-        content: '{"scripts":{"dev":"astro dev"}}',
-      },
-    ]);
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      'https://codeload.github.com/blueberry-llm/bolt-astro-basic-template/zip/refs/heads/main',
-    );
+  afterEach(() => {
+    if (original === undefined) {
+      delete process.env.GITHUB_TOKEN;
+    } else {
+      process.env.GITHUB_TOKEN = original;
+    }
   });
 
-  it('rejects a repo name that is not owner/name', async () => {
-    const response = await loader({
-      request: new Request('http://localhost/api/github-template?repo=https://evil.example/x'),
-      context: {},
-    });
+  it('returns undefined on hosted even if an operator token is set', () => {
+    process.env.GITHUB_TOKEN = 'operator-github-token-value';
 
-    expect(response.status).toBe(400);
+    expect(
+      githubTemplateAuthToken({
+        hostname: 'hypeable.dev',
+        cloudflare: { env: { HYPEABLE_HOSTED: '1', GITHUB_TOKEN: 'operator-github-token-value' } },
+      }),
+    ).toBeUndefined();
+  });
+
+  it('can use an operator token when self-hosted', () => {
+    expect(
+      githubTemplateAuthToken({
+        hostname: 'localhost',
+        cloudflare: { env: { HYPEABLE_SELF_HOSTED: '1', GITHUB_TOKEN: 'operator-github-token-value' } },
+      }),
+    ).toBe('operator-github-token-value');
   });
 });

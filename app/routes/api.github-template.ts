@@ -1,7 +1,24 @@
 import JSZip from 'jszip';
+import { isHostedFromContext } from '~/lib/security/hosted';
 import { GITHUB_ARCHIVE_HOSTS, fetchAllowlistedHttps } from '~/lib/security/outbound';
 
 const GITHUB_REPO_NAME = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+
+/** Hosted never attaches an operator GitHub token to a user's template fetch. */
+export function githubTemplateAuthToken(context: unknown): string | undefined {
+  if (isHostedFromContext(context)) {
+    return undefined;
+  }
+
+  const env = (context as { cloudflare?: { env?: Record<string, unknown> } } | undefined)?.cloudflare?.env;
+  const fromEnv = env?.GITHUB_TOKEN;
+
+  if (typeof fromEnv === 'string' && fromEnv) {
+    return fromEnv;
+  }
+
+  return process.env.GITHUB_TOKEN || process.env.VITE_GITHUB_ACCESS_TOKEN || undefined;
+}
 
 function decodeTextFile(bytes: Uint8Array): string | null {
   /*
@@ -306,9 +323,7 @@ export async function loader({ request, context }: { request: Request; context: 
   }
 
   try {
-    // Access environment variables from Cloudflare context or process.env
-    const githubToken =
-      context?.cloudflare?.env?.GITHUB_TOKEN || process.env.GITHUB_TOKEN || process.env.VITE_GITHUB_ACCESS_TOKEN;
+    const githubToken = githubTemplateAuthToken(context);
 
     let fileList;
 

@@ -64,7 +64,7 @@ Called from:
 - `app/routes/api.enhancer.ts` ~37
 - `app/routes/api.models.ts` ~51
 
-The map is passed into `streamText` → `provider.getModelInstance()` → `getProviderBaseUrlAndKey()` (`app/lib/modules/llm/base-provider.ts` ~97–98), which picks `apiKeys[providerName]` or a server env var. That value is used as `Authorization: Bearer …` (or the provider's equivalent) on the **single outbound call to the user's chosen provider**. It is not written to disk, cookies, or a database.
+The map is passed into `streamText` → `provider.getModelInstance()` → `getProviderBaseUrlAndKey()` (`app/lib/modules/llm/base-provider.ts`). On **hosted**, that helper uses only `apiKeys[providerName]` from the request — it does **not** fall back to Worker or `process.env` operator keys. Self-hosted still may. That value is used as `Authorization: Bearer …` (or the provider's equivalent) on the **single outbound call to the user's chosen provider**. It is not written to disk, cookies, or a database.
 
 LLM responses set `Cache-Control: no-store` (`LLM_NO_STORE_HEADERS` in `request-keys.ts`; applied by `withSecurity` for LLM paths and by `toApiErrorResponse`).
 

@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getEnv } from './env';
 import type { ProviderInfo, ProviderConfig, ModelInfo } from './types';
+import { isHostedMode } from '~/lib/security/hosted';
 import { assertHostedProviderAccess } from '~/lib/security/outbound';
 import type { IProviderSetting } from '~/types/model';
 
@@ -95,8 +96,13 @@ export abstract class BaseProvider implements ProviderInfo {
 
     const apiTokenKey = this.config.apiTokenKey || defaultApiTokenKey;
 
-    const apiKey =
-      apiKeys?.[this.name] || serverEnv?.[apiTokenKey] || process?.env?.[apiTokenKey] || managerEnv?.[apiTokenKey];
+    /*
+     * Hosted must never fall back to operator Worker/process env keys.
+     * The only credential is the one the browser sent on this request.
+     */
+    const apiKey = isHostedMode(serverEnv)
+      ? apiKeys?.[this.name]
+      : apiKeys?.[this.name] || serverEnv?.[apiTokenKey] || process?.env?.[apiTokenKey] || managerEnv?.[apiTokenKey];
 
     assertHostedProviderAccess(serverEnv, this.name, baseUrl);
 
