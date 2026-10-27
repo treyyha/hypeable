@@ -34,7 +34,7 @@ After a deploy, wait until the Worker is serving this commit:
 npm run smoke:live -- --expect-commit $(git rev-parse HEAD)
 ```
 
-That defaults to `https://hypeable.dev`. `commit` is the SHA baked in at build time (`WORKERS_CI_COMMIT_SHA` from Workers Builds, else `git rev-parse HEAD`). You do not add that variable in the dashboard. The home footer shows `v0.1.0 . abc1234` and links to that commit on GitHub.
+That defaults to `https://hypeable.dev`. `commit` is the SHA baked in at build time (`WORKERS_CI_COMMIT_SHA` from Workers Builds, else `git rev-parse HEAD`). You do not add that variable in the dashboard. The home footer shows `v1.0.0 . abc1234` and links to that commit on GitHub.
 
 There is no `*.workers.dev` test URL (`workers_dev` is **false**). Check a deploy on the custom domain, or stream logs with `npx wrangler tail` (do not leave it running; do not paste tail output that might contain headers).
 

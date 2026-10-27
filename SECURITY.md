@@ -14,4 +14,4 @@ Please do **not** open a public issue. Use GitHub's private reporting: **Securit
 Full details: [docs/SECURITY.md](docs/SECURITY.md).
 
 ## Supported versions
-Only the latest `main` is supported before v1.0.
+`1.0.x` and the latest `main` are supported.
