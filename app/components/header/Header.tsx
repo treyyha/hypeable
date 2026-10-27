@@ -68,6 +68,7 @@ export function Header() {
       <button
         type="button"
         className="hype-icon-btn lg:hidden"
+        data-testid="sidebar-toggle"
         aria-label={mobileOpen ? 'Close sidebar' : 'Open sidebar'}
         onPointerEnter={requestMenuLoad}
         onFocus={requestMenuLoad}

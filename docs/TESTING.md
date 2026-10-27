@@ -41,7 +41,7 @@ The key lives in `localStorage` (`hypeable_api_keys`) and is sent only on LLM ro
 
 Docs screenshots (`e2e/docs-screenshots.spec.ts`) are skipped unless `CAPTURE_DOCS=1`. That job writes `docs/assets/home-*.png` and `chat-*.png` at 375, 768, and 1440, plus plan card, loop panel, and cost popover shots. Presentation checks in `e2e/home-presentation.spec.ts` always run: cost-pill contrast and that the empty-home aurora covers the main column.
 
-Always-on e2e besides smoke: `e2e/layout.spec.ts` (no horizontal scroll, mobile tabs, skip link, reduced motion), `e2e/errors.spec.ts` (mocked 401/402/429/503 plus offline/no-key/cap/loop/browser banner), `e2e/a11y.spec.ts` (axe-core on home, key dialog, Spend, started chat — zero serious/critical), `e2e/cookies.spec.ts` (no drafts, keys, or OAuth codes in cookies).
+Always-on e2e besides smoke: `e2e/layout.spec.ts` (no horizontal scroll at 375/768/1024/1440, hamburger hidden at ≥1024 and working at 375/768, mobile tabs, skip link, reduced motion), `e2e/responsive.spec.ts` (full-page shots of home, started chat, Spend, Privacy, Terms, 404 at those widths in dark and light, written to `test-results/responsive/`), `e2e/errors.spec.ts` (mocked 401/402/429/503 plus offline/no-key/cap/loop/browser banner), `e2e/a11y.spec.ts` (axe-core on home, key dialog, Spend, started chat — zero serious/critical), `e2e/cookies.spec.ts` (no drafts, keys, or OAuth codes in cookies).
 
 ```bash
 pnpm exec playwright install chromium

@@ -371,9 +371,29 @@ samp,
   }
 }
 
+/*
+ * Display on component classes is :where() so Uno utilities win.
+ *
+ * `.hype-icon-btn` and `lg:hidden` are both one class. tokens.scss loads after
+ * `virtual:uno.css`, so an unlayered `display: inline-flex` here beat
+ * `lg:hidden` and left the header hamburger visible at 1440px.
+ *
+ * Audit of custom display/visibility (keep unlayered only when it must win):
+ * - :where(.hype-icon-btn / -action-btn / -dialog-btn) — composed with hidden /
+ *   lg:hidden / lg:inline-flex. Utilities must win.
+ * - :root[data-theme='light'] .hype-aurora__grain and the max-1023px grain rule
+ *   — theme/motion cuts, not paired with display utilities. Leave.
+ * - html[data-first-run='done'] [data-first-run-card] — returning visitors must
+ *   hide the SSR card even if a utility set display. Leave.
+ * - ::-webkit-scrollbar-button, .thinking-ellipsis span, diff-view scrollbar
+ *   — pseudo/animation, not composed with responsive utilities. Leave.
+ */
+:where(.hype-icon-btn) {
+  display: inline-flex;
+}
+
 .hype-icon-btn {
   appearance: none;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.25rem;
@@ -405,9 +425,12 @@ samp,
   }
 }
 
+:where(.hype-action-btn) {
+  display: inline-flex;
+}
+
 .hype-action-btn {
   appearance: none;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
@@ -439,9 +462,12 @@ samp,
 }
 
 /* Dialog actions: Uno `disabled:bg-*` does not beat `bg-hype-accent` on lime. */
+:where(.hype-dialog-btn) {
+  display: inline-flex;
+}
+
 .hype-dialog-btn {
   appearance: none;
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
