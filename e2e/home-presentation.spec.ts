@@ -86,7 +86,9 @@ test.describe('home presentation', () => {
 
     for (const theme of ['dark', 'light'] as const) {
       await setTheme(page, theme);
-      const shot = await main.screenshot();
+      const column = page.getByTestId('home-main');
+      await expect(column).toBeVisible();
+      const shot = await column.screenshot();
       const { width, height } = pngSize(shot);
       const sample = pngPixel(shot, Math.round(width * 0.3), Math.round(height * 0.72));
       const base = theme === 'dark' ? { r: 10, g: 10, b: 15 } : { r: 250, g: 250, b: 247 };
