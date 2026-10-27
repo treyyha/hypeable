@@ -1,6 +1,8 @@
 # Live cost meter
 
-Hypeable's headline guardrail: you always see what this browser has spent, and a request that would overshoot your cap is stopped. The header pill is a tinted accent chip (`$0.00` at zero): lime text on dark, `#4D7A00` on light, amber at 80% of a cap and red at 100%.
+Hypeable's headline guardrail: you always see an **estimate** of what this browser has spent, and a request that would overshoot your cap is stopped. The header pill is a tinted accent chip (`$0.00` at zero): lime text on dark, `#4D7A00` on light, amber at 80% of a cap and red at 100%.
+
+Accuracy against provider billing is tracked in [COST-ACCURACY.md](COST-ACCURACY.md) (empty until a real-key comparison is published).
 
 Caps are enforced **in this browser**. They protect you from accidental loops. Provider-side spending limits are the real backstop.
 

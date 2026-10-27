@@ -11,6 +11,7 @@ Upstream bolt.diy notes (before this fork): [docs/upstream-changelog.md](docs/up
 
 ### Added
 
+- Cost-meter accuracy stub (`docs/COST-ACCURACY.md`) — empty until a real-key comparison is published
 - `/privacy` and `/terms`, linked from the footer and listed in the sitemap
 - Branded 404 and error pages, per-route titles, `<html lang="en">`, and a `<noscript>` message
 - Playwright check that first load of `/`, `/spend`, and a mocked build stay free of console errors and failed requests
@@ -18,6 +19,7 @@ Upstream bolt.diy notes (before this fork): [docs/upstream-changelog.md](docs/up
 
 ### Changed
 
+- README Status section: tested vs experimental vs unverified cost-meter accuracy (`docs/COST-ACCURACY.md`)
 - Preference cookies (`selectedProvider`, `selectedModel`, `providers`, `cachedPrompt`, `agentMode`, `isDebugEnabled`, `eventLogs`) moved to `localStorage`. Leftover cookies are migrated once and deleted.
 - Hosted first load no longer calls `/api/configured-providers` or `/api/check-env-key`
 - Plugin marketplace tab hidden (unvetted third-party content)

@@ -11,6 +11,13 @@
   },
   "private": true,
   "license": "MIT",
+  "keywords": [
+    "ai",
+    "app-builder",
+    "open-source",
+    "webcontainer",
+    "bring-your-own-key"
+  ],
   "sideEffects": false,
   "type": "module",
   "version": "0.1.0",

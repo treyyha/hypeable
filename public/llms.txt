@@ -25,6 +25,7 @@ Hypeable is a fork of bolt.diy (MIT). Describe an app, watch it get built in a W
 - Hosted at hypeable.dev cannot reach local models (Ollama, LM Studio, custom OpenAI-compatible URLs). Run locally with `pnpm dev` for those.
 - StackBlitz WebContainers is free for personal and open-source use. Commercial hosted use needs a StackBlitz license.
 - Prices marked ≈ in the UI are unverified list prices from `app/lib/cost/prices.json`.
-- Cost figures are estimates, not invoices. Set a limit on your provider too.
+- Cost figures are estimates, not invoices. Accuracy against provider billing is not yet independently verified (docs/COST-ACCURACY.md). Set a limit on your provider too.
+- Publish connectors (GitHub, GitLab, Vercel, Netlify, Supabase) are experimental.
 - Some upstream tests are still being fixed; see docs/KNOWN-ISSUES.md.
 - Model keys take a server hop to the provider you chose. Hypeable does not store them. Direct browser-to-provider is not shipped yet.

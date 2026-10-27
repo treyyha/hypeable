@@ -1,12 +1,12 @@
 # Roadmap (built in public)
-- [ ] Day 1: fork bolt.diy, rebrand, hooks/CI
-- [ ] Day 2: live cost meter
-- [ ] Day 3: caps + hard stop
+- [x] Day 1: fork bolt.diy, rebrand, hooks/CI
+- [x] Day 2: live cost meter
+- [x] Day 3: caps + hard stop
 - [x] Day 4: loop breaker
-- [ ] Day 5: plan-first mode
+- [x] Day 5: plan-first mode
 - [x] Day 6: pre-deploy security check
-- [ ] Day 7: publish to own Vercel/GitHub
-- [ ] Day 8: polish + landing page
-- [ ] Day 9: docs + demo
+- [ ] Day 7: publish to own Vercel/GitHub (wired, experimental — no live e2e deploy in CI)
+- [x] Day 8: polish + landing page
+- [x] Day 9: docs + demo
 - [ ] Day 10: launch
 - [ ] Direct browser-to-provider mode (no server hop) for LLM APIs and connectors (GitHub, GitLab, Vercel, Netlify, Supabase) where the provider's CORS allows it

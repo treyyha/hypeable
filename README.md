@@ -14,7 +14,7 @@
 
 ![Hypeable home](docs/assets/home-dark-1440.png)
 
-Describe an app, watch it get built, publish it to **your own** Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing and has no Hypeable-owned deploy target.
+Describe an app, watch it get built, then (experimental) publish it to **your own** Vercel or GitHub. Connect with OpenRouter in one click (you pay them directly) or paste any provider key. Hypeable hosts nothing and has no Hypeable-owned deploy target.
 
 > Not affiliated with Lovable, Bolt, or StackBlitz. Built on [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) (MIT).
 
@@ -22,7 +22,7 @@ Describe an app, watch it get built, publish it to **your own** Vercel or GitHub
 
 ### Live cost meter
 
-The header pill is session spend in dollars. Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too. Unknown models show tokens plus a prompt to set a price in Settings.
+The header pill is an **estimate** of session spend in dollars (tokens × list price, or a provider-reported cost when one exists). Click it for today, per-model totals, and cap progress. Caps default to $2/session and $10/day (`0` = off). They are enforced in this browser; set a limit on your provider too. Unknown models show tokens plus a prompt to set a price in Settings. Accuracy against provider billing is not yet independently verified — [docs/COST-ACCURACY.md](docs/COST-ACCURACY.md).
 
 ![Cost meter](docs/assets/cost-popover-1440.png)
 
@@ -122,13 +122,35 @@ GitHub and GitLab **publish** talk to the provider from the browser (CORS). Verc
 
 Verify the path in [`docs/KEY-FLOW.md`](docs/KEY-FLOW.md), LLM keys in [`app/routes/api.chat.ts`](app/routes/api.chat.ts), and connectors in [`app/lib/api/connector-tokens.ts`](app/lib/api/connector-tokens.ts).
 
+## Status
+
+**Tested** (blocking in CI unless noted):
+
+- Plan-first, cost pill against a mock provider, loop breaker — `e2e/smoke.spec.ts`
+- Spend page — `e2e/spend.spec.ts`
+- Pre-deploy scanner — `e2e/predeploy.spec.ts`
+- OpenRouter PKCE (mock) — `e2e/openrouter-connect.spec.ts`
+- Hosted-mode locks — `e2e/hosted.spec.ts`
+- No analytics / phone-home on first load — `e2e/privacy.spec.ts`
+- Cookie diet (no drafts, keys, or OAuth codes in cookies) — `e2e/cookies.spec.ts`
+- Accessibility (axe, zero serious/critical) — `e2e/a11y.spec.ts`
+- Unit tests, typecheck, lint, first-load JS/CSS budget, gitleaks — `.github/workflows/ci.yml`
+
+**Experimental**
+
+- Publish connectors (GitHub, GitLab, Vercel, Netlify, Supabase). Wired to **your** account with **your** token and a pre-deploy scan. No live end-to-end deploy in CI.
+
+**Cost meter**
+
+The pill is an **estimate**. Cost meter accuracy has not yet been independently verified against provider billing; results will be published in [docs/COST-ACCURACY.md](docs/COST-ACCURACY.md).
+
 ## Honest limits
 
 - **Hosted cannot reach local models.** Ollama, LM Studio, and custom OpenAI-compatible URLs are rejected on the public site. Run locally.
 - **Publish connectors are experimental.** GitHub, GitLab, Vercel, Netlify, and Supabase are wired to **your** account with your token and a pre-deploy scan. None of them has a live end-to-end deploy in CI. Token readers, hosted API locks, and the pre-deploy scanner do have automated tests.
 - **WebContainers licence.** StackBlitz WebContainers is free for personal and open-source use. Commercial hosted use needs a StackBlitz license.
 - **Prices marked ≈ are unverified.** `app/lib/cost/prices.json` is a community list-price table. Rows with `verified: false` show as estimates (`≈`) in the UI.
-- **Estimates, not invoices.** The meter multiplies tokens by list prices (or uses a provider-reported cost when one exists). It is not your provider bill. Set a limit on your provider too.
+- **Estimates, not invoices.** The meter multiplies tokens by list prices (or uses a provider-reported cost when one exists). It is not your provider bill. Cost meter accuracy has not yet been independently verified against provider billing; results will be published in [docs/COST-ACCURACY.md](docs/COST-ACCURACY.md). Set a limit on your provider too.
 - **CI unit tests and e2e are blocking.** Wall-clock frame-budget / Shiki timing runs in a non-blocking `perf` job. See [docs/TESTING.md](docs/TESTING.md) and [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md).
 - **Home first-load JS is budgeted.** `docs/first-load-budget.json` is checked after `pnpm build`. See [docs/FIRST-LOAD.md](docs/FIRST-LOAD.md).
 - **Started chat below 1024px** uses a Chat | Preview | Code tab switch. Shots: `docs/assets/home-*-375.png`, `chat-*-768.png`, etc.
