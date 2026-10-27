@@ -83,6 +83,8 @@ pnpm e2e:hosted
 
 Wall-clock performance (`pnpm test:perf`) is a separate `perf` job with `continue-on-error`. jsdom frame-budget and Shiki timing are not merge gates. See [KNOWN-ISSUES.md](./KNOWN-ISSUES.md).
 
+`.github/workflows/uptime.yml` runs `npm run smoke:live` against `https://hypeable.dev` every 6 hours. On failure it opens or updates a single issue titled **Site down** (`scripts/uptime-issue.mjs`); on success it closes that issue. It does not open duplicates.
+
 Local `@cloudflare/vite-plugin` (`pnpm dev` and `vite preview`) lets workerd fetch `127.0.0.1`. A Worker on Cloudflare's edge cannot; the loopback mock only proves the local workerd path.
 
 ## What still needs a real key

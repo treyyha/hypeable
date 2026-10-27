@@ -1,0 +1,41 @@
+name: Live smoke
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - id: smoke
+        continue-on-error: true
+        run: node scripts/smoke-live.mjs https://hypeable.dev
+      - name: Open or update the Site down issue
+        if: steps.smoke.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/uptime-issue.mjs down
+      - name: Close the Site down issue
+        if: steps.smoke.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/uptime-issue.mjs up
+      - name: Fail the job when the site is down
+        if: steps.smoke.outcome == 'failure'
+        run: exit 1

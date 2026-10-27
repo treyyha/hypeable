@@ -11,6 +11,7 @@ Upstream bolt.diy notes (before this fork): [docs/upstream-changelog.md](docs/up
 
 ### Added
 
+- Scheduled `smoke:live` against hypeable.dev every 6 hours (single "Site down" issue)
 - Cost-meter accuracy stub (`docs/COST-ACCURACY.md`) — empty until a real-key comparison is published
 - `/privacy` and `/terms`, linked from the footer and listed in the sitemap
 - Branded 404 and error pages, per-route titles, `<html lang="en">`, and a `<noscript>` message
