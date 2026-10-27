@@ -9,6 +9,8 @@ import {
   emptyLedger,
   last7Days,
   ledgerToCsv,
+  ledgerToUsageCsv,
+  ledgerToUsageJson,
   loadLedger,
   monthToDateTotal,
   persistLedgerEntry,
@@ -150,10 +152,67 @@ describe('spend aggregation', () => {
   });
 
   it('exports csv without breaking quoted names', () => {
-    const csv = ledgerToCsv([entry({ id: '1', chatName: 'Habit, "tracker"', dollars: 0.5 })]);
+    const csv = ledgerToCsv([entry({ id: '1', model: 'Habit, "tracker"', dollars: 0.5 })]);
 
-    expect(csv).toContain('timestamp,chat_id,chat_name,model');
+    expect(csv).toContain('timestamp,provider,model,input_tokens');
     expect(csv).toContain('"Habit, ""tracker"""');
+  });
+
+  it('usage JSON/CSV omit keys, prompts, and file contents', () => {
+    const hiddenTitle = ['do-not-export', 'this-chat-title'].join('-');
+    const hiddenPrompt = ['user prompt text', 'and a file path'].join(' ');
+
+    const payload = ledgerToUsageJson([
+      entry({
+        id: '1',
+        chatName: hiddenTitle,
+        chatId: hiddenPrompt,
+        model: 'gpt-4o-mini',
+        dollars: 0.01,
+      }),
+    ]);
+    const csv = ledgerToUsageCsv([
+      entry({
+        id: '1',
+        chatName: hiddenTitle,
+        model: 'gpt-4o-mini',
+        dollars: 0.01,
+      }),
+    ]);
+
+    expect(payload).not.toContain(hiddenTitle);
+    expect(payload).not.toContain(hiddenPrompt);
+    expect(csv).not.toContain(hiddenTitle);
+    expect(payload).not.toContain('chatName');
+    expect(payload).not.toContain('chatId');
+    expect(JSON.parse(payload).rows[0]).toEqual(
+      expect.objectContaining({
+        model: 'gpt-4o-mini',
+        inputTokens: 100,
+        outputTokens: 50,
+        precision: 'exact',
+      }),
+    );
+  });
+
+  it('folds 1-hour cache writes into cache_write_tokens and records OpenRouter divergence', () => {
+    const csv = ledgerToUsageCsv([
+      entry({
+        id: 'or',
+        provider: 'OpenRouter',
+        cacheWriteTokens: 10,
+        cacheWrite1hTokens: 5,
+        dollars: 0.95,
+        computedDollars: 0.12,
+        providerDollars: 0.95,
+        divergenceNanos: 830_000_000,
+      }),
+    ]);
+
+    expect(csv).toContain('OpenRouter');
+    expect(csv.split('\n')[1]).toContain(',15,');
+    expect(csv).toContain('0.120000000');
+    expect(csv).toContain('0.950000000');
   });
 });
 

@@ -6,6 +6,7 @@ import { CapReachedModal } from './CapReachedModal';
 import { CostAmount } from './CostAmount';
 import { formatDollars, formatPricesCheckedAt, formatTokenCount, getPricesCatalog } from '~/lib/cost/calc';
 import { capLevel } from '~/lib/cost/caps';
+import { snapshotIsApproximate } from '~/lib/cost/persist';
 import { formatReceipt } from '~/lib/cost/receipt';
 import { costStore, costToastStore, startNewSession } from '~/lib/stores/cost';
 import { classNames } from '~/utils/classNames';
@@ -106,6 +107,7 @@ export function CostMeter() {
   const models = Object.entries(snapshot.byModel).sort((a, b) => b[1].dollars - a[1].dollars);
   const unknownModels = models.filter(([, row]) => row.unknown);
   const unverifiedSpend = models.some(([, row]) => row.unverified);
+  const approximateSpend = snapshotIsApproximate(snapshot);
   const pricesChecked = formatPricesCheckedAt(getPricesCatalog().checkedAt);
 
   useEffect(() => {
@@ -150,10 +152,15 @@ export function CostMeter() {
                 'cost-meter-tick': ticking,
               },
             )}
-            aria-label={`Session spend ${unverifiedSpend ? 'about ' : ''}${formatDollars(snapshot.sessionTotal, 2)}${unverifiedSpend ? ', price unverified' : ''}`}
+            aria-label={`Session spend ${approximateSpend ? 'about ' : ''}${formatDollars(snapshot.sessionTotal, 2)}${unverifiedSpend ? ', price unverified' : approximateSpend ? ', estimate' : ''}`}
           >
             <span className="i-ph:coins text-[14px] opacity-80" />
-            <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={2} />
+            <CostAmount
+              dollars={snapshot.sessionTotal}
+              verified={!unverifiedSpend}
+              approximate={approximateSpend}
+              digits={2}
+            />
           </button>
         </Popover.Trigger>
         <Popover.Portal>
@@ -166,7 +173,12 @@ export function CostMeter() {
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.14em] text-bolt-elements-textTertiary">Spend</p>
                 <p className="mt-0.5 text-lg font-semibold text-bolt-elements-textPrimary">
-                  <CostAmount dollars={snapshot.sessionTotal} verified={!unverifiedSpend} digits={3} />
+                  <CostAmount
+                    dollars={snapshot.sessionTotal}
+                    verified={!unverifiedSpend}
+                    approximate={approximateSpend}
+                    digits={3}
+                  />
                 </p>
                 <p className="mt-1 text-[11px] text-bolt-elements-textTertiary">{pricesChecked}</p>
               </div>
@@ -201,7 +213,12 @@ export function CostMeter() {
                         {row.unknown ? (
                           'price unknown'
                         ) : (
-                          <CostAmount dollars={row.dollars} verified={!row.unverified} digits={3} />
+                          <CostAmount
+                            dollars={row.dollars}
+                            verified={!row.unverified}
+                            approximate={row.unverified || row.unknown}
+                            digits={3}
+                          />
                         )}
                         <span className="ml-1 tabular-nums text-bolt-elements-textTertiary">
                           {formatTokenCount(row.promptTokens + row.completionTokens)}

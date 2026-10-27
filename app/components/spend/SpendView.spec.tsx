@@ -53,5 +53,7 @@ describe('SpendView', () => {
     expect(screen.getByText('100%')).toBeTruthy();
     expect(screen.getAllByText('OA').length).toBeGreaterThan(0);
     expect(screen.getByRole('figure', { name: /Spend over the last 7 days/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Copy usage JSON' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Download CSV' })).toBeTruthy();
   });
 });

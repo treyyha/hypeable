@@ -4,6 +4,7 @@
  */
 import { capLevel, type CapLevel } from './caps';
 import type { KeyValueStore } from './persist';
+import type { ApproximateReason, CallKind, UsagePrecision } from './usage';
 
 export const LEDGER_STORAGE_KEY = 'hypeable:spend-ledger:v1';
 export const LEDGER_STORAGE_VERSION = 1;
@@ -18,8 +19,22 @@ export type LedgerEntry = {
   provider?: string;
   promptTokens: number;
   completionTokens: number;
+  cachedTokens?: number;
+  cacheWriteTokens?: number;
+  cacheWrite1hTokens?: number;
+  reasoningTokens?: number;
+  imageTokens?: number;
   dollars: number;
+  computedDollars?: number;
+  providerDollars?: number;
   verified?: boolean;
+  approximate?: boolean;
+  precision?: UsagePrecision;
+  callKind?: CallKind;
+  aborted?: boolean;
+  maybeBilled?: boolean;
+  divergenceNanos?: number;
+  approximateReasons?: ApproximateReason[];
 };
 
 export type LedgerSnapshot = {
@@ -61,8 +76,24 @@ function sanitizeEntry(value: unknown): LedgerEntry | null {
     provider: typeof row.provider === 'string' ? row.provider : undefined,
     promptTokens: Math.max(0, asNumber(row.promptTokens)),
     completionTokens: Math.max(0, asNumber(row.completionTokens)),
+    cachedTokens: Math.max(0, asNumber(row.cachedTokens)),
+    cacheWriteTokens: Math.max(0, asNumber(row.cacheWriteTokens)),
+    cacheWrite1hTokens: Math.max(0, asNumber(row.cacheWrite1hTokens)),
+    reasoningTokens: Math.max(0, asNumber(row.reasoningTokens)),
+    imageTokens: Math.max(0, asNumber(row.imageTokens)),
     dollars: asNumber(row.dollars),
+    computedDollars: typeof row.computedDollars === 'number' ? asNumber(row.computedDollars) : undefined,
+    providerDollars: typeof row.providerDollars === 'number' ? asNumber(row.providerDollars) : undefined,
     verified: row.verified === false ? false : row.verified === true ? true : undefined,
+    approximate: row.approximate === true ? true : row.verified === false ? true : undefined,
+    precision: row.precision === 'estimate' ? 'estimate' : row.precision === 'exact' ? 'exact' : undefined,
+    callKind: typeof row.callKind === 'string' ? (row.callKind as CallKind) : undefined,
+    aborted: row.aborted === true ? true : undefined,
+    maybeBilled: row.maybeBilled === true ? true : undefined,
+    divergenceNanos: typeof row.divergenceNanos === 'number' ? asNumber(row.divergenceNanos) : undefined,
+    approximateReasons: Array.isArray(row.approximateReasons)
+      ? (row.approximateReasons.filter((item) => typeof item === 'string') as ApproximateReason[])
+      : undefined,
   };
 }
 
@@ -291,21 +322,94 @@ export function capProgress(spent: number, cap: number): { ratio: number; level:
 }
 
 export function ledgerToCsv(entries: LedgerEntry[]): string {
-  const header = 'timestamp,chat_id,chat_name,model,provider,prompt_tokens,completion_tokens,cost,verified';
+  return ledgerToUsageCsv(entries);
+}
 
-  const rows = entries.map((entry) =>
-    [
-      new Date(entry.timestamp).toISOString(),
-      csvCell(entry.chatId ?? ''),
-      csvCell(entry.chatName ?? ''),
-      csvCell(entry.model),
-      csvCell(entry.provider ?? ''),
-      String(entry.promptTokens),
-      String(entry.completionTokens),
-      entry.dollars.toFixed(6),
-      entry.verified === false ? 'false' : entry.verified === true ? 'true' : '',
-    ].join(','),
+export type UsageExportRow = {
+  timestamp: string;
+  provider: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  reasoningTokens: number;
+  imageTokens: number;
+  computedCost: number;
+  providerCost: number | null;
+  precision: 'exact' | 'estimate';
+  callKind?: CallKind;
+  aborted?: boolean;
+  maybeBilled?: boolean;
+};
+
+export function toUsageExportRow(entry: LedgerEntry): UsageExportRow {
+  const approximate = entry.approximate === true || entry.verified === false || entry.precision === 'estimate';
+
+  return {
+    timestamp: new Date(entry.timestamp).toISOString(),
+    provider: entry.provider ?? '',
+    model: entry.model,
+    inputTokens: entry.promptTokens,
+    outputTokens: entry.completionTokens,
+    cacheReadTokens: entry.cachedTokens ?? 0,
+    cacheWriteTokens: (entry.cacheWriteTokens ?? 0) + (entry.cacheWrite1hTokens ?? 0),
+    reasoningTokens: entry.reasoningTokens ?? 0,
+    imageTokens: entry.imageTokens ?? 0,
+    computedCost: entry.computedDollars ?? entry.dollars,
+    providerCost: entry.providerDollars ?? null,
+    precision: approximate ? 'estimate' : 'exact',
+    callKind: entry.callKind,
+    aborted: entry.aborted,
+    maybeBilled: entry.maybeBilled,
+  };
+}
+
+export function ledgerToUsageJson(entries: LedgerEntry[]): string {
+  return JSON.stringify(
+    {
+      exportedAt: new Date().toISOString(),
+      rows: entries.map(toUsageExportRow),
+    },
+    null,
+    2,
   );
+}
+
+export function ledgerToUsageCsv(entries: LedgerEntry[]): string {
+  const header = [
+    'timestamp',
+    'provider',
+    'model',
+    'input_tokens',
+    'output_tokens',
+    'cache_read_tokens',
+    'cache_write_tokens',
+    'reasoning_tokens',
+    'image_tokens',
+    'computed_cost',
+    'provider_cost',
+    'precision',
+  ].join(',');
+
+  const rows = entries.map((entry) => {
+    const row = toUsageExportRow(entry);
+
+    return [
+      row.timestamp,
+      csvCell(row.provider),
+      csvCell(row.model),
+      String(row.inputTokens),
+      String(row.outputTokens),
+      String(row.cacheReadTokens),
+      String(row.cacheWriteTokens),
+      String(row.reasoningTokens),
+      String(row.imageTokens),
+      row.computedCost.toFixed(9),
+      row.providerCost === null ? '' : row.providerCost.toFixed(9),
+      row.precision,
+    ].join(',');
+  });
 
   return [header, ...rows].join('\n');
 }

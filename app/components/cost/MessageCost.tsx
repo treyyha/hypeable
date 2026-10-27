@@ -41,6 +41,12 @@ export function MessageCost({
   const unknown = result ? result.unknown : true;
   const dollars = result && !result.unknown ? result.dollars : 0;
   const verified = result && !result.unknown ? result.verified !== false : true;
+
+  const approximate =
+    (result && 'approximate' in result && result.approximate) ||
+    stored?.approximate === true ||
+    stored?.precision === 'estimate';
+
   const prompt = stored?.promptTokens ?? tokens?.promptTokens ?? 0;
   const completion = stored?.completionTokens ?? tokens?.completionTokens ?? 0;
   const total = prompt + completion;
@@ -50,7 +56,13 @@ export function MessageCost({
       {unknown ? (
         <span className="tabular-nums">price unknown</span>
       ) : (
-        <CostAmount dollars={dollars} verified={verified} digits={3} className="text-accent-400/90" />
+        <CostAmount
+          dollars={dollars}
+          verified={verified}
+          approximate={approximate}
+          digits={3}
+          className="text-accent-400/90"
+        />
       )}
       <span className="tabular-nums">
         {formatTokenCount(total)} tok

@@ -17,12 +17,13 @@ import {
   aggregateByModel,
   capProgress,
   last7Days,
-  ledgerToCsv,
+  ledgerToUsageCsv,
+  ledgerToUsageJson,
   monthToDateTotal,
   type LedgerEntry,
   type ModelSpendRow,
 } from '~/lib/cost/ledger';
-import type { CostSnapshot } from '~/lib/cost/persist';
+import { snapshotIsApproximate, type CostSnapshot } from '~/lib/cost/persist';
 import { formatReceipt } from '~/lib/cost/receipt';
 
 const PREVIEW_BUILDS = 6;
@@ -59,14 +60,18 @@ function formatWhen(timestamp: number): string {
 }
 
 function downloadCsv(entries: LedgerEntry[]) {
-  const csv = ledgerToCsv(entries);
+  const csv = ledgerToUsageCsv(entries);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'hypeable-spend.csv';
+  link.download = 'hypeable-usage.csv';
   link.click();
   URL.revokeObjectURL(url);
+}
+
+async function copyUsageJson(entries: LedgerEntry[]) {
+  await navigator.clipboard.writeText(ledgerToUsageJson(entries));
 }
 
 type SpendViewProps = {
@@ -85,6 +90,10 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
   const dailyCap = capProgress(snapshot.dailyTotal, snapshot.caps.daily);
   const week = last7Days(entries, now);
 
+  const approximateSpend =
+    snapshotIsApproximate(snapshot) ||
+    entries.some((row) => row.approximate === true || row.verified === false || row.precision === 'estimate');
+
   const copyReceipt = async () => {
     try {
       await navigator.clipboard.writeText(formatReceipt(snapshot));
@@ -98,10 +107,17 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 sm:px-6" data-testid="spend-page">
       <StatCard
         label="Spent today"
-        value={<CostAmount dollars={snapshot.dailyTotal} digits={2} className="text-3xl sm:text-4xl" />}
+        value={
+          <CostAmount
+            dollars={snapshot.dailyTotal}
+            approximate={approximateSpend}
+            digits={2}
+            className="text-3xl sm:text-4xl"
+          />
+        }
         aside={<SevenDayChart days={week} />}
         footer={
-          <ActionRow columns={3} className="w-full">
+          <ActionRow columns={4} className="w-full">
             <ActionButton icon="i-ph:sliders-horizontal" onClick={openCostSettings}>
               Set caps
             </ActionButton>
@@ -109,11 +125,22 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
               Copy receipt
             </ActionButton>
             <ActionButton
+              icon="i-ph:copy"
+              onClick={() => {
+                void copyUsageJson(entries)
+                  .then(() => toast.success('Usage JSON copied'))
+                  .catch(() => toast.error('Could not copy usage JSON'));
+              }}
+              disabled={entries.length === 0}
+            >
+              Copy usage JSON
+            </ActionButton>
+            <ActionButton
               icon="i-ph:download-simple"
               onClick={() => downloadCsv(entries)}
               disabled={entries.length === 0}
             >
-              Export CSV
+              Download CSV
             </ActionButton>
           </ActionRow>
         }
@@ -122,13 +149,13 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
           <span>
             Session{' '}
             <span className="tabular-nums text-hype-text">
-              <CostAmount dollars={snapshot.sessionTotal} digits={3} />
+              <CostAmount dollars={snapshot.sessionTotal} approximate={approximateSpend} digits={3} />
             </span>
           </span>
           <span>
             Month-to-date{' '}
             <span className="tabular-nums text-hype-text">
-              <CostAmount dollars={mtd} digits={2} />
+              <CostAmount dollars={mtd} approximate={approximateSpend} digits={2} />
             </span>
           </span>
         </div>
@@ -159,7 +186,12 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
               trailing={
                 <div>
                   <div className="text-xs font-medium tabular-nums text-hype-text">
-                    <CostAmount dollars={row.dollars} verified={!row.unverified} digits={3} />
+                    <CostAmount
+                      dollars={row.dollars}
+                      verified={!row.unverified}
+                      approximate={row.unverified}
+                      digits={3}
+                    />
                   </div>
                   <div className="text-[11px] tabular-nums text-hype-muted">
                     {Math.round(row.share * 100)}% · {formatTokenCount(row.tokens)}
@@ -201,7 +233,12 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
               subtitle={`${formatWhen(row.timestamp)} · ${row.model} · ${formatTokenCount(row.promptTokens + row.completionTokens)}`}
               trailing={
                 <span className="text-xs font-medium tabular-nums text-hype-text">
-                  <CostAmount dollars={row.dollars} verified={row.verified !== false} digits={3} />
+                  <CostAmount
+                    dollars={row.dollars}
+                    verified={row.verified !== false}
+                    approximate={row.approximate === true || row.verified === false}
+                    digits={3}
+                  />
                 </span>
               }
             />
@@ -217,7 +254,7 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
           status={sessionCap.level}
           amount={
             <>
-              <CostAmount dollars={snapshot.sessionTotal} digits={3} />
+              <CostAmount dollars={snapshot.sessionTotal} approximate={approximateSpend} digits={3} />
               {sessionCap.off ? (
                 ' · off'
               ) : (
@@ -236,7 +273,7 @@ export function SpendView({ snapshot, entries, now = new Date() }: SpendViewProp
           status={dailyCap.level}
           amount={
             <>
-              <CostAmount dollars={snapshot.dailyTotal} digits={3} />
+              <CostAmount dollars={snapshot.dailyTotal} approximate={approximateSpend} digits={3} />
               {dailyCap.off ? (
                 ' · off'
               ) : (

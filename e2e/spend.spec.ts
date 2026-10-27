@@ -47,5 +47,7 @@ test.describe('Spend page', () => {
     await expect(page.getByText('Habit tracker')).toBeVisible();
     await expect(page.getByText('mock-model', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Spend' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Copy usage JSON' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Download CSV' })).toBeEnabled();
   });
 });
