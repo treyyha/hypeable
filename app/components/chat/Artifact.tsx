@@ -158,7 +158,7 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
               ) : setupStatus !== 'running' ? (
                 <div className="i-ph:warning-circle"></div>
               ) : (
-                <div className="i-svg-spinners:90-ring-with-bg"></div>
+                <div className="i-ph:circle-notch"></div>
               )}
             </div>
             <div className="text-bolt-elements-textPrimary font-medium leading-5 text-sm">{setupDescription}</div>
@@ -246,7 +246,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   {status === 'running' ? (
                     <>
                       {type !== 'start' ? (
-                        <div className="i-svg-spinners:90-ring-with-bg"></div>
+                        <div className="i-ph:circle-notch"></div>
                       ) : (
                         <div className="i-ph:terminal-window-duotone"></div>
                       )}

@@ -103,7 +103,7 @@ describe('Artifact', () => {
       expect(container).toHaveTextContent(title);
       expect(container).toHaveTextContent(detail);
       expect(container).not.toHaveTextContent('Creating Project...');
-      expect(container.getElementsByClassName('i-svg-spinners:90-ring-with-bg')).toHaveLength(0);
+      expect(container.getElementsByClassName('i-ph:circle-notch')).toHaveLength(0);
     },
   );
 
@@ -122,6 +122,6 @@ describe('Artifact', () => {
 
     expect(container).toHaveTextContent('Project Created');
     expect(container).toHaveTextContent('Initial files created');
-    expect(container.getElementsByClassName('i-svg-spinners:90-ring-with-bg')).toHaveLength(0);
+    expect(container.getElementsByClassName('i-ph:circle-notch')).toHaveLength(0);
   });
 });

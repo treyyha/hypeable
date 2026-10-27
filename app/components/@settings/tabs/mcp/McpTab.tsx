@@ -142,7 +142,7 @@ export default function McpTab() {
             )}
           >
             {isCheckingServers ? (
-              <div className="i-svg-spinners:90-ring-with-bg w-3 h-3 text-bolt-elements-loader-progress animate-spin" />
+              <div className="i-ph:circle-notch w-3 h-3 text-bolt-elements-loader-progress animate-spin" />
             ) : (
               <div className="i-ph:arrow-counter-clockwise w-3 h-3" />
             )}

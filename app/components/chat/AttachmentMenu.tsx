@@ -201,7 +201,7 @@ export function AttachmentMenu({
             disabled={isEnhanceDisabled}
           >
             {enhancingPrompt ? (
-              <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-lg animate-spin"></div>
+              <div className="i-ph:circle-notch text-bolt-elements-loader-progress text-lg animate-spin"></div>
             ) : (
               <div className="i-bolt:stars text-lg"></div>
             )}

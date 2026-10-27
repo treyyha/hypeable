@@ -108,7 +108,7 @@ export function WebSearch({ onSearchResult, disabled = false }: WebSearchProps) 
         className="transition-all"
       >
         {isSearching ? (
-          <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin" />
+          <div className="i-ph:circle-notch text-bolt-elements-loader-progress text-xl animate-spin" />
         ) : (
           <div className="i-ph:globe text-xl" />
         )}

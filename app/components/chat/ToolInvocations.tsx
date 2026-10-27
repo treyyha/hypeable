@@ -470,7 +470,7 @@ const ToolCallsList = memo(
                       ) : displayState === 'process-running' ? (
                         <span className="i-ph:play text-blue-500" />
                       ) : isRunning || state === 'input-streaming' ? (
-                        <span className="i-svg-spinners:90-ring-with-bg" />
+                        <span className="i-ph:circle-notch" />
                       ) : (
                         <span className="i-ph:wrench" />
                       )}
@@ -663,7 +663,7 @@ function ToolActivityRow({
           ) : displayState === 'process-running' ? (
             <span className="i-ph:play text-blue-500" />
           ) : running || state === 'input-streaming' ? (
-            <span className="i-svg-spinners:90-ring-with-bg" />
+            <span className="i-ph:circle-notch" />
           ) : (
             <span className={icon} />
           )}

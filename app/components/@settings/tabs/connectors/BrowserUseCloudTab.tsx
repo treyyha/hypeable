@@ -190,7 +190,7 @@ export default function BrowserUseCloudTab() {
             variant="outline"
             className="flex items-center gap-2"
           >
-            {isChecking && <div className="i-svg-spinners:90-ring-with-bg h-3 w-3 animate-spin" />}
+            {isChecking && <div className="i-ph:circle-notch h-3 w-3 animate-spin" />}
             Check connection
           </Button>
           {configuredServer && (

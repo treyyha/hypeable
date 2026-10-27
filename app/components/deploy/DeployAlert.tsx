@@ -79,7 +79,7 @@ export default function DeployChatAlert({ alert, clearAlert, postMessage }: Depl
                         )}
                       >
                         {buildStatus === 'running' ? (
-                          <div className="i-svg-spinners:90-ring-with-bg text-white text-xs"></div>
+                          <div className="i-ph:circle-notch text-white text-xs"></div>
                         ) : buildStatus === 'complete' ? (
                           <div className="i-ph:check text-white text-xs"></div>
                         ) : buildStatus === 'failed' ? (
@@ -114,7 +114,7 @@ export default function DeployChatAlert({ alert, clearAlert, postMessage }: Depl
                         )}
                       >
                         {deployStatus === 'running' ? (
-                          <div className="i-svg-spinners:90-ring-with-bg text-white text-xs"></div>
+                          <div className="i-ph:circle-notch text-white text-xs"></div>
                         ) : deployStatus === 'complete' ? (
                           <div className="i-ph:check text-white text-xs"></div>
                         ) : deployStatus === 'failed' ? (
