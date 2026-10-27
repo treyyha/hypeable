@@ -21,7 +21,7 @@ Longer write-up: [THREAT-MODEL.md](THREAT-MODEL.md). Report privately via [GitHu
 
 | Surface | Headers |
 |---|---|
-| HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, enforcing `Content-Security-Policy`, stricter `Content-Security-Policy-Report-Only` |
+| HTML (`app/entry.server.tsx`) | COOP `same-origin`, COEP `credentialless`, `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store, no-transform` (blocks Cloudflare HTML rewrites / Web Analytics injection), Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(), usb=()`, enforcing `Content-Security-Policy`, stricter `Content-Security-Policy-Report-Only` |
 | Static assets (`public/_headers`) | Same as HTML |
 | `/api/*` (`workers/app.ts`) | `X-Content-Type-Options: nosniff`, Referrer-Policy `strict-origin-when-cross-origin`, `Cache-Control: no-store`. No COOP, COEP, CSP, or Permissions-Policy. Existing stricter Cache-Control / Referrer-Policy on a route is kept. Body is passed through (not buffered) so chat/SSE still streams. |
 
@@ -81,6 +81,8 @@ Production is Cloudflare (`docs/DEPLOY.md`), not Vercel. `wrangler.jsonc` define
 | `NODE_VERSION` | Build var `22` | Toolchain. |
 
 Do **not** add `OPENAI_API_KEY`, connector tokens, `SESSION_SECRET`, or `ENCRYPTION_KEY`. Hosted code ignores operator `*_API_KEY` / `GITHUB_TOKEN` even if they appear. `worker-configuration.d.ts` still types leftover bolt.diy key names for local self-host; they are not in `wrangler.jsonc`.
+
+Cloudflare Web Analytics (`static.cloudflareinsights.com/beacon.min.js`) is **not** in our HTML. The zone can still inject it. HTML responses set `Cache-Control: no-store, no-transform` to block that rewrite. Also turn it off: account dashboard → **Analytics & logs** → **Web Analytics** → **Manage site** on `hypeable.dev` → **Disable**.
 
 ## Purging secrets from git history
 **Step 0, always: rotate the key.** Anyone could have copied it already. Deleting it from history does not un-leak it.

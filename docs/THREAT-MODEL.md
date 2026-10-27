@@ -21,7 +21,7 @@ Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Wo
 | Malicious generated app | Read `hypeable.dev` storage, phish | Preview is cross-origin. A generated app cannot read our `localStorage`. Pre-deploy scan before publish. |
 | Malicious model output | Script in markdown, `PLAN.md`, diffs, file names, toasts | Render paths are sanitised or text; we do not use `rehype-raw` without `rehype-sanitize`. |
 | Compromised npm / GitHub Action | Ship malware in CI or the bundle | Lockfile, Dependabot (npm + github-actions), Actions pinned to SHAs, gitleaks, `secret-scan.mjs --dir build` on client and server bundles. |
-| Cloudflare dashboard / Workers Builds | Add a secret, turn on logs, attach a custom domain | Production `observability` is off. Do not add API keys. `npx wrangler tail` can still see request metadata — do not leave it running. |
+| Cloudflare dashboard / Workers Builds | Add a secret, turn on logs, inject Web Analytics, attach a custom domain | Production `observability` is off. HTML sends `Cache-Control: no-transform` so the edge cannot inject `beacon.min.js`. Still disable Web Analytics in the account dashboard. Do not add API keys. `npx wrangler tail` can still see request metadata — do not leave it running. |
 
 ## What we do not protect against
 

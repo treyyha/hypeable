@@ -124,6 +124,7 @@ test.describe('OpenAILike mock smoke', () => {
     expect(documentResponse?.headers()['content-security-policy-report-only']).toContain(
       'https://*.webcontainer-api.io',
     );
+    expect(documentResponse?.headers()['cache-control']).toContain('no-transform');
 
     await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible();
     await expect(page.locator('header').getByText('new build')).toBeVisible();

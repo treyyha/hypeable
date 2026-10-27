@@ -82,6 +82,20 @@ if (home.response.status !== 200) {
   pass('GET / is 200');
 }
 
+if (/cloudflareinsights|beacon\.min\.js/i.test(home.text)) {
+  fail('GET / HTML contains a Cloudflare Web Analytics beacon');
+} else {
+  pass('GET / HTML has no Cloudflare insights beacon');
+}
+
+const htmlCache = home.response.headers.get('cache-control') || '';
+
+if (!/no-transform/i.test(htmlCache)) {
+  fail(`GET / Cache-Control is ${htmlCache || '(missing)'}, expected no-transform`);
+} else {
+  pass(`GET / cache-control: ${htmlCache}`);
+}
+
 const headers = home.response.headers;
 
 const needed = {

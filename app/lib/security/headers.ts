@@ -83,6 +83,13 @@ export const DOCUMENT_SECURITY_HEADERS: Record<string, string> = {
   'Cross-Origin-Opener-Policy': COOP_HEADER,
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': REFERRER_POLICY,
+
+  /*
+   * no-transform stops Cloudflare from injecting Web Analytics
+   * (static.cloudflareinsights.com/beacon.min.js) into HTML. Do not put
+   * this on public/_headers /* — that would uncache JS/CSS/fonts.
+   */
+  'Cache-Control': 'no-store, no-transform',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   'Content-Security-Policy': CSP_ENFORCING,
   'Content-Security-Policy-Report-Only': CSP_REPORT_ONLY,

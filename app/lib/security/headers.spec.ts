@@ -21,6 +21,7 @@ describe('document CSP', () => {
     expect(CSP_REPORT_ONLY.includes('https: wss:')).toBe(false);
     expect(CSP_REPORT_ONLY).toContain('https://*.webcontainer-api.io');
     expect(DOCUMENT_ONLY_HEADER_NAMES).toContain('Content-Security-Policy');
+    expect(DOCUMENT_SECURITY_HEADERS['Cache-Control']).toBe('no-store, no-transform');
   });
 
   it('keeps public/_headers in sync with the document CSP', () => {
