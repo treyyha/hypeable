@@ -134,9 +134,33 @@ function referrerPolicyRank(value: string): number {
   return REFERRER_POLICY_RANK[value.trim().toLowerCase()] ?? -1;
 }
 
+/**
+ * React Router matches routes case-insensitively, decodes `%61`-style escapes,
+ * ignores a trailing slash, and serves `<path>.data` to the same action. Any
+ * key or prefix test on the raw pathname is therefore bypassable
+ * (`/API/chat`, `/%61pi/chat`, `/api/chat.data`). Use this form instead.
+ */
+export function canonicalPathname(pathname: string): string {
+  let decoded = pathname;
+
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    decoded = pathname;
+  }
+
+  const canonical = decoded
+    .toLowerCase()
+    .replace(/\/{2,}/g, '/')
+    .replace(/\.data$/, '')
+    .replace(/\/+$/, '');
+
+  return canonical || '/';
+}
+
 export function isApiRequest(request: Request): boolean {
   try {
-    const { pathname } = new URL(request.url);
+    const pathname = canonicalPathname(new URL(request.url).pathname);
     return pathname === '/api' || pathname.startsWith('/api/');
   } catch {
     return false;

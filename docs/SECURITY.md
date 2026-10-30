@@ -45,7 +45,7 @@ Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is s
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.
 
 ## Rate limiting and bots
-1. In app code: in-memory limiter in `app/lib/security.ts` (per-IP, per-route). `/api/chat` and `/api/llmcall` also call the Workers `API_RATE_LIMITER` binding when present.
+1. In app code: in-memory limiter in `app/lib/security.ts` (per-IP, per-route). `/api/chat`, `/api/llmcall` and `/api/enhancer` also call the Workers `API_RATE_LIMITER` binding when present. Buckets are keyed on the canonical path (`canonicalPathname` in `app/lib/security/headers.ts`) because React Router also routes `/API/chat`, `/%61pi/chat`, `/api/chat/` and `/api/chat.data` to the same action.
 2. Public Cloudflare deploy: see [DEPLOY.md](DEPLOY.md) for the dashboard WAF rate-limit rule (Pages Functions do not document the Rate Limiting binding).
 3. Optional: Cloudflare Turnstile on any expensive endpoint.
 
@@ -79,7 +79,7 @@ Production is Cloudflare (`docs/DEPLOY.md`), not Vercel. `wrangler.jsonc` define
 
 | Name | Kind | Purpose |
 |---|---|---|
-| `API_RATE_LIMITER` | Rate Limiting binding | `/api/chat` and `/api/llmcall`. Keyed on `CF-Connecting-IP` (not `X-Forwarded-For`). Missing binding → in-memory limiter only. Public host without `CF-Connecting-IP` fail-closes. |
+| `API_RATE_LIMITER` | Rate Limiting binding | `/api/chat`, `/api/llmcall` and `/api/enhancer`. Keyed on `CF-Connecting-IP` (not `X-Forwarded-For`). Missing binding → in-memory limiter only. Public host without `CF-Connecting-IP` fail-closes. |
 | `HYPEABLE_HOSTED` | Optional dashboard var `1` | Defence in depth; a public Host already fail-closes. |
 | `WORKERS_CI_COMMIT_SHA` | Set by Workers Builds | `/api/health` `commit`. Not a secret. |
 | `NODE_VERSION` | Build var `22` | Toolchain. |

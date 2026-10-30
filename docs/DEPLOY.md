@@ -70,7 +70,7 @@ Server `console.*` is wrapped by `installSafeConsole()` (`app/lib/security/redac
    - Do **not** add API keys, connector tokens, `SESSION_SECRET`, or `ENCRYPTION_KEY`.
 6. Save and deploy.
 
-`wrangler.jsonc` also binds `API_RATE_LIMITER` (60 requests / 60s) for `/api/chat` and `/api/llmcall`, on top of the in-memory limiter.
+`wrangler.jsonc` also binds `API_RATE_LIMITER` (60 requests / 60s) for `/api/chat`, `/api/llmcall` and `/api/enhancer`, on top of the in-memory limiter.
 
 Local production bundle:
 

@@ -9,14 +9,13 @@ import { getProviderSettingsFromRequest } from '~/lib/api/provider-settings';
 import { getApiKeysFromRequest, LLM_NO_STORE_HEADERS, missingProviderKeyResponse } from '~/lib/api/request-keys';
 import { usageFromResult, wrapTextStreamWithUsage } from '~/lib/cost/stream-usage';
 import { createMessage } from '~/lib/persistence/messageMigration';
+import { withSecurity } from '~/lib/security';
 import { envFromContext, hostFromContext } from '~/lib/security/hosted';
 import { assertSameOrigin } from '~/lib/security/origin';
 import { assertHostedProviderAccess, hostedOutboundResponse } from '~/lib/security/outbound';
 import { stripIndents } from '~/utils/stripIndent';
 
-export async function action(args: ActionFunctionArgs) {
-  return enhancerAction(args);
-}
+export const action = withSecurity(enhancerAction, { allowedMethods: ['POST'] });
 
 async function enhancerAction({ context, request }: ActionFunctionArgs) {
   assertSameOrigin(request);

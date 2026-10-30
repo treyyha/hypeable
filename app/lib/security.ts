@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { isLlmRoute, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
+import { canonicalPathname } from '~/lib/security/headers';
 import { assertSameOrigin } from '~/lib/security/origin';
 import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
 
@@ -13,6 +14,7 @@ const RATE_LIMITS: Record<string, { windowMs: number; maxRequests: number }> = {
   // LLM streaming and call APIs (most restrictive)
   '/api/chat': { windowMs: 60 * 1000, maxRequests: 60 }, // 60 requests per minute
   '/api/llmcall': { windowMs: 60 * 1000, maxRequests: 30 }, // 30 requests per minute
+  '/api/enhancer': { windowMs: 60 * 1000, maxRequests: 30 },
   '/api/git-proxy': { windowMs: 60 * 1000, maxRequests: 60 },
 
   // GitHub API endpoints
@@ -98,6 +100,9 @@ export function checkRateLimit(
 
   return { allowed: true };
 }
+
+/** Routes that relay to a model provider also go through the shared edge limiter. */
+const EDGE_LIMITED_ENDPOINTS = new Set(['/api/chat', '/api/llmcall', '/api/enhancer']);
 
 type CloudflareRateLimiter = {
   limit: (options: { key: string }) => Promise<{ success: boolean }>;
@@ -276,8 +281,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 ) {
   return async (args: ActionFunctionArgs | LoaderFunctionArgs): Promise<Response> => {
     const { request } = args;
-    const url = new URL(request.url);
-    const endpoint = url.pathname;
+    const endpoint = canonicalPathname(new URL(request.url).pathname);
 
     // Check allowed methods
     if (options.allowedMethods && !options.allowedMethods.includes(request.method)) {
@@ -336,7 +340,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
       const clientIP = getTrustedClientIP(request, args.context);
 
-      if (clientIP && (endpoint === '/api/chat' || endpoint === '/api/llmcall')) {
+      if (clientIP && EDGE_LIMITED_ENDPOINTS.has(endpoint)) {
         const edgeAllowed = await checkCloudflareRateLimit(args.context, endpoint, clientIP);
 
         if (!edgeAllowed) {
