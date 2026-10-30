@@ -11,6 +11,7 @@ import { Artifact, openArtifactInWorkbench } from './Artifact';
 import { CodeBlock } from './CodeBlock';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
+import { safeQuickActionUrl } from './quickActionUrl';
 import { stripCodeFenceFromArtifact } from './stripCodeFenceFromArtifact';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import type { ProviderInfo } from '~/types/model';
@@ -312,12 +313,13 @@ export const Markdown = memo(
                         text: `[Model: ${model}]\n\n[Provider: ${provider?.name}]\n\n${message}`,
                       }) as any,
                     );
-                  } else if (type === 'link' && typeof href === 'string') {
-                    try {
-                      const url = new URL(href, window.location.origin);
-                      window.open(url.toString(), '_blank', 'noopener,noreferrer');
-                    } catch (error) {
-                      console.error('Invalid URL:', href, error);
+                  } else if (type === 'link') {
+                    const url = safeQuickActionUrl(href, window.location.origin);
+
+                    if (url) {
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    } else {
+                      console.error('Refused quick-action URL:', href);
                     }
                   }
                 }}
