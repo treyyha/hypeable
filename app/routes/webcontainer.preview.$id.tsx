@@ -4,11 +4,22 @@ import { useLoaderData } from 'react-router';
 
 const PREVIEW_CHANNEL = 'preview-updates';
 
+/*
+ * The id becomes the subdomain of the framed URL. Route params are
+ * percent-decoded, so `evil.example%2Fx%3F` would frame any site under a
+ * hypeable.dev address. WebContainer ids are one DNS label.
+ */
+const PREVIEW_ID = /^[a-z0-9-]{1,63}$/i;
+
 export async function loader({ params }: LoaderFunctionArgs) {
   const previewId = params.id;
 
   if (!previewId) {
     throw new Response('Preview ID is required', { status: 400 });
+  }
+
+  if (!PREVIEW_ID.test(previewId)) {
+    throw new Response(null, { status: 404 });
   }
 
   return Response.json({ previewId });
