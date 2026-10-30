@@ -7,7 +7,7 @@ function post(body: unknown) {
   return action({
     request: new Request('https://example.com/api/mcp-update-config', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Origin: 'https://example.com' },
       body: typeof body === 'string' ? body : JSON.stringify(body),
     }),
     params: {},

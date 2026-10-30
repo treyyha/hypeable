@@ -3,6 +3,7 @@ import type { ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
 import { getTrustedClientIP } from '~/lib/security';
 import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -145,6 +146,9 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (request.method !== 'POST') {
     return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }
+
+  // A plain HTML form on any site could otherwise file issues with the operator's token.
+  assertSameOrigin(request);
 
   try {
     // Rate limiting

@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { hostedNotFoundIfEnabled } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { mcpConfigSchema } from '~/lib/services/mcpService';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -13,6 +14,14 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (blocked) {
     return blocked;
   }
+
+  /*
+   * Local-only route, so the threat is a website the user visits while
+   * Hypeable runs on localhost. A text/plain fetch needs no preflight and
+   * request.json() ignores Content-Type, so without this any page could
+   * plant an MCP server whose tools the next chat would call.
+   */
+  assertSameOrigin(request);
 
   try {
     let body: unknown;

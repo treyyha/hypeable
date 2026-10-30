@@ -17,6 +17,7 @@ Short and honest. Hypeable is a **browser app** plus a **stateless Cloudflare Wo
 | Attacker | What they can try | What we do |
 |---|---|---|
 | Random internet vs the Worker | SSRF via git-proxy / chat / llmcall; abuse; CORS; origin forgery | Host allowlists, no redirects without re-check, same-origin CORS on hosted, `Origin` check on mutating methods, CF-Connecting-IP rate limit, body size + zod `.strict()` |
+| A website you visit while Hypeable runs on localhost | Cross-site `POST` (text/plain fetch or HTML form, no preflight) to local-only routes such as `/api/mcp-update-config` or `/api/bug-report` | Same `Origin` check as hosted mutating routes (`tests/security/local-csrf.spec.ts`) |
 | XSS on `hypeable.dev` | Steal keys from web storage, act as the user | Enforcing CSP, sanitised markdown, escaped HTML sinks, preview `postMessage` origin checks. `unsafe-inline` / `unsafe-eval` remain because of root scripts and WebContainer — see [SECURITY.md](SECURITY.md). |
 | Malicious generated app | Read `hypeable.dev` storage, phish | Preview is cross-origin. A generated app cannot read our `localStorage`. Pre-deploy scan before publish. |
 | Malicious model output | Script in markdown, `PLAN.md`, diffs, file names, toasts | Render paths are sanitised or text; we do not use `rehype-raw` without `rehype-sanitize`. |
