@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from 'react-router';
 import { z } from 'zod';
 import { getTrustedClientIP } from '~/lib/security';
 import { envFromContext, hostFromContext } from '~/lib/security/hosted';
+import { assertSameOrigin } from '~/lib/security/origin';
 import { assertHostedWebFetch, hostedOutboundResponse } from '~/lib/security/outbound';
 import { validatePublicHttpUrl, webFetch, webSearch } from '~/lib/services/webTools.server';
 
@@ -131,6 +132,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   try {
+    assertSameOrigin(request);
+
     const body = await readJsonBody(request);
 
     if (typeof body === 'object' && body !== null && 'operation' in body && body.operation === 'search') {
