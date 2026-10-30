@@ -226,8 +226,14 @@
       "tar-fs": "^2.1.4",
       "yaml@^2": "^2.8.3",
       "ip-address": "^10.7.5",
-      "shell-quote": "^1.11.0"
+      "shell-quote": "^1.11.0",
+      "qs@^6": "^6.16.1"
     },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "workerd"
+    ],
     "peerDependencyRules": {
       "allowedVersions": {
         "@cloudflare/workers-types": ">=4.0.0"

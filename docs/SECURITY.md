@@ -13,7 +13,7 @@ Longer write-up: [THREAT-MODEL.md](THREAT-MODEL.md). Report privately via [GitHu
 | Session theft | No login sessions and no session cookies. Preference state is localStorage, not a cookie. |
 | Missing auth | check inside every server handler |
 | XSS / clickjacking | HTML/static: enforcing CSP + stricter CSP-Report-Only, COOP/COEP, Permissions-Policy; `/api/*`: nosniff + Referrer-Policy + `Cache-Control: no-store` (no document CSP on JSON) |
-| Supply chain | Dependabot, lockfile, CI audit. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
+| Supply chain | Dependabot, lockfile (every entry has sha512 integrity, no git/tarball sources), CI audit, Actions pinned to SHAs with `contents: read`. Install scripts run only for `pnpm.onlyBuiltDependencies` (`@parcel/watcher`, `esbuild`, `workerd`), so a new or compromised dependency cannot run code on `pnpm install`. Remaining open alert: `elliptic` (low, client polyfill, no patch). |
 | Generated apps shipping secrets | pre-deploy scanner ([PREDEPLOY-CHECK.md](PREDEPLOY-CHECK.md)); shared patterns in `app/lib/security/secret-patterns.json` |
 | Operator env keys on hosted | Hosted ignores `serverEnv` / `process.env` API keys and `GITHUB_TOKEN`. `wrangler.jsonc` has no secrets; only `API_RATE_LIMITER`. |
 
