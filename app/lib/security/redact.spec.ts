@@ -25,6 +25,23 @@ describe('redact', () => {
     expect(redact(`PRIVATE-TOKEN: ${gitlabPat}`)).toContain('[REDACTED]');
   });
 
+  it('strips Groq, xAI, Hugging Face, Google, Supabase secret, and AWS keys', () => {
+    const keys = [
+      `gs${'k_'}${'a1'.repeat(20)}`,
+      `xa${'i-'}${'b2'.repeat(20)}`,
+      `h${'f_'}${'c3'.repeat(15)}`,
+      `AI${'za'}${'Sy'}${'d4'.repeat(16)}x`,
+      `sb_${'secret_'}${'e5'.repeat(14)}`,
+      `AK${'IA'}${'F6G7'.repeat(4)}`,
+    ];
+
+    for (const key of keys) {
+      const out = redact(`provider said: invalid key ${key} (401)`);
+      expect(out).not.toContain(key);
+      expect(out).toContain('[REDACTED]');
+    }
+  });
+
   it('strips OpenRouter sk-or- keys constructed at runtime', () => {
     const openRouterKey = `sk-or-v1-${'a'.repeat(24)}`;
     expect(redact(`provider failed for ${openRouterKey}`)).not.toContain(openRouterKey);
