@@ -24,12 +24,21 @@ const PLACEHOLDER_ONLY_RE = /^(?:TIME|ID|HEX|VERSION|PORT|PATH|URL)(?:[=\s:](?:T
 
 const MEANINGFUL_LINES = 3;
 
+/*
+ * FILE_REF_RE backtracks quadratically on a long run of word characters with
+ * no slash (a minified line, a base64 blob in a stack trace): 50k chars took
+ * over a second on the main thread. The signature only keeps the first three
+ * meaningful lines, so a fixed prefix is enough and keeps it deterministic.
+ */
+const MAX_SIGNATURE_INPUT = 8_000;
+
 export function stripAnsi(text: string): string {
   return text.replace(ANSI_RE, '');
 }
 
 export function normalizeErrorText(raw: string): string {
-  const stripped = stripAnsi(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const bounded = raw.length > MAX_SIGNATURE_INPUT ? raw.slice(0, MAX_SIGNATURE_INPUT) : raw;
+  const stripped = stripAnsi(bounded).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   const replaced = stripped
     .replace(LINE_COL_RE, ':LINE:COL')

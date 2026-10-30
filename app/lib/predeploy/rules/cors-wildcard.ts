@@ -7,6 +7,16 @@ import type { Finding, PredeployRule } from '~/lib/predeploy/types';
 
 const ORIGIN_STAR = /access-control-allow-origin['"\s:=,]*\*/i;
 const CREDENTIALS = /access-control-allow-credentials['"\s:=,]*true/i;
+const ALLOW_ORIGIN = /allow-?origin/i;
+
+/*
+ * Same as /allow-?origin[^\n]*\*\/i on one line, without the backtracking that
+ * made a long minified line with many "alloworigin" hits quadratic.
+ */
+function starAfterAllowOrigin(text: string): boolean {
+  const match = ALLOW_ORIGIN.exec(text);
+  return match !== null && text.indexOf('*', match.index + match[0].length) !== -1;
+}
 
 export const corsWildcardRule: PredeployRule = {
   id: 'cors-wildcard',
@@ -19,7 +29,7 @@ export const corsWildcardRule: PredeployRule = {
       const hasCredentials = CREDENTIALS.test(content);
 
       eachLine({ [file]: content }, (path, line, text) => {
-        if (!ORIGIN_STAR.test(text) && !/allow[-]?origin[^\n]*\*/i.test(text) && !/origin:\s*['"]\*/i.test(text)) {
+        if (!ORIGIN_STAR.test(text) && !starAfterAllowOrigin(text) && !/origin:\s*['"]\*/i.test(text)) {
           return;
         }
 
