@@ -21,5 +21,8 @@ export const PRIVACY_CONNECTOR_HINT =
 export const CLOUDFLARE_METADATA_CLAIM =
   'Cloudflare, as our host, handles request metadata and sees traffic in transit.';
 
+export const WEB_SEARCH_CLAIM =
+  'When you or the model use web search, our Worker sends the search text to DuckDuckGo (html.duckduckgo.com) and returns the results. DuckDuckGo sees the query and our Worker, not your IP. We do not store or log queries. On the public site, fetching arbitrary pages is turned off.';
+
 export const STACKBLITZ_UNAUDITED_CLAIM =
   'After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.';

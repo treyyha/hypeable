@@ -1,7 +1,12 @@
 import type { MetaFunction } from 'react-router';
 import { LegalPage } from '~/components/legal/LegalPage';
 import { APP_REPO_URL, brandMeta } from '~/utils/brand';
-import { CLOUDFLARE_METADATA_CLAIM, PRIVACY_CLAIM, STACKBLITZ_UNAUDITED_CLAIM } from '~/utils/privacy-copy';
+import {
+  CLOUDFLARE_METADATA_CLAIM,
+  PRIVACY_CLAIM,
+  STACKBLITZ_UNAUDITED_CLAIM,
+  WEB_SEARCH_CLAIM,
+} from '~/utils/privacy-copy';
 
 export const meta: MetaFunction = () => brandMeta('Privacy · Hypeable', '/privacy');
 
@@ -45,6 +50,9 @@ export default function Privacy() {
         OpenRouter. GitHub, GitLab, Vercel, and Netlify see whatever you publish to <em>your</em> account with{' '}
         <em>your</em> token. Their data policies apply to that traffic.
       </p>
+
+      <h2 className="pt-4 text-base font-semibold text-hype-text">Web search</h2>
+      <p>{WEB_SEARCH_CLAIM}</p>
 
       <h2 className="pt-4 text-base font-semibold text-hype-text">Cookies we set</h2>
       <p>

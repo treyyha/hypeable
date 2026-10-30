@@ -41,6 +41,7 @@ test.describe('privacy and terms', () => {
     const privacyText = await privacy.text();
     expect(privacyText).toContain('selectedProvider');
     expect(privacyText).toContain('No accounts and no database');
+    expect(privacyText).toContain('html.duckduckgo.com');
     expect(privacyText).toContain('Cloudflare Worker');
     expect(privacyText).toContain('We have not audited what StackBlitz sees');
     expect(privacyText).not.toMatch(/legal advice/i);
