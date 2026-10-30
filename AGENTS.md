@@ -45,7 +45,7 @@ Read `docs/ORIENTATION.md` only if needed. Prefer targeted reads of the files be
 | Components | `app/components/chat/` (composer + messages), `app/components/header/`, `app/components/home/`, `app/components/workbench/`, `app/components/ui/`, `app/components/@settings/` |
 | Scripts | `scripts/secret-scan.mjs`, `scripts/ship.mjs`, `scripts/finish.mjs`, `scripts/typecheck.mjs`, `scripts/test-related.mjs`, `scripts/ci-docs-only.mjs` |
 | Docs | `docs/*.md` (product). First-load: `docs/FIRST-LOAD.md`, `docs/first-load-budget.json`. Last perf pass: `docs/PERFORMANCE.md`. Errors: `docs/ERRORS.md`. |
-| E2E | `e2e/smoke.spec.ts`, `e2e/hosted.spec.ts` (`pnpm e2e:hosted`), `e2e/layout.spec.ts`, `e2e/errors.spec.ts`, `e2e/a11y.spec.ts`, `e2e/openrouter-connect.spec.ts`, `e2e/docs-screenshots.spec.ts`, `playwright.config.ts`. Local mocks: `scripts/dev/mock-openai.mjs`, `scripts/dev/mock-openrouter.mjs`. |
+| E2E | `e2e/smoke.spec.ts`, `e2e/hosted.spec.ts` + `tests/security/*.pw.ts` (`pnpm e2e:hosted`; vitest security specs in `tests/security/*.spec.ts`), `e2e/layout.spec.ts`, `e2e/errors.spec.ts`, `e2e/a11y.spec.ts`, `e2e/openrouter-connect.spec.ts`, `e2e/docs-screenshots.spec.ts`, `playwright.config.ts`. Local mocks: `scripts/dev/mock-openai.mjs`, `scripts/dev/mock-openrouter.mjs`. |
 
 ## Command cheat sheet
 Times are local (Windows) after this speed pass. CI still runs gitleaks, typecheck, lint, unit tests, build, and e2e.
