@@ -17,6 +17,7 @@ const N = 50_000;
 function timed(run: () => unknown): number {
   const started = performance.now();
   run();
+
   return performance.now() - started;
 }
 
@@ -43,8 +44,14 @@ const ADVERSARIAL_LINES: Record<string, string> = {
   'from table, open': ".from('x".repeat(N / 8),
   'version-ish': '1.2.'.repeat(N / 4),
   'colons and digits': ':1:2'.repeat(N / 4),
-  'ports': 'port '.repeat(N / 5),
+  ports: 'port '.repeat(N / 5),
   'ANSI fragments': '\u001b[1;2;3'.repeat(N / 7),
+  'select without from': 'select x '.repeat(N / 9),
+  'string concatenation': "'a' + b + ".repeat(N / 11),
+  'innerHTML template, no interpolation': 'el.innerHTML = `x'.repeat(N / 17),
+  'destructure, never assigned': '{ amount, price '.repeat(N / 16),
+  'allow clauses, no condition': 'allow read, write, '.repeat(N / 19),
+  'policy roles, no using': 'create policy p on t for all to anon, '.repeat(N / 38),
 };
 
 describe('ReDoS: loop breaker signature', () => {

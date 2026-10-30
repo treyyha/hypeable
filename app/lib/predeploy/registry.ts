@@ -12,6 +12,7 @@ import { missingGitignoreRule, missingSecurityHeadersRule } from './rules/info';
 import { insecureHttpRule } from './rules/insecure-http';
 import { localStorageTokenRule } from './rules/localstorage-token';
 import { secretLeakRule } from './rules/secret-leak';
+import { sqlInjectionRule } from './rules/sql-injection';
 import { supabaseRlsMissingRule, supabaseRlsOpenRule, supabaseRlsUnverifiedRule } from './rules/supabase-rls';
 import { unauthenticatedWriteRule } from './rules/unauthenticated-write';
 import { unpinnedDependencyRule } from './rules/unpinned-dep';
@@ -28,6 +29,7 @@ export const PREDEPLOY_RULES: PredeployRule[] = [
   corsWildcardRule,
   localStorageTokenRule,
   unsafeHtmlRule,
+  sqlInjectionRule,
   insecureHttpRule,
   clientAdminCheckRule,
   supabaseRlsUnverifiedRule,

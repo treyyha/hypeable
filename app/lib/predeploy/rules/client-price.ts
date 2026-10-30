@@ -6,6 +6,11 @@ import { isServerHandlerPath, linesOf, makeFinding } from '~/lib/predeploy/helpe
 import type { Finding, PredeployRule } from '~/lib/predeploy/types';
 
 const BODY_PRICE = /(?:req|request|body)\.(?:body\.)?(price|amount|unit_amount|total)\b/i;
+
+/** `const { amount } = await request.json()` / `= req.body`, the usual route-handler shape. */
+const DESTRUCTURED_PRICE =
+  /\{[^}]{0,200}\b(?:price|amount|unit_amount|total)\b[^}]{0,200}\}\s*=\s*(?:await\s+)?(?:req|request)\.(?:json\s*\(\s*\)|body\b)/i;
+
 const PAYMENT = /\b(stripe|paypal|square|paddle|lemonsqueezy|charges?\.create|paymentintents?|checkout\.sessions)\b/i;
 
 export const clientPriceTrustRule: PredeployRule = {
@@ -29,7 +34,7 @@ export const clientPriceTrustRule: PredeployRule = {
       for (let index = 0; index < lines.length; index += 1) {
         const text = lines[index] ?? '';
 
-        if (!BODY_PRICE.test(text)) {
+        if (!BODY_PRICE.test(text) && !DESTRUCTURED_PRICE.test(text)) {
           continue;
         }
 

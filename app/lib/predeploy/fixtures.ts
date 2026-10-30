@@ -84,6 +84,11 @@ export const unsafeHtmlFixture: Record<string, string> = {
     'export function Widget({ html }: { html: string }) {\n  return <div dangerouslySetInnerHTML={{ __html: html }} />;\n}\n',
 };
 
+export const sqlInjectionFixture: Record<string, string> = {
+  ...cleanFixture,
+  'api/users.ts': 'export const find = (id: string) => db.query(`SELECT * FROM users WHERE id = ${id}`);\n',
+};
+
 export const insecureHttpFixture: Record<string, string> = {
   ...cleanFixture,
   'src/api.ts': 'export const url = "http://api.example.com/v1";\n',
@@ -149,6 +154,7 @@ export const RULE_FIXTURES: Record<string, Record<string, string>> = {
   'cors-wildcard': corsWildcardFixture,
   'localstorage-token': localStorageTokenFixture,
   'unsafe-html': unsafeHtmlFixture,
+  'sql-injection': sqlInjectionFixture,
   'insecure-http': insecureHttpFixture,
   'client-admin-check': clientAdminFixture,
   'supabase-rls-unverified': supabaseUnverifiedFixture,

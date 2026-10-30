@@ -9,6 +9,9 @@ const ORIGIN_STAR = /access-control-allow-origin['"\s:=,]*\*/i;
 const CREDENTIALS = /access-control-allow-credentials['"\s:=,]*true/i;
 const ALLOW_ORIGIN = /allow-?origin/i;
 
+/** Express `cors()` with no options answers `Access-Control-Allow-Origin: *`. */
+const CORS_DEFAULTS = /\bcors\(\s*\)/;
+
 /*
  * Same as /allow-?origin[^\n]*\*\/i on one line, without the backtracking that
  * made a long minified line with many "alloworigin" hits quadratic.
@@ -29,7 +32,12 @@ export const corsWildcardRule: PredeployRule = {
       const hasCredentials = CREDENTIALS.test(content);
 
       eachLine({ [file]: content }, (path, line, text) => {
-        if (!ORIGIN_STAR.test(text) && !starAfterAllowOrigin(text) && !/origin:\s*['"]\*/i.test(text)) {
+        if (
+          !ORIGIN_STAR.test(text) &&
+          !starAfterAllowOrigin(text) &&
+          !/origin:\s*['"]\*/i.test(text) &&
+          !CORS_DEFAULTS.test(text)
+        ) {
           return;
         }
 

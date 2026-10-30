@@ -66,6 +66,35 @@ export const supabaseRlsMissingRule: PredeployRule = {
   },
 };
 
+/*
+ * Policies are judged per statement, not per line: generated SQL puts
+ * `CREATE POLICY`, `TO anon`, `FOR ALL` and `WITH CHECK (true)` on separate
+ * lines. Postgres defaults apply: no `FOR` means ALL, no `TO` means PUBLIC
+ * (which includes anon).
+ */
+function isOpenWritePolicy(statement: string): boolean {
+  // Drop comments and quoted policy names ("anyone to write") before reading clauses.
+  const sql = statement
+    .replace(/--[^\n]*/g, ' ')
+    .replace(/"[^"]*"/g, '""')
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+
+  if (!/\bcreate policy\b/.test(sql) || !/(?:using|with check) ?\( ?true ?\)/.test(sql)) {
+    return false;
+  }
+
+  const command = /\bfor (all|select|insert|update|delete)\b/.exec(sql)?.[1] ?? 'all';
+
+  if (command === 'select') {
+    return false;
+  }
+
+  const roles = /\bto ([a-z_,\s]+?)(?: using\b| with check\b|$)/.exec(sql)?.[1] ?? 'public';
+
+  return /\b(?:anon|public)\b/.test(roles);
+}
+
 export const supabaseRlsOpenRule: PredeployRule = {
   id: 'supabase-rls-open',
   severity: 'FAIL',
@@ -78,25 +107,24 @@ export const supabaseRlsOpenRule: PredeployRule = {
         continue;
       }
 
-      const lines = linesOf(content);
+      let offset = 0;
 
-      for (let index = 0; index < lines.length; index += 1) {
-        const text = lines[index] ?? '';
+      for (const statement of content.split(';')) {
+        const start = offset;
+        offset += statement.length + 1;
 
-        const openWrite =
-          /create\s+policy/i.test(text) &&
-          /\b(anon|public)\b/i.test(text) &&
-          /(?:for\s+(?:all|insert|update|delete)|with\s+check)/i.test(text) &&
-          /(?:using|with\s+check)\s*\(\s*true\s*\)/i.test(text);
-
-        if (!openWrite) {
+        if (!isOpenWritePolicy(statement)) {
           continue;
         }
+
+        const policyAt = start + statement.search(/create\s+policy/i);
+        const line = content.slice(0, policyAt).split('\n').length;
+        const text = linesOf(content)[line - 1] ?? '';
 
         findings.push(
           makeFinding(supabaseRlsOpenRule, {
             file,
-            line: index + 1,
+            line,
             maskedSnippet: text.trim().slice(0, 160),
             why: 'An RLS policy lets anonymous clients write with USING/WITH CHECK (true).',
             fix: 'Restrict the policy to authenticated users and a real row check, not `true`.',

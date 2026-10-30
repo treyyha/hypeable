@@ -27,21 +27,32 @@ Findings never store a full secret: each match is reduced to the first four char
 | `client-secret` | FAIL | `service_role` or a secret-named `VITE_` / `NEXT_PUBLIC_` / `PUBLIC_` env is in client code | `process.env.VITE_SUPABASE_SERVICE_ROLE_KEY` | Use the anon key in the browser; keep service role on the server | Rename the env if it is truly publishable |
 | `dotenv-committed` | FAIL | `.env` has real values, or `.env` is not gitignored | `.env` with `OPENAI_API_KEY=…` | Delete `.env` from the project and add `.env` to `.gitignore` | `.env.example` with placeholders is ignored |
 | `supabase-rls-missing` | FAIL | SQL `CREATE TABLE` without `ENABLE ROW LEVEL SECURITY` | `CREATE TABLE notes (…)` | `ALTER TABLE notes ENABLE ROW LEVEL SECURITY;` plus real policies | Views/materialized tables: ignore comment |
-| `supabase-rls-open` | FAIL | Anon/public write policy uses `USING (true)` / `WITH CHECK (true)` | `CREATE POLICY … TO anon FOR ALL USING (true)` | Restrict to `authenticated` and a row check | Read-only `SELECT` policies are not flagged |
-| `firebase-open-rules` | FAIL | Firestore/RTDB rules allow anyone | `allow read, write: if true` | Require `request.auth != null` and lock down writes | Emulator-only rules: ignore comment |
-| `cors-wildcard` | WARN | `Access-Control-Allow-Origin: *` (worse with credentials) | `res.setHeader('Access-Control-Allow-Origin', '*')` | List explicit origins | Docs snippets: ignore comment. **Heuristic.** |
+| `supabase-rls-open` | FAIL | Anon/public write policy uses `USING (true)` / `WITH CHECK (true)`. Judged per SQL statement, so multi-line policies count; no `TO` means PUBLIC and no `FOR` means ALL, as in Postgres | `CREATE POLICY … TO anon FOR ALL USING (true)` | Restrict to `authenticated` and a row check | Read-only `SELECT` policies are not flagged |
+| `firebase-open-rules` | FAIL | Firestore/RTDB rules allow anyone, including console "test mode" (`if request.time < timestamp.date(…)`) and `allow write/create/update/delete: if true` | `allow read, write: if true` | Require `request.auth != null` and lock down writes | Emulator-only rules: ignore comment. Public `allow read: if true` alone is not flagged |
+| `cors-wildcard` | WARN | `Access-Control-Allow-Origin: *` (worse with credentials), including Express `cors()` with no options | `res.setHeader('Access-Control-Allow-Origin', '*')` | List explicit origins | Docs snippets: ignore comment. **Heuristic.** |
 | `localstorage-token` | WARN | Auth tokens written to `localStorage` | `localStorage.setItem('access_token', jwt)` | HttpOnly cookie or in-memory session | Non-auth keys named “token”: ignore. **Heuristic.** |
-| `unsafe-html` | WARN | `dangerouslySetInnerHTML` or `eval` with a non-literal | `__html: userHtml` | Render text, or sanitize if HTML is required | Static HTML strings are allowed. **Heuristic.** |
+| `unsafe-html` | WARN | `dangerouslySetInnerHTML`, `innerHTML` / `outerHTML` / `insertAdjacentHTML` / `document.write`, or `eval` with a non-literal or `${}` template | `__html: userHtml`, `el.innerHTML = msg` | Render text, or sanitize if HTML is required | Static HTML strings are allowed. **Heuristic.** |
+| `sql-injection` | WARN | SQL built with `${}` or `+` concatenation | `` db.query(`SELECT * FROM users WHERE id = ${id}`) `` | Use `$1` / `?` parameters or a tagged `` sql`` `` template | Tagged `sql` / Prisma `$queryRaw` templates are skipped. **Heuristic.** |
 | `insecure-http` | WARN | `http://` API URL (not localhost) | `fetch('http://api.example.com')` | Use `https://` | `localhost` / `127.0.0.1` / w3.org schema URLs are skipped |
 | `client-admin-check` | WARN | Admin decided from localStorage / local state | `const isAdmin = localStorage.getItem('role')` | Enforce admin on the server from the session | UI-only badges: ignore. **Heuristic.** |
 | `supabase-rls-unverified` | INFO | `.from('x')` with no matching SQL migration | `supabase.from('notes')` and no `CREATE TABLE notes` | Check Authentication > Policies in your Supabase dashboard (30 seconds) | Dashboard-managed schema: the files cannot prove RLS. **Heuristic.** |
 | `unauthenticated-write` | WARN | API handler writes to a DB and never mentions a session | `db.from('items').insert(body)` in `app/api` | Check auth before insert/update/delete | **Heuristic, verify.** |
-| `client-price-trust` | WARN | Request-body price/amount used in a payment call | `stripe.charges.create({ amount: body.amount })` | Look up price on the server from a product id | **Heuristic, verify.** |
+| `client-price-trust` | WARN | Request-body price/amount used in a payment call, including `const { amount } = await request.json()` | `stripe.charges.create({ amount: body.amount })` | Look up price on the server from a product id | **Heuristic, verify.** |
 | `unpinned-dependency` | WARN | `package.json` uses `*` or `latest` | `"react": "*"` | Pin a version you have tested | Caret/tilde ranges are allowed |
 | `missing-security-headers` | INFO | No CSP / frame / HSTS config found | Empty project | Add headers in `vercel.json` or Netlify `_headers` | **Heuristic.** |
 | `missing-gitignore` | INFO | No `.gitignore` | — | Add `.env`, `node_modules`, `dist` | — |
 
 Heuristic rules are labelled **heuristic, verify** in the modal.
+
+## What it misses
+
+The scan reads files with pattern rules. It is a check for common mistakes, not a security audit, and a clean result does not mean the app is safe. Measured gaps (`tests/security/predeploy-samples.spec.ts` asserts each one, so this list cannot go stale):
+
+- Authorisation decided from client-side user data, e.g. `user.user_metadata.role === 'admin'` in a component.
+- Secrets split across string concatenation or built at runtime.
+- Anything configured outside the files: Supabase dashboard policies, Firebase console rules, host env vars, and provider settings.
+- Files over 1 MB, binary files, and `dist` / `build` output (scan the source instead).
+- Logic flaws: IDOR, missing ownership checks inside an authenticated handler, business-rule bypasses.
 
 ## Ignore comments
 
