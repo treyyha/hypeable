@@ -1,6 +1,6 @@
 import type { UIMessage } from 'ai';
 import JSZip from 'jszip';
-import { generateId, shouldIncludeFile } from './fileUtils';
+import { generateId, isSafeImportPath, shouldIncludeFile } from './fileUtils';
 import { escapeBoltTags } from './projectCommands';
 import { createMessage } from '~/lib/persistence/messageMigration';
 
@@ -92,7 +92,7 @@ export const createChatFromZip = async (zipFile: File): Promise<ZipImportResult>
     }
 
     // Apply the same ignore rules as ImportFolderButton
-    if (!shouldIncludeFile(relativePath)) {
+    if (!isSafeImportPath(relativePath) || !shouldIncludeFile(relativePath)) {
       skippedIgnored++;
       continue;
     }
@@ -160,7 +160,7 @@ export const createChatFromZip = async (zipFile: File): Promise<ZipImportResult>
     }
   }
 
-  const folderName = zipFile.name.replace(/\.zip$/i, '');
+  const folderName = escapeBoltTags(zipFile.name.replace(/\.zip$/i, ''));
 
   const binaryFilesMessage =
     binaryFilePaths.length > 0

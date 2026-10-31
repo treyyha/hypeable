@@ -13,7 +13,7 @@ import { useGit } from '~/lib/hooks/useGit';
 import type { IChatMetadata } from '~/lib/persistence/db';
 import { createMessage } from '~/lib/persistence/messageMigration';
 import { classNames } from '~/utils/classNames';
-import { generateId } from '~/utils/fileUtils';
+import { generateId, isSafeImportPath } from '~/utils/fileUtils';
 import { detectProjectCommands, createCommandsMessage, escapeBoltTags } from '~/utils/projectCommands';
 
 const IGNORE_PATTERNS = [
@@ -66,7 +66,7 @@ export default function GitCloneButton({ importChat, className }: GitCloneButton
       const { workdir, data } = await gitClone(repoUrl);
 
       if (importChat) {
-        const filePaths = Object.keys(data).filter((filePath) => !ig.ignores(filePath));
+        const filePaths = Object.keys(data).filter((filePath) => isSafeImportPath(filePath) && !ig.ignores(filePath));
         const textDecoder = new TextDecoder('utf-8');
 
         let totalSize = 0;
@@ -124,7 +124,7 @@ export default function GitCloneButton({ importChat, className }: GitCloneButton
         const filesMessage = createMessage({
           role: 'assistant',
           id: generateId(),
-          text: `Cloning the repo ${repoUrl} into ${workdir}
+          text: `Cloning the repo ${escapeBoltTags(repoUrl)} into ${escapeBoltTags(workdir)}
 ${
   skippedFiles.length > 0
     ? `\nSkipped files (${skippedFiles.length}):

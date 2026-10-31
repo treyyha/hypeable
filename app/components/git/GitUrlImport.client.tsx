@@ -10,6 +10,7 @@ import { LoadingOverlay } from '~/components/ui/LoadingOverlay';
 import { useGit } from '~/lib/hooks/useGit';
 import { useChatHistory } from '~/lib/persistence';
 import { createMessage } from '~/lib/persistence/messageMigration';
+import { isSafeImportPath } from '~/utils/fileUtils';
 import { createCommandsMessage, detectProjectCommands, escapeBoltTags } from '~/utils/projectCommands';
 
 const IGNORE_PATTERNS = [
@@ -56,7 +57,7 @@ export function GitUrlImport() {
         const { workdir, data } = await gitClone(repoUrl);
 
         if (importChat) {
-          const filePaths = Object.keys(data).filter((filePath) => !ig.ignores(filePath));
+          const filePaths = Object.keys(data).filter((filePath) => isSafeImportPath(filePath) && !ig.ignores(filePath));
           const textDecoder = new TextDecoder('utf-8');
 
           const fileContents = filePaths
@@ -76,7 +77,7 @@ export function GitUrlImport() {
           const filesMessage = createMessage({
             role: 'assistant',
             id: generateId(),
-            text: `Cloning the repo ${repoUrl} into ${workdir}
+            text: `Cloning the repo ${escapeBoltTags(repoUrl)} into ${escapeBoltTags(workdir)}
 <boltArtifact id="imported-files" title="Git Cloned Files"  type="bundled">
 ${fileContents
   .map(

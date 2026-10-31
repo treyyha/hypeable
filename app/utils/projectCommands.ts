@@ -14,6 +14,13 @@ interface FileContent {
   path: string;
 }
 
+/*
+ * The directory is spliced into a shell command. Double quotes still expand
+ * $(...), backticks and $VAR, so anything outside plain path characters gets
+ * no auto-run command rather than an escaping scheme jsh may not honour.
+ */
+const SHELL_SAFE_DIRECTORY = /^[\w@+.\- /]*$/;
+
 export async function detectProjectCommands(files: FileContent[]): Promise<ProjectCommands> {
   const manifests = files.filter((file) => file.path.split('/').at(-1) === 'package.json');
   const packageFile = manifests.sort((a, b) => a.path.split('/').length - b.path.split('/').length)[0];
@@ -25,6 +32,11 @@ export async function detectProjectCommands(files: FileContent[]): Promise<Proje
 
     if (htmlFile) {
       const projectDirectory = htmlFile.path.split('/').slice(0, -1).join('/');
+
+      if (!SHELL_SAFE_DIRECTORY.test(projectDirectory)) {
+        return { type: '', followupMessage: '' };
+      }
+
       const prefix = projectDirectory ? `cd ${JSON.stringify(projectDirectory)} && ` : '';
 
       return { type: 'Static', startCommand: `${prefix}npx --yes serve`, followupMessage: '' };
@@ -38,6 +50,10 @@ export async function detectProjectCommands(files: FileContent[]): Promise<Proje
     const scripts = packageJson?.scripts || {};
     const preferredScript = ['dev', 'start', 'preview'].find((script) => typeof scripts[script] === 'string');
     const projectDirectory = packageFile.path.split('/').slice(0, -1).join('/');
+
+    if (!SHELL_SAFE_DIRECTORY.test(projectDirectory)) {
+      return { type: '', followupMessage: '' };
+    }
 
     const hasFileInProject = (name: string) =>
       files.some((file) => {

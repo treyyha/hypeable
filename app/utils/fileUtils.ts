@@ -42,6 +42,20 @@ export const shouldIncludeFile = (path: string): boolean => {
   return !ig.ignores(path);
 };
 
+/**
+ * Imported paths are written into `filePath="..."` and the parser does not
+ * decode entities, so a quote, angle bracket or control character would let a
+ * crafted ZIP entry or repo file name close the attribute and inject actions.
+ * Traversal and absolute paths are refused so imports stay in the project.
+ */
+export const isSafeImportPath = (path: string): boolean => {
+  if (!path || /["<>\\\u0000-\u001f\u007f]/.test(path) || path.startsWith('/')) {
+    return false;
+  }
+
+  return !path.split('/').some((segment) => segment === '..');
+};
+
 const readPackageJson = async (files: File[]): Promise<{ scripts?: Record<string, string> } | null> => {
   const packageJsonFile = files.find((f) => f.webkitRelativePath.endsWith('package.json'));
 

@@ -1,30 +1,36 @@
 import type { UIMessage } from 'ai';
-import { generateId } from './fileUtils';
+import { generateId, isSafeImportPath } from './fileUtils';
 import { detectProjectCommands, createCommandsMessage, escapeBoltTags } from './projectCommands';
 import { createMessage } from '~/lib/persistence/messageMigration';
 
 export const createChatFromFolder = async (
   files: File[],
   binaryFiles: string[],
-  folderName: string,
+  rawFolderName: string,
 ): Promise<UIMessage[]> => {
-  const fileArtifacts = await Promise.all(
-    files.map(async (file) => {
-      return new Promise<{ content: string; path: string }>((resolve, reject) => {
-        const reader = new FileReader();
+  const folderName = escapeBoltTags(rawFolderName);
+  const importPath = (file: File) => file.webkitRelativePath.split('/').slice(1).join('/');
+  binaryFiles = binaryFiles.filter(isSafeImportPath);
 
-        reader.onload = () => {
-          const content = reader.result as string;
-          const relativePath = file.webkitRelativePath.split('/').slice(1).join('/');
-          resolve({
-            content,
-            path: relativePath,
-          });
-        };
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-    }),
+  const fileArtifacts = await Promise.all(
+    files
+      .filter((file) => isSafeImportPath(importPath(file)))
+      .map(async (file) => {
+        return new Promise<{ content: string; path: string }>((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            const content = reader.result as string;
+            const relativePath = importPath(file);
+            resolve({
+              content,
+              path: relativePath,
+            });
+          };
+          reader.onerror = reject;
+          reader.readAsText(file);
+        });
+      }),
   );
 
   const commands = await detectProjectCommands(fileArtifacts);
