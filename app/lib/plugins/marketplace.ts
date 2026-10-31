@@ -1,25 +1,10 @@
 import JSZip from 'jszip';
-import { z } from 'zod';
-import {
-  compareVersions,
-  pluginCatalogSchema,
-  pluginManifestSchema,
-  type CatalogVersion,
-  type PluginCatalog,
-  type PluginManifest,
-} from './schema';
+import { pluginManifestSchema, type CatalogVersion, type PluginCatalog, type PluginManifest } from './schema';
 
-const OWNER = 'dustinwloring1988';
-const REPOSITORY = 'bolt-marketplace';
-const MAX_JSON_BYTES = 1_000_000;
-const MAX_CATALOG_MANIFEST_BYTES = 5_000_000;
-const MAX_MANIFEST_CONCURRENCY = 6;
 const MAX_PACKAGE_BYTES = 5_000_000;
 const MAX_PACKAGE_FILES = 100;
 const MAX_EXPANDED_BYTES = 20_000_000;
 const FORBIDDEN_EXTENSIONS = /\.(?:js|mjs|cjs|jsx|ts|tsx|wasm|exe|dll|so|dylib|bat|cmd|ps1|sh)$/i;
-
-const commitResponseSchema = z.object({ sha: z.string().regex(/^[a-f0-9]{40}$/i) });
 
 export type MarketplacePlugin = {
   id: string;
@@ -35,88 +20,7 @@ export type MarketplaceSnapshot = {
   fetchedAt: string;
 };
 
-function getMarketplaceError(error: unknown): Error {
-  if (error instanceof z.ZodError) {
-    return new Error(
-      'Marketplace metadata is invalid. The repository needs valid plugin IDs, version paths, supported manifest fields, and SHA-256 hashes.',
-    );
-  }
-
-  return error instanceof Error ? error : new Error('Could not load the plugin marketplace.');
-}
-
-const CACHE_KEY = 'bolt_marketplace_snapshot_v1';
 const encoder = new TextEncoder();
-
-async function readLimited(response: Response, maximumBytes: number): Promise<Uint8Array> {
-  if (!response.ok) {
-    throw new Error(
-      response.status === 404
-        ? 'The marketplace repository has no catalog yet.'
-        : `Marketplace request failed (${response.status}).`,
-    );
-  }
-
-  const length = Number(response.headers.get('content-length'));
-
-  if (Number.isFinite(length) && length > maximumBytes) {
-    throw new Error('Marketplace file exceeds the allowed size.');
-  }
-
-  if (!response.body) {
-    const bytes = new Uint8Array(await response.arrayBuffer());
-
-    if (bytes.byteLength > maximumBytes) {
-      throw new Error('Marketplace file exceeds the allowed size.');
-    }
-
-    return bytes;
-  }
-
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-
-  let size = 0;
-
-  while (true) {
-    const { done, value } = await reader.read();
-
-    if (done) {
-      break;
-    }
-
-    size += value.byteLength;
-
-    if (size > maximumBytes) {
-      await reader.cancel();
-      throw new Error('Marketplace file exceeds the allowed size.');
-    }
-
-    chunks.push(value);
-  }
-
-  const result = new Uint8Array(size);
-
-  let offset = 0;
-
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-
-  return result;
-}
-
-async function fetchBytes(url: string, maximumBytes: number): Promise<Uint8Array> {
-  const response = await fetch(url, {
-    cache: 'no-store',
-    credentials: 'omit',
-    redirect: 'error',
-    headers: { Accept: 'application/json, application/octet-stream' },
-  });
-
-  return readLimited(response, maximumBytes);
-}
 
 function parseJson(bytes: Uint8Array): unknown {
   return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
@@ -309,96 +213,25 @@ function isCanonicalManifest(left: unknown, right: unknown): boolean {
   return canonical(left) === canonical(right);
 }
 
-function repoFileUrl(commit: string, path: string): string {
-  if (!/^[a-f0-9]{40}$/i.test(commit) || (!path.startsWith('catalog/') && !path.startsWith('plugins/'))) {
-    throw new Error('Marketplace reference is invalid.');
-  }
-
-  return `https://raw.githubusercontent.com/${OWNER}/${REPOSITORY}/${commit}/${path}`;
-}
+const CATALOGUE_DISABLED = 'The third-party plugin catalogue is not part of v1. Import a local ZIP instead.';
 
 export async function fetchMarketplace(): Promise<MarketplaceSnapshot> {
-  let catalogError: unknown;
+  throw new Error(CATALOGUE_DISABLED);
+}
 
-  try {
-    const headBytes = await fetchBytes(`https://api.github.com/repos/${OWNER}/${REPOSITORY}/commits/HEAD`, 32_000);
-    const { sha } = commitResponseSchema.parse(parseJson(headBytes));
-    const catalogBytes = await fetchBytes(repoFileUrl(sha, 'catalog/index.json'), MAX_JSON_BYTES);
-    const catalog = pluginCatalogSchema.parse(parseJson(catalogBytes));
+export async function installMarketplacePlugin(
+  _snapshot: MarketplaceSnapshot,
+  _pluginId: string,
+  _version: CatalogVersion,
+): Promise<never> {
+  throw new Error(CATALOGUE_DISABLED);
+}
 
-    let nextPluginIndex = 0;
-    let manifestBytesFetched = 0;
-
-    const plugins = new Array<MarketplacePlugin>(catalog.plugins.length);
-
-    const loadNextManifest = async () => {
-      while (true) {
-        const index = nextPluginIndex++;
-
-        if (index >= catalog.plugins.length) {
-          return;
-        }
-
-        const plugin = catalog.plugins[index];
-        const latest = [...plugin.versions].sort((left, right) => compareVersions(right.version, left.version))[0];
-        const manifestBytes = await fetchBytes(repoFileUrl(sha, latest.manifestPath), MAX_JSON_BYTES);
-        manifestBytesFetched += manifestBytes.byteLength;
-
-        if (manifestBytesFetched > MAX_CATALOG_MANIFEST_BYTES) {
-          throw new Error('Marketplace catalog exceeds the total manifest download limit.');
-        }
-
-        if ((await sha256(manifestBytes)) !== latest.manifestSha256.toLowerCase()) {
-          throw new Error(`Manifest integrity check failed for ${plugin.id}.`);
-        }
-
-        const manifest = pluginManifestSchema.parse(parseJson(manifestBytes));
-
-        if (manifest.id !== plugin.id || manifest.version !== latest.version) {
-          throw new Error(`Manifest identity does not match the catalog for ${plugin.id}.`);
-        }
-
-        plugins[index] = { id: plugin.id, manifest, versions: plugin.versions };
-      }
-    };
-
-    await Promise.all(
-      Array.from({ length: Math.min(MAX_MANIFEST_CONCURRENCY, catalog.plugins.length) }, () => loadNextManifest()),
-    );
-
-    const snapshot = { commit: sha, catalog, plugins, stale: false, fetchedAt: new Date().toISOString() };
-
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(snapshot));
-    } catch {
-      // The live catalog is still usable when browser storage is unavailable.
-    }
-
-    return snapshot;
-  } catch (error) {
-    catalogError = error;
-  }
-
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-
-    if (cached) {
-      const parsed = JSON.parse(cached) as MarketplaceSnapshot;
-      const validatedCatalog = pluginCatalogSchema.parse(parsed.catalog);
-
-      const validatedPlugins = parsed.plugins.map((plugin) => ({
-        id: plugin.id,
-        manifest: pluginManifestSchema.parse(plugin.manifest),
-        versions: validatedCatalog.plugins.find((entry) => entry.id === plugin.id)?.versions ?? [],
-      }));
-
-      return { ...parsed, catalog: validatedCatalog, plugins: validatedPlugins, stale: true };
-    }
-  } catch {
-    // Ignore a corrupt cache and report the original catalog error.
-  }
-
-  throw getMarketplaceError(catalogError);
+export async function fetchMarketplaceChangelog(
+  _snapshot: MarketplaceSnapshot,
+  _version: CatalogVersion,
+): Promise<never> {
+  throw new Error(CATALOGUE_DISABLED);
 }
 
 async function validatePackage(bytes: Uint8Array, expected?: PluginManifest): Promise<PluginManifest> {
@@ -466,60 +299,6 @@ async function validatePackage(bytes: Uint8Array, expected?: PluginManifest): Pr
   }
 
   return packagedManifest;
-}
-
-export async function installMarketplacePlugin(
-  snapshot: MarketplaceSnapshot,
-  pluginId: string,
-  version: CatalogVersion,
-) {
-  const plugin = snapshot.plugins.find((entry) => entry.id === pluginId);
-
-  if (!plugin || plugin.manifest.version !== version.version) {
-    throw new Error('The selected plugin version is not in the verified catalog snapshot.');
-  }
-
-  const manifestBytes = await fetchBytes(repoFileUrl(snapshot.commit, version.manifestPath), MAX_JSON_BYTES);
-
-  if ((await sha256(manifestBytes)) !== version.manifestSha256.toLowerCase()) {
-    throw new Error('Plugin manifest integrity check failed.');
-  }
-
-  const manifest = pluginManifestSchema.parse(parseJson(manifestBytes));
-
-  if (
-    manifest.id !== pluginId ||
-    manifest.version !== version.version ||
-    !isCanonicalManifest(manifest, plugin.manifest)
-  ) {
-    throw new Error('Plugin manifest changed after the marketplace was loaded.');
-  }
-
-  const packageBytes = await fetchBytes(repoFileUrl(snapshot.commit, version.packagePath), MAX_PACKAGE_BYTES);
-
-  if ((await sha256(packageBytes)) !== version.packageSha256.toLowerCase()) {
-    throw new Error('Plugin package integrity check failed.');
-  }
-
-  await validatePackage(packageBytes, manifest);
-
-  return {
-    manifest,
-    manifestBytes,
-    packageBytes,
-    manifestSha256: version.manifestSha256,
-    packageSha256: version.packageSha256,
-  };
-}
-
-export async function fetchMarketplaceChangelog(snapshot: MarketplaceSnapshot, version: CatalogVersion) {
-  if (!version.changelogPath) {
-    return undefined;
-  }
-
-  const bytes = await fetchBytes(repoFileUrl(snapshot.commit, version.changelogPath), 32_000);
-
-  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
 }
 
 export async function inspectLocalPackage(file: File) {

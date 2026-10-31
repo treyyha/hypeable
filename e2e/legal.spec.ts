@@ -38,17 +38,19 @@ test.describe('privacy and terms', () => {
   test('privacy and terms copy is in the HTML without waiting for JS', async ({ request }) => {
     const privacy = await request.get('/privacy');
     expect(privacy.status()).toBe(200);
+
     const privacyText = await privacy.text();
     expect(privacyText).toContain('selectedProvider');
     expect(privacyText).toContain('No accounts and no database');
     expect(privacyText).toContain('html.duckduckgo.com');
-    expect(privacyText).toContain('raw.githubusercontent.com');
+    expect(privacyText).toContain('does not fetch a third-party plugin catalogue');
     expect(privacyText).toContain('Cloudflare Worker');
     expect(privacyText).toContain('We have not audited what StackBlitz sees');
     expect(privacyText).not.toMatch(/legal advice/i);
 
     const terms = await request.get('/terms');
     expect(terms.status()).toBe(200);
+
     const termsText = await terms.text();
     expect(termsText).toContain('MIT licence');
     expect(termsText).not.toMatch(/legal advice/i);

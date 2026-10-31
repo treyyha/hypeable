@@ -25,7 +25,7 @@ export const WEB_SEARCH_CLAIM =
   'When you or the model use web search, our Worker sends the search text to DuckDuckGo (html.duckduckgo.com) and returns the results. DuckDuckGo sees the query and our Worker, not your IP. We do not store or log queries. On the public site, fetching arbitrary pages is turned off.';
 
 export const PLUGIN_CATALOG_CLAIM =
-  'Opening Settings → Plugins loads the plugin catalogue from a public GitHub repository (api.github.com and raw.githubusercontent.com), straight from this browser, so GitHub sees your IP address. No key or project data is sent, and catalogue plugins can only use the built-in text tools.';
+  'v1 does not fetch a third-party plugin catalogue. Settings → Plugins only lists plugins you import as a local ZIP; those packages can only use the built-in text tools.';
 
 export const STACKBLITZ_UNAUDITED_CLAIM =
   'After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.';

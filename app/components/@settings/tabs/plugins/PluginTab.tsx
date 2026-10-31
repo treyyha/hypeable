@@ -3,17 +3,15 @@ import {
   Blocks,
   ChevronLeft,
   Download,
-  ExternalLink,
   LoaderCircle,
   Plus,
-  RefreshCw,
   Search,
   ShieldCheck,
   Trash2,
   Upload,
   Wrench,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPluginToolName } from '~/lib/plugins/adapters';
 import type { MarketplaceSnapshot, MarketplacePlugin } from '~/lib/plugins/marketplace';
 import { pluginCategorySchema, pluginManifestSchema, type PluginManifest } from '~/lib/plugins/schema';
@@ -23,7 +21,6 @@ import {
   fetchMarketplaceChangelog,
   installFromMarketplace,
   installLocalPackage,
-  loadMarketplace,
   getPluginUpdates,
 } from '~/lib/plugins/service';
 import { usePluginStore } from '~/lib/stores/plugins';
@@ -41,7 +38,6 @@ type Draft = {
   version: string;
 };
 
-const MARKETPLACE_URL = 'https://github.com/dustinwloring1988/bolt-marketplace';
 const CATEGORIES = pluginCategorySchema.options;
 
 const buttonClass =
@@ -125,10 +121,8 @@ export default function PluginTab() {
   const loadLogs = usePluginStore((state) => state.loadLogs);
   const logs = usePluginStore((state) => state.logs);
   const importInput = useRef<HTMLInputElement>(null);
-  const [view, setView] = useState<View>('marketplace');
-  const [snapshot, setSnapshot] = useState<MarketplaceSnapshot | null>(null);
-  const [loadingCatalog, setLoadingCatalog] = useState(false);
-  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [view, setView] = useState<View>('installed');
+  const snapshot: MarketplaceSnapshot | null = null;
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All categories');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -159,23 +153,9 @@ export default function PluginTab() {
 
   const [draftTools, setDraftTools] = useState<PluginManifest['tools']>(['count', 'transform']);
 
-  const refreshCatalog = useCallback(async () => {
-    setLoadingCatalog(true);
-    setCatalogError(null);
-
-    try {
-      setSnapshot(await loadMarketplace());
-    } catch (error) {
-      setCatalogError(error instanceof Error ? error.message : 'Could not load the marketplace.');
-    } finally {
-      setLoadingCatalog(false);
-    }
-  }, []);
-
   useEffect(() => {
     void initialize();
-    void refreshCatalog();
-  }, [initialize, refreshCatalog]);
+  }, [initialize]);
 
   const updates = useMemo(() => getPluginUpdates(snapshot, plugins), [snapshot, plugins]);
   const catalogPlugins = snapshot?.plugins ?? [];
@@ -371,21 +351,12 @@ export default function PluginTab() {
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-400">Extensions</p>
-              <h2 className="mt-1 text-2xl font-semibold text-bolt-elements-textPrimary">Plugin Marketplace</h2>
+              <h2 className="mt-1 text-2xl font-semibold text-bolt-elements-textPrimary">Plugins</h2>
               <p className="mt-1 max-w-2xl text-sm text-bolt-elements-textSecondary">
-                Discover and manage reviewed plugins from the Hypeable marketplace.
+                Import a local ZIP. v1 does not fetch a third-party catalogue.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void refreshCatalog()}
-                disabled={loadingCatalog}
-                className={buttonClass}
-              >
-                {loadingCatalog ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}{' '}
-                Check for Updates
-              </button>
               <button type="button" onClick={() => importInput.current?.click()} className={buttonClass}>
                 <Upload className="h-4 w-4" /> Install Plugin
               </button>
@@ -466,18 +437,9 @@ export default function PluginTab() {
 
           {(operationError || storeError) && <ErrorMessage message={operationError ?? storeError ?? ''} />}
 
-          {catalogError && !snapshot ? (
-            <div className="space-y-3 rounded-xl border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 p-6 text-center">
-              <h3 className="font-medium text-bolt-elements-textPrimary">Marketplace unavailable</h3>
-              <p className="text-sm text-bolt-elements-textSecondary">{catalogError}</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <button type="button" className={buttonClass} onClick={() => void refreshCatalog()}>
-                  Try again
-                </button>
-                <a className={buttonClass} href={MARKETPLACE_URL} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" /> Open repository
-                </a>
-              </div>
+          {view === 'marketplace' ? (
+            <div className="rounded-xl border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 p-6 text-center text-sm text-bolt-elements-textSecondary">
+              v1 does not fetch a third-party catalogue. Import a local ZIP on the Installed tab.
             </div>
           ) : null}
 
@@ -488,13 +450,7 @@ export default function PluginTab() {
             </p>
           )}
 
-          {loadingCatalog && !snapshot ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-bolt-elements-textSecondary">
-              <LoaderCircle className="h-4 w-4 animate-spin" /> Loading marketplace…
-            </div>
-          ) : null}
-
-          {snapshot && !catalogError && catalogPlugins.length === 0 && view === 'marketplace' ? (
+          {snapshot && catalogPlugins.length === 0 && view === 'marketplace' ? (
             <div className="rounded-xl border border-dashed border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 px-6 py-12 text-center">
               <Blocks className="mx-auto h-9 w-9 text-bolt-elements-textTertiary" />
               <h3 className="mt-3 font-medium text-bolt-elements-textPrimary">No plugins published yet</h3>
