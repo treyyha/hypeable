@@ -42,6 +42,7 @@ export function LoopBreakerPanel({
       role="status"
       aria-label="Same error, looping"
       aria-live="polite"
+      data-contain="card"
       className="rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 shadow-[var(--hype-shadow-md)]"
     >
       <div className="flex items-start gap-3">

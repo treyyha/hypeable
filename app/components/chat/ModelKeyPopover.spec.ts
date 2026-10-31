@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { providerNeedsUiKey } from './ModelKeyPopover';
+import { modelChipCaption, providerNeedsUiKey } from './ModelKeyPopover';
+
+describe('modelChipCaption', () => {
+  it('shows Add key text when the provider still needs a key', () => {
+    expect(modelChipCaption({ keyReady: false, providerName: 'Anthropic', model: 'claude-3-5-sonnet-latest' })).toEqual(
+      {
+        visible: 'Add key',
+        title: 'Anthropic · claude-3-5-sonnet-latest. Add a key. Model and key',
+      },
+    );
+  });
+
+  it('shows provider and model when a key is present', () => {
+    expect(modelChipCaption({ keyReady: true, providerName: 'OpenAILike', model: 'mock-model' })).toEqual({
+      visible: 'OpenAILike · mock-model',
+      title: 'OpenAILike · mock-model. Model and key',
+    });
+  });
+});
 
 describe('providerNeedsUiKey', () => {
   it('asks for a key on hosted providers and OpenAILike', () => {

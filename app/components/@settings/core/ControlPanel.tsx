@@ -265,29 +265,27 @@ export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) =
             aria-describedby={undefined}
             onEscapeKeyDown={handleClose}
             onPointerDownOutside={handleClose}
-            className="relative z-[101]"
+            className="relative z-[101] w-[min(90rem,calc(100vw-2rem))] min-w-0 max-w-[calc(100vw-2rem)]"
           >
             <div
+              data-contain="dialog"
               className={classNames(
-                'w-[min(1440px,calc(100vw-2rem))] h-[90vh]',
+                'flex h-[90vh] w-full min-w-0 flex-col overflow-hidden',
                 'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary',
                 'rounded-2xl shadow-2xl',
                 'border border-bolt-elements-borderColor',
-                'flex flex-col overflow-hidden',
                 'relative',
-                'transform transition-all duration-200 ease-out',
-                open ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4',
               )}
             >
-              <div className="relative z-10 flex h-full min-h-0">
-                <aside className="flex w-[248px] shrink-0 flex-col border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-2">
+              <div className="relative z-10 flex h-full min-h-0 flex-col md:flex-row">
+                <aside className="flex w-full shrink-0 flex-col border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 md:h-full md:w-[248px] md:border-b-0 md:border-r">
                   <button
                     onClick={handleClose}
                     className="mx-4 mt-4 flex appearance-none items-center gap-2 border-0 border-b border-solid border-bolt-elements-borderColor bg-transparent px-2 pb-5 pt-2 text-left text-sm font-semibold text-bolt-elements-textPrimary hover:text-bolt-elements-item-contentAccent"
                   >
                     <span className="i-ph:arrow-left w-4 h-4" /> Back to project
                   </button>
-                  <nav className="min-h-0 flex-1 overflow-y-auto modern-scrollbar px-3 py-4">
+                  <nav className="min-h-0 max-h-36 overflow-y-auto modern-scrollbar px-3 py-4 md:max-h-none md:flex-1">
                     {navigationTabs.map((group) => (
                       <div key={group.label} className="mb-5">
                         <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-wide text-bolt-elements-textTertiary">

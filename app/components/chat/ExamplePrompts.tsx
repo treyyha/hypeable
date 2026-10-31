@@ -1,4 +1,3 @@
-import React from 'react';
 import { Chip } from '~/components/ui/Chip';
 
 const EXAMPLE_PROMPTS = [
@@ -13,20 +12,19 @@ const EXAMPLE_PROMPTS = [
 
 /**
  * Example chips fill the composer. They do not send — the user still hits Enter.
+ * Equal-width 2×2 on narrow screens; four columns on wider, one line each.
  */
 export function ExamplePrompts({ onFill, limit = 4 }: { onFill: (text: string) => void; limit?: number }) {
   return (
-    <div
-      id="examples"
-      data-testid="example-prompts"
-      className="relative mx-auto mt-4 flex w-full max-w-2xl justify-center"
-    >
-      <div className="flex flex-wrap justify-center gap-2 px-1 sm:flex-nowrap">
+    <div id="examples" data-testid="example-prompts" className="relative mx-auto mt-4 w-full max-w-[720px] px-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {EXAMPLE_PROMPTS.slice(0, limit).map((examplePrompt) => {
           return (
             <Chip
               key={examplePrompt.text}
               type="button"
+              title={examplePrompt.text}
+              className="hype-chip--block"
               onClick={() => {
                 onFill(examplePrompt.text);
               }}

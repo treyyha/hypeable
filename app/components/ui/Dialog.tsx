@@ -109,6 +109,7 @@ export const Dialog = memo(
         </RadixDialog.Overlay>
         <RadixDialog.Content asChild>
           <motion.div
+            data-contain="dialog"
             className={classNames(
               'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-hype-surface rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] max-w-[calc(100vw-2rem)] focus:outline-none',
               className,

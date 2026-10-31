@@ -7,6 +7,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
   return (
     <div
       ref={ref}
+      data-contain="card"
       className={classNames(
         'rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface text-hype-text shadow-[var(--hype-shadow-sm)]',
         className,

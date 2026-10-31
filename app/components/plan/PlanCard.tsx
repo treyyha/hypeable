@@ -65,7 +65,8 @@ export function PlanCard({
     <section
       role="region"
       aria-label="Build plan"
-      className="rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 text-hype-text shadow-[var(--hype-shadow-md)]"
+      data-contain="card"
+      className="min-w-0 overflow-hidden rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 text-hype-text shadow-[var(--hype-shadow-md)]"
     >
       {plan ? (
         <>
@@ -180,19 +181,19 @@ function PlanList({ label, items }: { label: string; items: string[] }) {
 function PlanEstimate({ estimate }: { estimate: ReturnType<typeof estimatePlanCost> }) {
   if (estimate.unknown) {
     return (
-      <p className="mt-3 text-sm text-hype-muted">
+      <p className="mt-3 min-w-0 text-sm text-hype-muted">
         Build cost <span className="font-medium text-hype-text">estimate</span>: price unknown. Set a price in Settings.
       </p>
     );
   }
 
   return (
-    <p className="mt-3 text-sm text-hype-muted">
+    <p className="mt-3 min-w-0 text-sm text-hype-muted">
       Build cost <span className="font-medium text-hype-text">estimate</span>:{' '}
       <CostAmount dollars={estimate.low} verified={estimate.verified} digits={2} />
       {' – '}
       <CostAmount dollars={estimate.high} verified={estimate.verified} digits={2} />
-      <span className="ml-2">
+      <span className="mt-1 block">
         planning call <CostAmount dollars={estimate.planningCall} verified={estimate.verified} digits={3} />
       </span>
     </p>

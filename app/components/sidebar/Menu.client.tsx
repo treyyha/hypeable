@@ -19,6 +19,7 @@ import { DocumentationPanel } from '~/components/ui/DocumentationPanel';
 import { SidebarSection } from '~/components/ui/SidebarSection';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { db, deleteById, getAll, chatId, type ChatHistoryItem, useChatHistory } from '~/lib/persistence';
+import { chatStore } from '~/lib/stores/chat';
 import { closeSettingsPanel, openSettingsPanel, settingsPanelStore } from '~/lib/stores/settings-panel';
 import {
   setSidebarCollapsed,
@@ -43,6 +44,8 @@ export const Menu = () => {
   const settingsInitialTab = settingsPanel.tab;
   const location = useLocation();
   const onSpend = location.pathname === '/spend';
+  const chatStarted = useStore(chatStore).started;
+  const hideHomeEmptyList = location.pathname === '/' && !chatStarted && list.length === 0;
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
   const [isDocumentationOpen, setIsDocumentationOpen] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
@@ -344,7 +347,8 @@ export const Menu = () => {
                     'hype-icon-btn',
                     selectionMode && 'border-hype-accent bg-hype-accent text-hype-on-accent hover:text-hype-on-accent',
                   )}
-                  aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
+                  aria-label={selectionMode ? 'Done selecting' : 'Select projects'}
+                  title={selectionMode ? 'Done selecting' : 'Select projects'}
                 >
                   <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
                 </button>
@@ -393,7 +397,7 @@ export const Menu = () => {
             </div>
           ) : null}
           <div className="flex-1 overflow-auto modern-scrollbar px-2 pb-3">
-            {filteredList.length === 0 && showLabels && (
+            {filteredList.length === 0 && showLabels && !hideHomeEmptyList && (
               <div className="px-3 py-6 text-sm text-hype-muted">
                 {list.length === 0 ? 'No projects yet' : 'No matches found'}
               </div>

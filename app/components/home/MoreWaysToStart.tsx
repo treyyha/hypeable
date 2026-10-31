@@ -25,14 +25,14 @@ export function MoreWaysToStart({ importChat }: MoreWaysToStartProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-[520px] px-4 text-center">
+    <div className="mx-auto w-full max-w-[720px] px-4 text-center">
       <button
         type="button"
         id="more-ways-trigger"
         aria-expanded={open}
         aria-controls="more-ways-panel"
         onClick={() => setOpen((current) => !current)}
-        className="appearance-none rounded-[var(--hype-radius-sm)] border-0 bg-transparent px-1 py-0.5 text-xs text-hype-muted hover:text-hype-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+        className="hype-muted-line"
       >
         More ways to start: Templates · Import folder · Import ZIP · Clone repo
       </button>

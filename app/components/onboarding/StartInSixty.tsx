@@ -58,7 +58,7 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
       <section
         data-testid="start-in-sixty"
         aria-labelledby="start-in-sixty-title"
-        className="relative mx-auto w-full max-w-[520px] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface px-4 py-4 text-left"
+        className="relative mx-auto w-full max-w-[720px] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface px-4 py-4 text-left"
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.stopPropagation();

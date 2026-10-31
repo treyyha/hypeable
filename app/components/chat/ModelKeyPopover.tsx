@@ -18,12 +18,25 @@ export function providerNeedsUiKey(name: string | undefined): boolean {
   return name === 'OpenAILike' || !LOCAL_PROVIDERS.includes(name);
 }
 
-function shortModelName(model: string | undefined): string {
-  if (!model) {
-    return 'model';
+export function modelChipCaption(input: { keyReady: boolean; providerName?: string; model?: string }): {
+  visible: string;
+  title: string;
+} {
+  const model = input.model || 'model';
+  const provider = input.providerName || 'provider';
+  const full = `${provider} · ${model}`;
+
+  if (!input.keyReady) {
+    return {
+      visible: 'Add key',
+      title: `${full}. Add a key. Model and key`,
+    };
   }
 
-  return model.length > 22 ? `${model.slice(0, 19)}…` : model;
+  return {
+    visible: full,
+    title: `${full}. Model and key`,
+  };
 }
 
 type ModelKeyPopoverProps = {
@@ -54,7 +67,12 @@ export function ModelKeyPopover({
   onApiKeysChange,
 }: ModelKeyPopoverProps) {
   const keyReady = !providerNeedsUiKey(provider?.name) || Boolean(provider && apiKeys[provider.name]);
-  const label = `${provider?.name ?? 'provider'} . ${shortModelName(model)}`;
+
+  const caption = modelChipCaption({
+    keyReady,
+    providerName: provider?.name,
+    model,
+  });
 
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
@@ -62,15 +80,15 @@ export function ModelKeyPopover({
         <button
           type="button"
           data-testid="model-key-chip"
-          aria-label={`${label}. Model and key`}
-          title={`${label}. Model and key`}
-          className="inline-flex max-w-[11.5rem] items-center gap-1.5 rounded-full border border-hype-border bg-hype-surface px-2 py-1 text-xs text-hype-text hover:border-hype-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
+          aria-label={caption.title}
+          title={caption.title}
+          className="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden rounded-full border border-hype-border bg-hype-surface px-2 py-1 text-xs text-hype-text hover:border-hype-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
         >
           <span
             aria-hidden="true"
             className={classNames('h-1.5 w-1.5 shrink-0 rounded-full', keyReady ? 'bg-hype-ok' : 'bg-hype-danger')}
           />
-          <span className="min-w-0 truncate tabular-nums">{label}</span>
+          <span className="min-w-0 truncate tabular-nums">{caption.visible}</span>
         </button>
       </Popover.Trigger>
       <Popover.Portal>

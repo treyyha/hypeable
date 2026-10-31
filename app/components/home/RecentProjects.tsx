@@ -52,9 +52,8 @@ export function RecentProjects() {
     };
   }, []);
 
-  if (items === null) {
-    return null;
-  }
+  const ready = items !== null;
+  const list = items ?? [];
 
   return (
     <Card className="flex h-full flex-col">
@@ -64,7 +63,7 @@ export function RecentProjects() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col p-4 pt-2">
-        {items.length === 0 ? (
+        {!ready || list.length === 0 ? (
           <EmptyState
             icon="i-ph:folder-dashed"
             title="No projects yet"
@@ -74,7 +73,7 @@ export function RecentProjects() {
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {items.map((item) => (
+            {list.map((item) => (
               <a
                 key={item.id}
                 href={`/chat/${item.urlId}`}

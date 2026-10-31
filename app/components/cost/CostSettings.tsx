@@ -91,15 +91,12 @@ export function CostSettings() {
         </label>
       </div>
 
-      <p className="text-xs text-bolt-elements-textTertiary">
-        Provider limits:{' '}
-        {PROVIDER_SPENDING_LIMITS.map((provider, index) => (
-          <span key={provider.href}>
-            {index > 0 ? ' · ' : ''}
-            <TextLink href={provider.href} external>
-              {provider.name}
-            </TextLink>
-          </span>
+      <p className="flex flex-wrap gap-x-1 gap-y-1 text-xs text-bolt-elements-textTertiary">
+        <span>Provider limits:</span>
+        {PROVIDER_SPENDING_LIMITS.map((provider) => (
+          <TextLink key={provider.href} href={provider.href} external>
+            {provider.name}
+          </TextLink>
         ))}
       </p>
 
@@ -108,7 +105,7 @@ export function CostSettings() {
         <p className="mb-3 text-xs text-bolt-elements-textSecondary">
           Dollars per 1M tokens. Used when we do not know a list price, or to override one.
         </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_5.5rem_5.5rem_auto]">
+        <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_auto]">
           <input
             className={inputClass}
             placeholder="model id"

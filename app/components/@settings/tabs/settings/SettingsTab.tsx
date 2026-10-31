@@ -174,7 +174,7 @@ export default function SettingsTab() {
         <h2 id="chat-usage-heading" className="mb-3 text-sm font-medium text-bolt-elements-textPrimary">
           Chat Usage
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="bg-bolt-elements-background-depth-2">
             <CardContent className="flex items-center gap-3 !p-4">
               <div className="i-ph-chats-duotone h-6 w-6 shrink-0 text-indigo-500 dark:text-indigo-400" />

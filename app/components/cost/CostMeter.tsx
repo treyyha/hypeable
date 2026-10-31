@@ -177,7 +177,8 @@ export function CostMeter() {
           <Popover.Content
             align="end"
             sideOffset={8}
-            className="z-[9999] w-[320px] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3.5 shadow-[var(--hype-shadow-lg)]"
+            data-contain="card"
+            className="z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3.5 shadow-[var(--hype-shadow-lg)]"
           >
             <div className="mb-3 flex items-start justify-between gap-2">
               <div>

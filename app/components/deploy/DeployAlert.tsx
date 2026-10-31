@@ -21,6 +21,7 @@ export default function DeployChatAlert({ alert, clearAlert, postMessage }: Depl
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
+        data-contain="card"
         className={`rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 p-4 mb-2`}
       >
         <div className="flex items-start">

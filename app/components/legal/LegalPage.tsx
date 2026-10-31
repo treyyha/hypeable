@@ -16,7 +16,7 @@ export function LegalPage({ crumb, title, children }: { crumb: string; title: st
       </header>
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        <div className="mt-6 space-y-4 text-sm leading-relaxed text-hype-muted">{children}</div>
+        <div className="mt-6 space-y-4 text-sm leading-relaxed text-hype-text">{children}</div>
       </main>
       <BrandFooter />
     </div>
