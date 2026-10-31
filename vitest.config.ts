@@ -89,6 +89,7 @@ const DOM_TESTS = [
  * CI job.
  */
 export const PERF_TESTS = [
+  'tests/performance/chat-body-cpu.perf.test.ts',
   'tests/performance/chat-input.perf.test.ts',
   'tests/performance/core-journeys.perf.test.tsx',
   'tests/performance/streaming-performance.perf.test.tsx',

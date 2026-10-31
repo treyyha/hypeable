@@ -3,7 +3,15 @@
  */
 
 export type UserErrorKind =
-  'no_key' | 'invalid_key' | 'no_credit' | 'rate_limit' | 'provider_down' | 'offline' | 'timeout' | 'unknown';
+  | 'no_key'
+  | 'invalid_key'
+  | 'no_credit'
+  | 'rate_limit'
+  | 'too_large'
+  | 'provider_down'
+  | 'offline'
+  | 'timeout'
+  | 'unknown';
 
 export type UserFacingError = {
   kind: UserErrorKind;
@@ -31,6 +39,12 @@ const COPY: Record<UserErrorKind, UserFacingError> = {
     kind: 'rate_limit',
     title: 'Too many requests',
     message: 'Wait a minute and try again. If this keeps happening, switch model or raise the limit on the provider.',
+  },
+  too_large: {
+    kind: 'too_large',
+    title: 'This chat is too big to send',
+    message:
+      'Each message re-sends the project and the whole conversation, and this one is over the 2 MB limit. Remove large images, or start a new chat from the current files.',
   },
   provider_down: {
     kind: 'provider_down',
@@ -85,6 +99,10 @@ export function classifyUserError(input: { statusCode?: number; message?: string
 
   if (input.statusCode === 429 || raw.includes('rate limit') || raw.includes('too many requests')) {
     return COPY.rate_limit;
+  }
+
+  if (input.statusCode === 413 || raw.includes('request body is too large')) {
+    return COPY.too_large;
   }
 
   if (raw.includes('timeout') || raw.includes('timed out') || raw.includes('stopped responding')) {

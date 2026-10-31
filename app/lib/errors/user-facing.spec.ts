@@ -13,6 +13,13 @@ describe('classifyUserError', () => {
     expect(classifyUserError({ message: 'Add an API key' }).kind).toBe('no_key');
   });
 
+  it('tells the user how to get under the body cap on a 413', () => {
+    const copy = classifyUserError({ statusCode: 413, message: 'Request body is too large. The limit is 2.0 MB.' });
+    expect(copy.kind).toBe('too_large');
+    expect(copy.message).toMatch(/new chat/i);
+    expect(copy.message).not.toMatch(/provider status/i);
+  });
+
   it('never returns a stack frame', () => {
     for (const kind of ['no_key', 'invalid_key', 'no_credit', 'rate_limit'] as const) {
       const copy = classifyUserError({

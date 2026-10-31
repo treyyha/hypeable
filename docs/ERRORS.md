@@ -8,6 +8,7 @@ Copy lives in `app/lib/errors/user-facing.ts`. The chat never shows a stack trac
 | Provider 401 | That key was rejected |
 | Provider 402 / no credit | No credit left |
 | 429 (provider or hosted) | Too many requests |
+| 413, chat body over the 2 MB cap ([LIMITS.md](LIMITS.md)) | This chat is too big to send |
 | 5xx or timeout | The provider did not respond / stopped responding |
 | `navigator.onLine === false` | You look offline |
 | Session or daily cost cap | Cap reached (existing cost modal) |

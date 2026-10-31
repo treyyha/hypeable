@@ -15,11 +15,15 @@ import type { ProviderInfo } from '~/types/model';
  * can cost.
  */
 export const REQUEST_LIMITS = {
-  /** Whole-body ceiling. Generous because `files` carries project contents. */
-  MAX_CHAT_BODY_BYTES: 16 * 1024 * 1024,
+  /**
+   * Whole-body ceiling. The client re-sends the file map and full history every
+   * turn; a 60-file, 60-turn session is about 1 MB and the e2e flows peak at
+   * 3.3 KB. Sizing and CPU measurements are in docs/LIMITS.md.
+   */
+  MAX_CHAT_BODY_BYTES: 2 * 1024 * 1024,
 
-  /** Inline data URLs may use most of the chat body budget; JSON overhead still counts. */
-  MAX_ATTACHMENT_URL_CHARS: 16 * 1024 * 1024,
+  /** An inline data URL can never be larger than the body that carries it. */
+  MAX_ATTACHMENT_URL_CHARS: 2 * 1024 * 1024,
   MAX_LLMCALL_BODY_BYTES: 1 * 1024 * 1024,
   MAX_MESSAGES: 500,
   MAX_PARTS_PER_MESSAGE: 1000,
@@ -124,11 +128,11 @@ const providerSchema = z.looseObject({
   name: z.string().min(1).max(128),
 });
 
-const supabaseSchema = z.looseObject({
+const supabaseSchema = z.strictObject({
   isConnected: z.boolean(),
   hasSelectedProject: z.boolean(),
   credentials: z
-    .looseObject({
+    .strictObject({
       anonKey: z.string().max(REQUEST_LIMITS.MAX_ANON_KEY_CHARS).optional(),
       supabaseUrl: z.string().max(REQUEST_LIMITS.MAX_SUPABASE_URL_CHARS).optional(),
     })
@@ -144,9 +148,18 @@ const supabaseSchema = z.looseObject({
  *
  * Keys arrive in `x-hypeable-key`, not this body. If a client still sends
  * `apiKeys` here, the transform drops them so nothing downstream can log them.
+ *
+ * Strict at the top level and in fixed-shape objects, so a client-sent
+ * `userId`, `plan` or `system` is a 400 instead of silently riding along.
+ * Messages and parts stay loose on purpose (see uiMessagePartSchema).
  */
 export const chatRequestSchema = z
-  .looseObject({
+  .strictObject({
+    /* Added by the AI SDK's DefaultChatTransport on every request. */
+    id: z.string().max(REQUEST_LIMITS.MAX_ID_CHARS).optional(),
+    trigger: z.enum(['submit-message', 'regenerate-message']).optional(),
+    messageId: z.string().max(REQUEST_LIMITS.MAX_ID_CHARS).optional(),
+    apiKeys: z.unknown().optional(),
     messages: z.array(uiMessageSchema).min(1, 'at least one message is required').max(REQUEST_LIMITS.MAX_MESSAGES),
     files: fileMapSchema.optional(),
     promptId: z.string().max(REQUEST_LIMITS.MAX_PROMPT_ID_CHARS).optional(),
@@ -159,7 +172,7 @@ export const chatRequestSchema = z
     maxLLMSteps: z.number().int().min(1).max(REQUEST_LIMITS.MAX_LLM_STEPS).optional(),
     webSearchEnabled: z.boolean().optional(),
     connectorEnabled: z
-      .object({
+      .strictObject({
         github: z.boolean().optional(),
         gitlab: z.boolean().optional(),
         vercel: z.boolean().optional(),
@@ -171,7 +184,7 @@ export const chatRequestSchema = z
     toolEnabled: z.record(z.string().max(256), z.boolean()).optional(),
     plugins: z
       .array(
-        z.object({
+        z.strictObject({
           id: z.string().regex(/^[a-z0-9-]{1,49}\.[a-z0-9-]{1,49}$/),
           adapter: z.literal('text-utils'),
           tools: z
