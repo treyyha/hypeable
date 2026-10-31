@@ -223,14 +223,20 @@ export async function installMarketplacePlugin(
   _snapshot: MarketplaceSnapshot,
   _pluginId: string,
   _version: CatalogVersion,
-): Promise<never> {
+): Promise<{
+  manifest: PluginManifest;
+  manifestBytes: Uint8Array;
+  packageBytes: Uint8Array;
+  manifestSha256: string;
+  packageSha256: string;
+}> {
   throw new Error(CATALOGUE_DISABLED);
 }
 
 export async function fetchMarketplaceChangelog(
   _snapshot: MarketplaceSnapshot,
   _version: CatalogVersion,
-): Promise<never> {
+): Promise<string | undefined> {
   throw new Error(CATALOGUE_DISABLED);
 }
 

@@ -41,7 +41,13 @@ describe('v1 plugin catalogue', () => {
     await expect(loadMarketplace()).rejects.toThrow();
     await expect(
       installFromMarketplace(
-        { commit: 'a'.repeat(40), catalog: { plugins: [] }, plugins: [], stale: false, fetchedAt: '' },
+        {
+          commit: 'a'.repeat(40),
+          catalog: { schemaVersion: 1, updatedAt: '2026-01-01', plugins: [] },
+          plugins: [],
+          stale: false,
+          fetchedAt: '',
+        },
         'x.y',
         {
           version: '1.0.0',
@@ -54,7 +60,13 @@ describe('v1 plugin catalogue', () => {
     ).rejects.toThrow();
     await expect(
       fetchMarketplaceChangelog(
-        { commit: 'a'.repeat(40), catalog: { plugins: [] }, plugins: [], stale: false, fetchedAt: '' },
+        {
+          commit: 'a'.repeat(40),
+          catalog: { schemaVersion: 1, updatedAt: '2026-01-01', plugins: [] },
+          plugins: [],
+          stale: false,
+          fetchedAt: '',
+        },
         {
           version: '1.0.0',
           manifestPath: 'catalog/x.json',

@@ -5,6 +5,7 @@ import {
   Download,
   LoaderCircle,
   Plus,
+  RefreshCw,
   Search,
   ShieldCheck,
   Trash2,
@@ -122,7 +123,7 @@ export default function PluginTab() {
   const logs = usePluginStore((state) => state.logs);
   const importInput = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<View>('installed');
-  const snapshot: MarketplaceSnapshot | null = null;
+  const snapshot = null as MarketplaceSnapshot | null;
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All categories');
   const [selectedId, setSelectedId] = useState<string | null>(null);
