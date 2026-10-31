@@ -165,7 +165,7 @@ export interface ConfirmationDialogProps {
   /**
    * The description of the dialog
    */
-  description: string;
+  description: ReactNode;
 
   /**
    * The text for the confirm button

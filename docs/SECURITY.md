@@ -39,6 +39,8 @@ Enforcing CSP (`app/lib/security/headers.ts` `CSP_ENFORCING`) keeps `https:` on 
 
 Constants: `app/lib/security/headers.ts`.
 
+`/git?url=` deep links are two-step. The first dialog shows the full repository URL and host and nothing is cloned until the user picks **Clone**; URLs with embedded credentials, non-https schemes, or (on hosted) a host outside GitHub/GitLab are refused before any dialog offers a clone (`app/lib/git/deep-link.ts`). After cloning, the detected setup and start commands (for example `npm install`, which runs lifecycle scripts) are listed with a warning, and they are only queued if the user picks **Run commands**. **Import files only** imports the files with no shell or start action.
+
 Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is same-origin only on hosted (the product uses the relative URL `corsProxy: '/api/git-proxy'`). It forwards only git headers, follows redirects only inside the allowlist, and drops `Authorization` / `X-Authorization` when a redirect changes origin. Local debug routes (`/api/system/git-info`, `/api/system/diagnostics`) reflect a loopback `Origin` or send no CORS header — never `*`. Both return 404 on hosted.
 
 ## Where each snippet is
