@@ -23,6 +23,11 @@ export type LoopDetectorState = {
   revertToMessageId: string | null;
   lastSafeMessageId: string | null;
   lastMessageId: string | null;
+
+  /** Attempt an alert belongs to; one attempt = one assistant message. */
+  lastAssistantMessageId: string | null;
+  errorAttemptId: string | null;
+  writeAttemptId: string | null;
   sessionTotalAtFirst: number;
   wastedCost: number;
   tried: string[];
@@ -35,6 +40,7 @@ export type LoopFeed =
       raw: string;
       source?: string;
       messageId?: string;
+      attemptId?: string;
       sessionTotal: number;
     }
   | {
@@ -42,12 +48,13 @@ export type LoopFeed =
       filePath: string;
       content: string;
       messageId?: string;
+      attemptId?: string;
       sessionTotal: number;
     }
   | { type: 'success' }
   | { type: 'user'; text: string; messageId?: string }
   | { type: 'chat'; chatId: string }
-  | { type: 'context'; lastMessageId?: string; lastSafeMessageId?: string }
+  | { type: 'context'; lastMessageId?: string; lastSafeMessageId?: string; lastAssistantMessageId?: string }
   | { type: 'settings'; settings: Partial<LoopSettings> }
   | { type: 'dismiss' }
   | { type: 'refresh-cost'; sessionTotal: number };
@@ -70,6 +77,9 @@ export function emptyLoopState(chatId = '', settings: LoopSettings = DEFAULT_LOO
     revertToMessageId: null,
     lastSafeMessageId: null,
     lastMessageId: null,
+    lastAssistantMessageId: null,
+    errorAttemptId: null,
+    writeAttemptId: null,
     sessionTotalAtFirst: 0,
     wastedCost: 0,
     tried: [],
@@ -83,9 +93,11 @@ function resetStreaks(state: LoopDetectorState): LoopDetectorState {
     errorSignature: null,
     errorCount: 0,
     errorPreview: '',
+    errorAttemptId: null,
     writeKey: null,
     writePath: '',
     writeCount: 0,
+    writeAttemptId: null,
     isLooping: false,
     loopKind: null,
     revertToMessageId: null,
@@ -160,6 +172,7 @@ export function reduceLoop(state: LoopDetectorState, feed: LoopFeed): LoopDetect
         ...state,
         lastMessageId: feed.lastMessageId ?? state.lastMessageId,
         lastSafeMessageId: feed.lastSafeMessageId ?? state.lastSafeMessageId,
+        lastAssistantMessageId: feed.lastAssistantMessageId ?? state.lastAssistantMessageId,
         shouldAbort: false,
       };
     }
@@ -214,6 +227,17 @@ export function reduceLoop(state: LoopDetectorState, feed: LoopFeed): LoopDetect
       const signed = signatureFromError(feed.raw);
       const lastMessageId = feed.messageId ?? state.lastMessageId;
       const same = signed.signature === state.errorSignature;
+      const attemptId = feed.attemptId ?? state.lastAssistantMessageId;
+
+      /*
+       * A setInterval error or a hot reload mid-stream re-raises the same alert
+       * many times inside one attempt. Only a new attempt failing the same way
+       * is evidence of a loop.
+       */
+      if (same && state.errorCount > 0 && attemptId === state.errorAttemptId) {
+        return { ...state, lastMessageId, shouldAbort: false };
+      }
+
       const errorCount = same ? state.errorCount + 1 : 1;
       const sessionTotalAtFirst = same && state.errorCount > 0 ? state.sessionTotalAtFirst : feed.sessionTotal;
 
@@ -224,6 +248,7 @@ export function reduceLoop(state: LoopDetectorState, feed: LoopFeed): LoopDetect
         loopKind: same ? state.loopKind : null,
         revertToMessageId: same ? state.revertToMessageId : (state.lastSafeMessageId ?? lastMessageId),
         errorSignature: signed.signature,
+        errorAttemptId: attemptId,
         errorCount,
         errorPreview: signed.preview,
         sessionTotalAtFirst,
@@ -241,6 +266,12 @@ export function reduceLoop(state: LoopDetectorState, feed: LoopFeed): LoopDetect
 
       const key = contentHash(feed.filePath, feed.content);
       const same = key === state.writeKey;
+      const attemptId = feed.attemptId ?? state.lastAssistantMessageId;
+
+      if (same && state.writeCount > 0 && attemptId === state.writeAttemptId) {
+        return { ...state, lastMessageId: feed.messageId ?? state.lastMessageId, shouldAbort: false };
+      }
+
       const writeCount = same ? state.writeCount + 1 : 1;
       const sessionTotalAtFirst = same && state.writeCount > 0 ? state.sessionTotalAtFirst : feed.sessionTotal;
       const preview = `rewrote ${feed.filePath} with identical content`;
@@ -249,6 +280,7 @@ export function reduceLoop(state: LoopDetectorState, feed: LoopFeed): LoopDetect
         ...state,
         lastMessageId: feed.messageId ?? state.lastMessageId,
         writeKey: key,
+        writeAttemptId: attemptId,
         writePath: feed.filePath,
         writeCount,
         sessionTotalAtFirst,

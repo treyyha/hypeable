@@ -27,7 +27,9 @@ Source signals:
 - Failed shell / start / build actions that raise those alerts
 - The same file rewritten with identical content
 
-Each error is normalised (absolute paths, line/column numbers, timestamps, hex ids, ports, versions, ANSI codes) and hashed. A different error resets the counter. A successful build or start resets it. A user message that is **not** an auto-fix (`*Fix this … error*`) resets it.
+Each error is normalised (absolute paths, line/column numbers, timestamps, hex ids, ports, versions, ANSI codes) and hashed. A different error resets the counter.
+
+The counter goes up **at most once per assistant attempt** (one assistant message). An error thrown inside `setInterval`, or the preview hot-reloading while the model is still writing its fix, can raise the same alert many times in one attempt; those repeats are ignored. Alerts that arrive after an auto-fix request but before the next assistant message starts still belong to the attempt already counted. The same rule applies to identical file rewrites. Only separate attempts failing the same way count toward the threshold. A successful build or start resets it. A user message that is **not** an auto-fix (`*Fix this … error*`) resets it.
 
 Threshold defaults to **3**, configurable 2–5, or the feature can be turned off in Settings.
 

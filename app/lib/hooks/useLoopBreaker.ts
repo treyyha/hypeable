@@ -49,7 +49,9 @@ export function useLoopBreaker(options: {
     const lastSafe = [...options.messages]
       .reverse()
       .find((message) => message.role === 'user' && message.id && !isAutoFixRequest(getMessageText(message as never)));
-    setLoopContext(last?.id, lastSafe?.id);
+
+    const lastAssistant = options.messages.findLast((message) => message.role === 'assistant' && message.id);
+    setLoopContext(last?.id, lastSafe?.id, lastAssistant?.id);
   }, [options.messages]);
 
   useEffect(() => {

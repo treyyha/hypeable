@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { emptyLoopState, fireAbortOnce, publicLoopState, reduceLoop } from './detect';
+import { emptyLoopState, fireAbortOnce, publicLoopState, reduceLoop, type LoopDetectorState } from './detect';
 import { DEFAULT_LOOP_SETTINGS } from './settings';
 
 const ERR_A = `TypeError: Cannot read properties of undefined (reading 'map')
@@ -9,6 +9,7 @@ const ERR_A_OTHER = `TypeError: Cannot read properties of undefined (reading 'ma
 
 const ERR_B = 'Error: listen EADDRINUSE :::5173';
 
+/** One error per assistant attempt, as a real fix loop produces. */
 function feedErrors(count: number, raw = ERR_A, sessionTotal = 0) {
   let state = emptyLoopState('chat-1');
   state = reduceLoop(state, { type: 'user', text: 'build a todo app', messageId: 'user-1' });
@@ -18,12 +19,103 @@ function feedErrors(count: number, raw = ERR_A, sessionTotal = 0) {
       type: 'error',
       raw,
       source: 'preview',
+      attemptId: `assistant-${i}`,
       sessionTotal: sessionTotal + i * 0.1,
     });
   }
 
   return state;
 }
+
+function assistantTurn(state: LoopDetectorState, assistantId: string): LoopDetectorState {
+  return reduceLoop(state, { type: 'context', lastMessageId: assistantId, lastAssistantMessageId: assistantId });
+}
+
+describe('loop detector: one count per assistant attempt', () => {
+  it('ignores the same error repeating inside one attempt (setInterval)', () => {
+    let state = emptyLoopState('chat-1');
+    state = reduceLoop(state, { type: 'user', text: 'build a clock', messageId: 'user-1' });
+    state = assistantTurn(state, 'assistant-1');
+
+    for (let i = 0; i < 10; i += 1) {
+      state = reduceLoop(state, { type: 'error', raw: ERR_A, source: 'preview', sessionTotal: 0 });
+    }
+
+    expect(state.errorCount).toBe(1);
+    expect(state.isLooping).toBe(false);
+    expect(state.shouldAbort).toBe(false);
+  });
+
+  it('still triggers when the error repeats across separate attempts', () => {
+    let state = emptyLoopState('chat-1');
+    state = reduceLoop(state, { type: 'user', text: 'build a clock', messageId: 'user-1' });
+
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      state = assistantTurn(state, `assistant-${attempt}`);
+      state = reduceLoop(state, { type: 'error', raw: ERR_A, source: 'preview', sessionTotal: attempt });
+      state = reduceLoop(state, { type: 'error', raw: ERR_A_OTHER, source: 'preview', sessionTotal: attempt });
+
+      if (attempt < 3) {
+        state = reduceLoop(state, {
+          type: 'user',
+          text: '*Fix this preview error* \n```js\nboom\n```\n',
+          messageId: `fix-${attempt}`,
+        });
+      }
+    }
+
+    expect(state.errorCount).toBe(3);
+    expect(state.isLooping).toBe(true);
+    expect(state.revertToMessageId).toBe('user-1');
+  });
+
+  it('does not count hot-reload re-reports while the model is mid-fix', () => {
+    let state = emptyLoopState('chat-1');
+    state = reduceLoop(state, { type: 'user', text: 'build a clock', messageId: 'user-1' });
+    state = assistantTurn(state, 'assistant-1');
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, source: 'preview', sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'user', text: '*Fix this preview error*\n', messageId: 'fix-1' });
+
+    // Errors that land before the next assistant message starts belong to the attempt already counted.
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, source: 'preview', sessionTotal: 0 });
+    expect(state.errorCount).toBe(1);
+
+    // Each partial file write hot-reloads the preview and re-raises the same error.
+    state = assistantTurn(state, 'assistant-2');
+
+    for (let i = 0; i < 6; i += 1) {
+      state = reduceLoop(state, { type: 'error', raw: ERR_A, source: 'preview', sessionTotal: 0.1 });
+    }
+
+    expect(state.errorCount).toBe(2);
+    expect(state.isLooping).toBe(false);
+  });
+
+  it('counts an identical file rewrite once per attempt', () => {
+    let state = emptyLoopState('chat-1');
+    state = assistantTurn(state, 'assistant-1');
+
+    const write = {
+      type: 'write' as const,
+      filePath: 'src/App.tsx',
+      content: 'export const x = 1;\n',
+      sessionTotal: 0,
+    };
+
+    state = reduceLoop(state, write);
+    state = reduceLoop(state, write);
+    state = reduceLoop(state, write);
+    expect(state.writeCount).toBe(1);
+    expect(state.isLooping).toBe(false);
+
+    state = assistantTurn(state, 'assistant-2');
+    state = reduceLoop(state, write);
+    state = assistantTurn(state, 'assistant-3');
+    state = reduceLoop(state, write);
+    expect(state.writeCount).toBe(3);
+    expect(state.isLooping).toBe(true);
+  });
+});
 
 describe('loop detector', () => {
   it('triggers after N identical errors since the last real user message', () => {
@@ -37,9 +129,9 @@ describe('loop detector', () => {
 
   it('treats the same error on different paths as one signature', () => {
     let state = emptyLoopState('chat-1');
-    state = reduceLoop(state, { type: 'error', raw: ERR_A, sessionTotal: 0 });
-    state = reduceLoop(state, { type: 'error', raw: ERR_A_OTHER, sessionTotal: 0 });
-    state = reduceLoop(state, { type: 'error', raw: ERR_A, sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, attemptId: 'a1', sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'error', raw: ERR_A_OTHER, attemptId: 'a2', sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, attemptId: 'a3', sessionTotal: 0 });
     expect(state.errorCount).toBe(3);
     expect(state.isLooping).toBe(true);
   });
@@ -81,10 +173,10 @@ describe('loop detector', () => {
 
     const write = { type: 'write' as const, filePath: 'src/App.tsx', content: 'export const x = 1;\n' };
 
-    state = reduceLoop(state, { ...write, sessionTotal: 0 });
-    state = reduceLoop(state, { ...write, sessionTotal: 0.05 });
+    state = reduceLoop(state, { ...write, attemptId: 'a1', sessionTotal: 0 });
+    state = reduceLoop(state, { ...write, attemptId: 'a2', sessionTotal: 0.05 });
     expect(state.isLooping).toBe(false);
-    state = reduceLoop(state, { ...write, sessionTotal: 0.1 });
+    state = reduceLoop(state, { ...write, attemptId: 'a3', sessionTotal: 0.1 });
     expect(state.isLooping).toBe(true);
     expect(state.loopKind).toBe('write');
     expect(state.writeCount).toBe(3);
@@ -116,9 +208,9 @@ describe('loop detector', () => {
 
   it('honours the threshold setting (2–5)', () => {
     let state = emptyLoopState('chat-1', { enabled: true, threshold: 2 });
-    state = reduceLoop(state, { type: 'error', raw: ERR_A, sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, attemptId: 'a1', sessionTotal: 0 });
     expect(state.isLooping).toBe(false);
-    state = reduceLoop(state, { type: 'error', raw: ERR_A, sessionTotal: 0 });
+    state = reduceLoop(state, { type: 'error', raw: ERR_A, attemptId: 'a2', sessionTotal: 0 });
     expect(state.isLooping).toBe(true);
     expect(state.settings.threshold).toBe(2);
 
@@ -145,7 +237,7 @@ describe('loop detector', () => {
     let next = prev;
 
     for (let i = 0; i < 3; i += 1) {
-      next = reduceLoop(prev, { type: 'error', raw: ERR_A, sessionTotal: i * 0.05 });
+      next = reduceLoop(prev, { type: 'error', raw: ERR_A, attemptId: `a${i}`, sessionTotal: i * 0.05 });
       fireAbortOnce(prev, next, abort);
       prev = next;
     }

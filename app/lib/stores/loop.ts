@@ -76,13 +76,19 @@ export function getLoopDetectorState(): LoopDetectorState {
   return detector;
 }
 
-export function reportLoopError(raw: string, source: LoopErrorSource = 'action', messageId?: string): void {
+export function reportLoopError(
+  raw: string,
+  source: LoopErrorSource = 'action',
+  messageId?: string,
+  attemptId?: string,
+): void {
   commit(
     reduceLoop(detector, {
       type: 'error',
       raw,
       source,
       messageId,
+      attemptId,
       sessionTotal: sessionTotal(),
     }),
   );
@@ -112,8 +118,12 @@ export function setLoopChat(chatId: string): void {
   commit(reduceLoop(detector, { type: 'chat', chatId }));
 }
 
-export function setLoopContext(lastMessageId?: string, lastSafeMessageId?: string): void {
-  commit(reduceLoop(detector, { type: 'context', lastMessageId, lastSafeMessageId }));
+export function setLoopContext(
+  lastMessageId?: string,
+  lastSafeMessageId?: string,
+  lastAssistantMessageId?: string,
+): void {
+  commit(reduceLoop(detector, { type: 'context', lastMessageId, lastSafeMessageId, lastAssistantMessageId }));
 }
 
 export function refreshLoopCost(): void {

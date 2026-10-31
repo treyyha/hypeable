@@ -23,7 +23,7 @@ export function runDebugLoopOnce(): void {
 
   const err = `TypeError: Cannot read properties of undefined (reading 'map')
     at App (/Users/demo/proj/src/App.tsx:12:4)`;
-  reportLoopError(err, 'preview');
+  reportLoopError(err, 'preview', undefined, 'debug-loop-1');
   recordUsage({
     id: 'debug-loop-cost',
     model: 'claude-3-haiku-20240307',
@@ -34,6 +34,8 @@ export function runDebugLoopOnce(): void {
     `TypeError: Cannot read properties of undefined (reading 'map')
     at App (C:\\Users\\demo\\proj\\src\\App.tsx:44:8)`,
     'preview',
+    undefined,
+    'debug-loop-2',
   );
-  reportLoopError(err, 'preview');
+  reportLoopError(err, 'preview', undefined, 'debug-loop-3');
 }
