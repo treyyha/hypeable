@@ -39,6 +39,7 @@ export function LoopBreakerPanel({
   return (
     <section
       role="status"
+      aria-label="Same error, looping"
       aria-live="polite"
       className="rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-4 shadow-[var(--hype-shadow-md)]"
     >

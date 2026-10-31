@@ -3,6 +3,7 @@ import { ONBOARDING_COMPLETED_KEY, seedOpenAILikeMock, waitForChatReady } from '
 
 async function sendFromHome(page: import('@playwright/test').Page) {
   await waitForChatReady(page);
+
   const composer = page.locator('#composer');
   await expect(composer).toBeVisible({ timeout: 20_000 });
   await composer.fill('make a todo app');
@@ -109,6 +110,7 @@ test.describe('user-facing error states', () => {
     await seedOpenAILikeMock(page);
     await page.goto('/');
     await waitForChatReady(page);
+
     const composer = page.locator('#composer');
     await expect(composer).toBeVisible({ timeout: 20_000 });
     await composer.fill('make a todo app');
@@ -137,7 +139,7 @@ test.describe('user-facing error states', () => {
   test('loop breaker panel appears from debugLoop', async ({ page }) => {
     await seedOpenAILikeMock(page);
     await page.goto('/?debugLoop=1');
-    await expect(page.getByRole('status')).toContainText('Same error, looping', { timeout: 15_000 });
+    await expect(page.getByRole('status', { name: 'Same error, looping' })).toBeVisible({ timeout: 15_000 });
   });
 
   test('unsupported browser banner from debugBrowser', async ({ page }) => {
@@ -145,6 +147,7 @@ test.describe('user-facing error states', () => {
       localStorage.setItem(key, 'true');
     }, ONBOARDING_COMPLETED_KEY);
     await page.goto('/?debugBrowser=1');
+
     const banner = page.getByTestId('browser-support-banner');
     await expect(banner).toBeVisible({ timeout: 15_000 });
     await expect(banner.getByText('Use Chrome or Edge for the in-browser preview')).toBeVisible();

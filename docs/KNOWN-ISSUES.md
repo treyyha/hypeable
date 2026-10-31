@@ -16,6 +16,8 @@ They are excluded from `pnpm test` and run as `pnpm test:perf` (`.github/workflo
 | `tests/performance/streaming-performance.perf.test.tsx` | simple text, code-block, and mixed-content streaming vs frame budget |
 | `tests/performance/syntax-highlighting.perf.test.ts` | Shiki small/large/incremental highlight budgets |
 | `tests/performance/chat-input.perf.test.ts` | composer input timing |
+| `tests/performance/chat-body-cpu.perf.test.ts` | `/api/chat` parse + validate CPU near the 2 MiB cap |
+| `tests/performance/heap-builds.perf.test.ts` | 30 min mocked-build heap slope (`docs/heap-mocked-builds.json`) |
 
 Deterministic unit coverage of the same monitors stays blocking: `tests/unit/frame-rate-monitor.test.ts` (fake timers), `tests/unit/performance-monitor.test.ts`.
 
@@ -40,3 +42,14 @@ Left unpatched on purpose:
 | low | `elliptic` `6.6.1` ([GHSA-848j-6mx2-7j84](https://github.com/advisories/GHSA-848j-6mx2-7j84)) | Yes — client, via `vite-plugin-node-polyfills` → `crypto-browserify` (WebContainer Node shims). | Rechecked 2026-10-28: still the only open Dependabot alert. Advisory patched versions are `<0.0.0` (no real patch). |
 
 GitHub Dependabot previously listed pip alerts on `docs/poetry.lock` (unused upstream MkDocs). That lockfile is gone. See [SECURITY.md](SECURITY.md).
+
+## Playwright Firefox and WebKit (2026-10-31)
+
+CI and `pnpm e2e` stay on Chromium. WebContainer's supported browser is Chromium; Firefox is alpha and Safari/WebKit is beta.
+
+| Browser | `e2e/smoke.spec.ts` | What we saw | Action |
+|---|---|---|---|
+| Firefox 157 (Playwright) | Failed | `page.goto('/')` hit the 120s test timeout. Vite logged a React hydration mismatch (`server rendered HTML didn't match the client`). | Not cheap. Home SSR vs client theme/clock is Firefox-sensitive. Use Chrome or Edge. |
+| WebKit 27.2 (Playwright) | Failed before the loop-panel locator fix; chat and cost pill worked | `DataCloneError: The object can not be cloned` on the Vite client (likely `postMessage` / IndexedDB of a non-cloneable value). The smoke then saw two `status` regions. | Cheap: the loop panel now has `aria-label="Same error, looping"` so the test targets it. The DataCloneError is still open. |
+
+Install locally with `npx playwright install firefox webkit`. Do not add them to the CI matrix until WebContainer and hydration are green.

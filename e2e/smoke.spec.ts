@@ -8,6 +8,7 @@ function collectLeaks(page: Page) {
   const consoleHits: string[] = [];
   const bodyHits: string[] = [];
   const chatCacheControl: string[] = [];
+
   const chatApiHeaders: Array<{
     nosniff: string;
     referrer: string;
@@ -74,18 +75,27 @@ async function inspectResponse(
 }
 
 async function workerdOpenAILikeModels(page: Page): Promise<string[]> {
-  return page.evaluate(async ({ providersHeader }) => {
-    const keys = JSON.parse(localStorage.getItem('hypeable_api_keys') || '{}') as Record<string, string>;
-    const response = await fetch('/api/models/OpenAILike', {
-      headers: {
-        'x-hypeable-key': encodeURIComponent(JSON.stringify(keys)),
-        'x-hypeable-providers': providersHeader,
-      },
-    });
-    const data = (await response.json()) as { modelList?: Array<{ name: string; provider: string }> };
+  return page.evaluate(
+    async ({ providersHeader }) => {
+      const keys = JSON.parse(localStorage.getItem('hypeable_api_keys') || '{}') as Record<string, string>;
 
-    return (data.modelList ?? []).filter((model) => model.provider === 'OpenAILike').map((model) => model.name);
-  }, { providersHeader: encodeURIComponent(JSON.stringify({ OpenAILike: { enabled: true, baseUrl: MOCK_OPENAI_BASE_URL } })) });
+      const response = await fetch('/api/models/OpenAILike', {
+        headers: {
+          'x-hypeable-key': encodeURIComponent(JSON.stringify(keys)),
+          'x-hypeable-providers': providersHeader,
+        },
+      });
+
+      const data = (await response.json()) as { modelList?: Array<{ name: string; provider: string }> };
+
+      return (data.modelList ?? []).filter((model) => model.provider === 'OpenAILike').map((model) => model.name);
+    },
+    {
+      providersHeader: encodeURIComponent(
+        JSON.stringify({ OpenAILike: { enabled: true, baseUrl: MOCK_OPENAI_BASE_URL } }),
+      ),
+    },
+  );
 }
 
 test.describe('OpenAILike mock smoke', () => {
@@ -96,6 +106,7 @@ test.describe('OpenAILike mock smoke', () => {
     const requestOrigins = collectRequestOrigins(page);
     await page.addInitScript(() => {
       const key = '__cspViolations';
+
       const read = (): Array<Record<string, string>> => {
         try {
           return JSON.parse(sessionStorage.getItem(key) || '[]') as Array<Record<string, string>>;
@@ -117,6 +128,7 @@ test.describe('OpenAILike mock smoke', () => {
 
     const documentResponse = await page.goto('/');
     expect(documentResponse).toBeTruthy();
+
     const homeHtml = await documentResponse!.text();
     expect(homeHtml).toContain('What do you want to');
     expect(homeHtml).toContain('Skip to composer');
@@ -151,6 +163,7 @@ test.describe('OpenAILike mock smoke', () => {
     await expect(plan.getByRole('heading', { name: 'Notes app' })).toBeVisible();
 
     const optional = plan.getByRole('checkbox', { name: /Tag a note/i });
+
     // Optional features start unchecked; tick then untick so Approve sees it off.
     if (await optional.isChecked()) {
       await optional.uncheck();
@@ -179,7 +192,7 @@ test.describe('OpenAILike mock smoke', () => {
       });
     } else {
       await page.goto('/?debugLoop=1');
-      await expect(page.getByRole('status')).toContainText('Same error, looping', { timeout: 15_000 });
+      await expect(page.getByRole('status', { name: 'Same error, looping' })).toBeVisible({ timeout: 15_000 });
     }
 
     expect(leaks.consoleHits, 'console must not print the fake key').toEqual([]);
@@ -204,6 +217,7 @@ test.describe('OpenAILike mock smoke', () => {
         return [];
       }
     });
+
     const enforcingHits = cspHits.filter((hit) => hit.disposition === 'enforce');
     expect(enforcingHits, `enforcing CSP blocked ${JSON.stringify(enforcingHits)}`).toEqual([]);
 
