@@ -10,7 +10,8 @@ import { applyUsage } from '~/lib/cost/apply';
 import { emptySnapshot } from '~/lib/cost/persist';
 import { emptyLoopState, reduceLoop } from '~/lib/loop/detect';
 
-const MINUTES = Number(process.env.HYPEABLE_HEAP_MINUTES || 30);
+// CI must not sit for half an hour. The 30-minute run is local: HYPEABLE_HEAP_MINUTES=30.
+const MINUTES = Number(process.env.HYPEABLE_HEAP_MINUTES || (process.env.CI ? 0.5 : 2));
 const SAMPLE_MS = 30_000;
 const TURN_MS = 200;
 
