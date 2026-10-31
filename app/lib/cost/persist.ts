@@ -120,6 +120,11 @@ function asNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
 
+/** Spend and token counts are never negative; a negative stored total would act as extra cap headroom. */
+function asAmount(value: unknown, fallback = 0): number {
+  return Math.max(0, asNumber(value, fallback));
+}
+
 function asRecord<T>(value: unknown): Record<string, T> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {};
@@ -176,20 +181,20 @@ function sanitizeMessages(value: unknown): Record<string, MessageCostRecord> {
 
     const row = entry as Record<string, unknown>;
     result[id] = {
-      dollars: asNumber(row.dollars),
-      nanos: asNumber(row.nanos, dollarsToNanos(asNumber(row.dollars))),
-      computedDollars: typeof row.computedDollars === 'number' ? asNumber(row.computedDollars) : undefined,
-      providerDollars: typeof row.providerDollars === 'number' ? asNumber(row.providerDollars) : undefined,
+      dollars: asAmount(row.dollars),
+      nanos: asAmount(row.nanos, dollarsToNanos(asAmount(row.dollars))),
+      computedDollars: typeof row.computedDollars === 'number' ? asAmount(row.computedDollars) : undefined,
+      providerDollars: typeof row.providerDollars === 'number' ? asAmount(row.providerDollars) : undefined,
       unknown: Boolean(row.unknown),
       model: typeof row.model === 'string' ? row.model : 'unknown',
       provider: typeof row.provider === 'string' ? row.provider : undefined,
-      promptTokens: asNumber(row.promptTokens),
-      completionTokens: asNumber(row.completionTokens),
-      cachedTokens: asNumber(row.cachedTokens),
-      cacheWriteTokens: asNumber(row.cacheWriteTokens),
-      cacheWrite1hTokens: asNumber(row.cacheWrite1hTokens),
-      reasoningTokens: asNumber(row.reasoningTokens),
-      imageTokens: asNumber(row.imageTokens),
+      promptTokens: asAmount(row.promptTokens),
+      completionTokens: asAmount(row.completionTokens),
+      cachedTokens: asAmount(row.cachedTokens),
+      cacheWriteTokens: asAmount(row.cacheWriteTokens),
+      cacheWrite1hTokens: asAmount(row.cacheWrite1hTokens),
+      reasoningTokens: asAmount(row.reasoningTokens),
+      imageTokens: asAmount(row.imageTokens),
       pending: Boolean(row.pending),
       verified: row.verified === false ? false : row.verified === true ? true : undefined,
       approximate: row.approximate === true ? true : undefined,
@@ -217,10 +222,10 @@ function sanitizeBreakdown(value: unknown): Record<string, ModelBreakdown> {
 
     const row = entry as Record<string, unknown>;
     result[model] = {
-      dollars: asNumber(row.dollars),
-      nanos: asNumber(row.nanos, dollarsToNanos(asNumber(row.dollars))),
-      promptTokens: asNumber(row.promptTokens),
-      completionTokens: asNumber(row.completionTokens),
+      dollars: asAmount(row.dollars),
+      nanos: asAmount(row.nanos, dollarsToNanos(asAmount(row.dollars))),
+      promptTokens: asAmount(row.promptTokens),
+      completionTokens: asAmount(row.completionTokens),
       unknown: Boolean(row.unknown) || undefined,
       unverified: Boolean(row.unverified) || undefined,
     };
@@ -284,15 +289,15 @@ export function parseSnapshot(raw: unknown, now: Date): CostSnapshot {
       version: COST_STORAGE_VERSION,
       sessionId,
       sessionStartedAt: asNumber(record.sessionStartedAt, now.getTime()),
-      sessionTotal: asNumber(record.sessionTotal),
-      sessionTotalNanos: asNumber(record.sessionTotalNanos, dollarsToNanos(asNumber(record.sessionTotal))),
-      sessionPromptTokens: asNumber(record.sessionPromptTokens),
-      sessionCompletionTokens: asNumber(record.sessionCompletionTokens),
+      sessionTotal: asAmount(record.sessionTotal),
+      sessionTotalNanos: asAmount(record.sessionTotalNanos, dollarsToNanos(asAmount(record.sessionTotal))),
+      sessionPromptTokens: asAmount(record.sessionPromptTokens),
+      sessionCompletionTokens: asAmount(record.sessionCompletionTokens),
       dayKey: typeof record.dayKey === 'string' ? record.dayKey : localDayKey(now),
-      dailyTotal: asNumber(record.dailyTotal),
-      dailyTotalNanos: asNumber(record.dailyTotalNanos, dollarsToNanos(asNumber(record.dailyTotal))),
-      dailyPromptTokens: asNumber(record.dailyPromptTokens),
-      dailyCompletionTokens: asNumber(record.dailyCompletionTokens),
+      dailyTotal: asAmount(record.dailyTotal),
+      dailyTotalNanos: asAmount(record.dailyTotalNanos, dollarsToNanos(asAmount(record.dailyTotal))),
+      dailyPromptTokens: asAmount(record.dailyPromptTokens),
+      dailyCompletionTokens: asAmount(record.dailyCompletionTokens),
       messages: sanitizeMessages(record.messages),
       byModel: sanitizeBreakdown(record.byModel),
       caps,
