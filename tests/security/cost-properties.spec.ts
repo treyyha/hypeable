@@ -49,7 +49,7 @@ describe('cost() with hostile token counts', () => {
       const result = cost('prop-model', 1000, 1000, { actualCost, customPrices: CUSTOM });
 
       expect(result.unknown).toBe(false);
-      expect(result.source).toBe('custom');
+      expect(result.unknown ? null : result.source).toBe('custom');
       expect(finiteNonNegative(result.dollars)).toBe(true);
     }
   });

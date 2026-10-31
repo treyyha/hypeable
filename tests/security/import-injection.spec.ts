@@ -33,7 +33,7 @@ async function zipOf(files: Record<string, string>, name = 'project.zip'): Promi
     zip.file(path, content);
   }
 
-  return new File([await zip.generateAsync({ type: 'uint8array' })], name);
+  return new File([await zip.generateAsync({ type: 'arraybuffer' })], name);
 }
 
 describe('import path injection', () => {
