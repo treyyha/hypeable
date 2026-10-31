@@ -50,7 +50,7 @@ describe('vitest project split', () => {
   });
 
   it('keeps wall-clock perf tests out of the blocking suite', () => {
-    expect(PERF_TESTS.length).toBe(4);
+    expect(PERF_TESTS.length).toBe(6);
 
     for (const pattern of PERF_TESTS) {
       expect(DOM_PROJECT.include, `${pattern} must not be a blocking DOM test`).not.toContain(pattern);
