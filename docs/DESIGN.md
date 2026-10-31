@@ -40,7 +40,9 @@ Logo stays **flat lime**. Buttons are solid single colours. Status never uses th
 
 ## Components
 
-Shared primitives in `app/components/ui/`: `Button` (primary / ghost / danger), `Card`, `Chip`, `Badge`, `Progress`, `Tabs`, `Dialog` (modal), toast (react-toastify themed from tokens), `EmptyState`, `LoadingState`, `ErrorState`.
+Shared primitives in `app/components/ui/`: `Button` (primary / ghost / danger / tint), `LinkButton`, `TextLink`, `Switch`, `Card`, `Chip`, `Badge`, `Progress`, `Tabs`, `Dialog` (modal), toast (react-toastify themed from tokens), `EmptyState`, `LoadingState`, `ErrorState`. UnoCSS `/NN` on `var(--hype-*)` is rewritten to `color-mix` in `app/lib/ui/var-alpha.ts`.
+
+Ghost/secondary: `--hype-surface-2` fill, 1px `--hype-border`, token text, slightly lighter hover, visible focus ring. Text links: `--hype-accent-text`, underline, no fill (light theme uses the darker accent text token). Tinted chips: `color-mix(in srgb, accent 10%, transparent)` with accent text. The only solid lime fill is the primary button (`--hype-on-accent` text). Unthemed `<button>` / `<a>` reset to transparent so they never pick up UA ButtonFace.
 
 Plan Card, loop panel, cap modal, cost popover, settings, and onboarding consume those tokens. Empty states are honest — no fake charts or placeholder spend.
 
@@ -76,3 +78,19 @@ AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation,
 - Pre-deploy clean light: [assets/predeploy-clean-light-1440.png](assets/predeploy-clean-light-1440.png)
 - Start in 60 seconds (no key) dark: [assets/start-in-sixty-dark-1440.png](assets/start-in-sixty-dark-1440.png)
 - Start in 60 seconds (no key) light: [assets/start-in-sixty-light-1440.png](assets/start-in-sixty-light-1440.png)
+- Start in 60 seconds dark 375: [assets/start-in-sixty-dark-375.png](assets/start-in-sixty-dark-375.png)
+- Start in 60 seconds light 375: [assets/start-in-sixty-light-375.png](assets/start-in-sixty-light-375.png)
+- Cost popover dark desktop: [assets/home-cost-popover-dark-1440.png](assets/home-cost-popover-dark-1440.png)
+- Cost popover light desktop: [assets/home-cost-popover-light-1440.png](assets/home-cost-popover-light-1440.png)
+- Cost popover dark 375: [assets/home-cost-popover-dark-375.png](assets/home-cost-popover-dark-375.png)
+- Cost popover light 375: [assets/home-cost-popover-light-375.png](assets/home-cost-popover-light-375.png)
+- Plan Card dark desktop: [assets/plan-card-dark-1440.png](assets/plan-card-dark-1440.png)
+- Plan Card light desktop: [assets/plan-card-light-1440.png](assets/plan-card-light-1440.png)
+- Plan Card dark 375: [assets/plan-card-dark-375.png](assets/plan-card-dark-375.png)
+- Plan Card light 375: [assets/plan-card-light-375.png](assets/plan-card-light-375.png)
+- Settings dark desktop: [assets/settings-dark-1440.png](assets/settings-dark-1440.png)
+- Settings light desktop: [assets/settings-light-1440.png](assets/settings-light-1440.png)
+- Settings dark 375: [assets/settings-dark-375.png](assets/settings-dark-375.png)
+- Settings light 375: [assets/settings-light-375.png](assets/settings-light-375.png)
+- Spend dark 375: [assets/spend-dark-375.png](assets/spend-dark-375.png)
+- Spend light 375: [assets/spend-light-375.png](assets/spend-light-375.png)
