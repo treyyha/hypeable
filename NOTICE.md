@@ -28,6 +28,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+## Bundled fonts
+
+Hypeable self-hosts **Geist Sans** and **Geist Mono** (via `@fontsource/geist-sans` and `@fontsource/geist-mono`) and serves the font files to every visitor.
+
+- Geist Sans and Geist Mono Font, (C) 2023 Vercel, made in collaboration with basement.studio.
+- Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font).
+
+They are licensed under the SIL Open Font License, Version 1.1 ([text](https://openfontlicense.org/open-font-license-official-text/)); the full licence ships in each package's `LICENSE`. The fonts are unmodified and are not sold on their own.
+
 ## History note
 
 Obvious placeholder key patterns were redacted from upstream history so GitHub push protection would accept the push. Upstream sync policy: cherry-pick from upstream, don't merge.
