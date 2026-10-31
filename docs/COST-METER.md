@@ -4,7 +4,7 @@ Hypeable's headline guardrail: you always see what this browser has spent, and a
 
 A number **without** ≈ is provider-reported usage priced from the official table, or OpenRouter's billed `usage.cost`. A number **with** ≈ is an estimate. Accuracy against provider invoices is tracked in [COST-ACCURACY.md](COST-ACCURACY.md) (empty until a real-key comparison is published). The README still calls the pill an estimate until that file has rows.
 
-Caps are enforced **in this browser**. They protect you from accidental loops. Provider-side spending limits are the real backstop.
+Caps are enforced **in this browser**, across all its tabs: each tab reloads the shared `hypeable:cost:v1` snapshot before it adds usage or checks a cap, and a `storage` event refreshes the pill. They protect you from accidental loops. Provider-side spending limits are the real backstop.
 
 ```mermaid
 flowchart LR

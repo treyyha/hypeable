@@ -18,6 +18,8 @@ import { estimateTokensFromText } from '~/lib/cost/calc';
 import { type CapDecision, type CapKind } from '~/lib/cost/caps';
 import {
   applyDayRollover,
+  COST_STORAGE_KEY,
+  loadSnapshot,
   readPersistedCost,
   writePersistedCost,
   type CostSnapshot,
@@ -43,12 +45,47 @@ function now(): Date {
   return new Date();
 }
 
+/*
+ * Every tab shares one snapshot. Remember the last raw value we saw so a write
+ * from another tab is picked up before the next read-modify-write, without
+ * re-parsing on every streamed chunk.
+ */
+let lastRaw: string | null = null;
+
+function readRaw(): string | null {
+  try {
+    return browserStorage()?.getItem(COST_STORAGE_KEY) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function persist(snapshot: CostSnapshot): CostSnapshot {
   writePersistedCost(browserStorage(), snapshot);
+  lastRaw = readRaw();
+
   return snapshot;
 }
 
 export const costStore = map<CostSnapshot>(readPersistedCost(browserStorage(), now()));
+lastRaw = readRaw();
+
+function syncFromOtherTabs(): void {
+  const raw = readRaw();
+
+  if (raw !== null && raw !== lastRaw) {
+    lastRaw = raw;
+    costStore.set(loadSnapshot(raw, now()));
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === COST_STORAGE_KEY) {
+      syncFromOtherTabs();
+    }
+  });
+}
 
 export const costAbortTick = atom(0);
 
@@ -65,6 +102,8 @@ export const capDialogStore = atom<CapDialogState | null>(null);
 export const costToastStore = atom<CapKind | null>(null);
 
 function current(): CostSnapshot {
+  syncFromOtherTabs();
+
   const snapshot = costStore.get();
   const rolled = applyDayRollover(snapshot, now());
 
