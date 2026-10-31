@@ -9,13 +9,14 @@ Known limits we state plainly:
 - Cloudflare, as our host, handles request metadata and sees traffic in transit.
 - After the first build, the in-browser runtime (WebContainer) and preview frames load from StackBlitz-hosted domains. We have **not** audited what StackBlitz sees.
 - Web search (user or model) sends the search text from our Worker to DuckDuckGo (`html.duckduckgo.com`). Hosted mode refuses arbitrary page fetches.
+- Opening Settings → Plugins fetches the public plugin catalogue from GitHub (`api.github.com`, `raw.githubusercontent.com`) directly from the browser. No key or project data is sent.
 
 Constants: `app/utils/privacy-copy.ts`. Banned overclaims: `docs/banned-privacy-phrases.json`. The unit test `app/lib/security/privacy-claims.spec.ts` walks README, `SECURITY.md`, `AGENTS.md`, `CHANGELOG.md`, `public/llms.txt`, `docs/`, and `app/` and fails if a banned phrase returns. This file is excluded from that walk so the table can quote retired wording.
 
 | Surface | Exact wording now | Evidence | Status |
 |---|---|---|---|
 | Canonical constant | `PRIVACY_CLAIM` in `app/utils/privacy-copy.ts` | `app/utils/privacy-copy.spec.ts` | proven |
-| `/privacy` | Full canonical claim, plus Cloudflare metadata, unaudited StackBlitz, `WEB_SEARCH_CLAIM` (DuckDuckGo), leftover cookie names | `app/routes/privacy.tsx`; `e2e/legal.spec.ts`; `tests/security/web-search.spec.ts` | proven |
+| `/privacy` | Full canonical claim, plus Cloudflare metadata, unaudited StackBlitz, `WEB_SEARCH_CLAIM` (DuckDuckGo), `PLUGIN_CATALOG_CLAIM` (GitHub), leftover cookie names | `app/routes/privacy.tsx`; `e2e/legal.spec.ts`; `tests/security/web-search.spec.ts` | proven |
 | `/terms` | Provider data policy applies; link to `/privacy` | `app/routes/terms.tsx`; `e2e/legal.spec.ts` | proven |
 | Home onboarding card | `PRIVACY_OPENROUTER` | `app/components/onboarding/StartInSixty.tsx` | proven |
 | Connect with OpenRouter (settings) | `PRIVACY_OPENROUTER` | `app/components/onboarding/OpenRouterConnection.tsx` | proven |

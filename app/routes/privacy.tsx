@@ -3,6 +3,7 @@ import { LegalPage } from '~/components/legal/LegalPage';
 import { APP_REPO_URL, brandMeta } from '~/utils/brand';
 import {
   CLOUDFLARE_METADATA_CLAIM,
+  PLUGIN_CATALOG_CLAIM,
   PRIVACY_CLAIM,
   STACKBLITZ_UNAUDITED_CLAIM,
   WEB_SEARCH_CLAIM,
@@ -53,6 +54,9 @@ export default function Privacy() {
 
       <h2 className="pt-4 text-base font-semibold text-hype-text">Web search</h2>
       <p>{WEB_SEARCH_CLAIM}</p>
+
+      <h2 className="pt-4 text-base font-semibold text-hype-text">Plugin catalogue</h2>
+      <p>{PLUGIN_CATALOG_CLAIM}</p>
 
       <h2 className="pt-4 text-base font-semibold text-hype-text">Cookies we set</h2>
       <p>
