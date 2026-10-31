@@ -1,14 +1,22 @@
 import { expect, test, type Page } from '@playwright/test';
-import { seedOpenAILikeMock } from './seed';
+import { seedOpenAILikeMock, waitForChatReady } from './seed';
 
 const CAPTURE = process.env.CAPTURE_DOCS === '1';
 
 async function setTheme(page: Page, theme: 'dark' | 'light') {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.evaluate((next) => {
     localStorage.setItem('bolt_theme', next);
-    document.documentElement.setAttribute('data-theme', next);
-    document.documentElement.setAttribute('data-color-theme', next);
+    const apply = (window as Window & { __hypeableSetTheme?: (value: string) => void }).__hypeableSetTheme;
+
+    if (typeof apply === 'function') {
+      apply(next);
+    } else {
+      document.documentElement.setAttribute('data-theme', next);
+      document.documentElement.setAttribute('data-color-theme', next);
+    }
   }, theme);
+  await page.waitForTimeout(50);
 }
 
 test.describe('docs screenshots', () => {
@@ -187,6 +195,117 @@ test.describe('docs screenshots', () => {
     await page
       .locator('[data-testid="start-in-sixty"]')
       .screenshot({ path: 'docs/assets/start-in-sixty-light-1440.png' });
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await setTheme(page, 'dark');
+    await page.waitForTimeout(200);
+    await page
+      .locator('[data-testid="start-in-sixty"]')
+      .screenshot({ path: 'docs/assets/start-in-sixty-dark-375.png' });
+
+    await setTheme(page, 'light');
+    await page.waitForTimeout(200);
+    await page
+      .locator('[data-testid="start-in-sixty"]')
+      .screenshot({ path: 'docs/assets/start-in-sixty-light-375.png' });
+  });
+
+  test('cost popover, plan, settings, spend at 1440 and 375', async ({ page }) => {
+    test.setTimeout(180_000);
+    await seedOpenAILikeMock(page);
+
+    for (const [width, height] of [
+      [1440, 900],
+      [375, 812],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await expect(page.locator('header').getByText('hypeable', { exact: true })).toBeVisible({ timeout: 20_000 });
+      await page.getByTestId('cost-pill').click();
+      await expect(page.getByText('By model')).toBeVisible();
+
+      for (const theme of ['dark', 'light'] as const) {
+        await setTheme(page, theme);
+        await page.waitForTimeout(200);
+        await page.screenshot({ path: `docs/assets/home-cost-popover-${theme}-${width}.png` });
+      }
+
+      await page.keyboard.press('Escape');
+    }
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await waitForChatReady(page);
+    await page.locator('textarea').first().fill('make a todo app');
+    await page.locator('textarea').first().press('Enter');
+    const plan = page.getByRole('region', { name: 'Build plan' });
+    await expect(plan).toBeVisible({ timeout: 45_000 });
+
+    for (const [width, height] of [
+      [1440, 900],
+      [375, 812],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      for (const theme of ['dark', 'light'] as const) {
+        await setTheme(page, theme);
+        await page.waitForTimeout(200);
+        await plan.screenshot({ path: `docs/assets/plan-card-${theme}-${width}.png` });
+      }
+    }
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await waitForChatReady(page);
+    await expect(page.getByRole('button', { name: 'Keys and settings' })).toBeVisible({ timeout: 20_000 });
+    await page.getByRole('button', { name: 'Keys and settings' }).hover();
+    await page.getByRole('button', { name: 'Keys and settings' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('button', { name: 'Back to project' })).toBeVisible();
+
+    for (const [width, height] of [
+      [1440, 900],
+      [375, 812],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      for (const theme of ['dark', 'light'] as const) {
+        await setTheme(page, theme);
+        await page.waitForTimeout(200);
+        await page.screenshot({ path: `docs/assets/settings-${theme}-${width}.png` });
+      }
+    }
+
+    await page.keyboard.press('Escape');
+    await page.addInitScript(() => {
+      const now = Date.now();
+      localStorage.setItem(
+        'hypeable:spend-ledger:v1',
+        JSON.stringify({
+          version: 1,
+          entries: [
+            {
+              id: 'shot-375',
+              timestamp: now,
+              chatName: 'Habit tracker',
+              model: 'mock-model',
+              provider: 'OpenAILike',
+              promptTokens: 1200,
+              completionTokens: 800,
+              dollars: 0.42,
+              verified: true,
+            },
+          ],
+        }),
+      );
+    });
+    await page.goto('/spend');
+    await expect(page.getByTestId('spend-page')).toBeVisible({ timeout: 20_000 });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await setTheme(page, 'dark');
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: 'docs/assets/spend-dark-375.png' });
+    await setTheme(page, 'light');
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: 'docs/assets/spend-light-375.png' });
   });
 
   test('predeploy modal fail, warn, and clean', async ({ page }) => {
