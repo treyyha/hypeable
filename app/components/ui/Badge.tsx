@@ -9,13 +9,13 @@ const badgeVariants = cva(
       variant: {
         default: 'border-transparent bg-hype-surface-2 text-hype-text',
         secondary: 'border-transparent bg-hype-surface-2 text-hype-muted',
-        destructive: 'border-transparent bg-hype-danger/10 text-hype-danger',
+        destructive: 'border-transparent hype-badge-danger',
         outline: 'border-hype-border text-hype-text',
         primary: 'border-transparent bg-hype-accent text-hype-on-accent',
         success: 'border-transparent hype-badge-ok',
         warning: 'border-transparent hype-badge-warn',
         danger: 'border-transparent hype-badge-danger',
-        info: 'border-transparent bg-hype-cyan/12 text-hype-cyan',
+        info: 'border-transparent bg-hype-cyan/16 text-hype-cyan',
         subtle: 'border-hype-border bg-hype-surface text-hype-muted',
       },
       size: {

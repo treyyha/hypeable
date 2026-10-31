@@ -24,11 +24,11 @@ export function BrandFooter({ className }: { className?: string }) {
       </p>
       <p className="mt-1">{APP_AFFILIATION}</p>
       <p className="mt-1">
-        <a href="/privacy" className="underline-offset-2 hover:underline">
+        <a href="/privacy" className="hype-text-link">
           Privacy
         </a>
         <span aria-hidden="true"> · </span>
-        <a href="/terms" className="underline-offset-2 hover:underline">
+        <a href="/terms" className="hype-text-link">
           Terms
         </a>
       </p>

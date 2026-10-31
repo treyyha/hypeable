@@ -5,6 +5,8 @@ export * from './ActionRow';
 export * from './Aurora';
 export * from './Badge';
 export * from './Button';
+export * from './LinkButton';
+export * from './TextLink';
 export * from './Card';
 export * from './Chip';
 export * from './ErrorState';

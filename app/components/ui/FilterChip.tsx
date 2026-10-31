@@ -44,9 +44,7 @@ export function FilterChip({ label, value, onRemove, active = false, icon, class
       transition={{ duration: 0.2 }}
       className={classNames(
         'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all',
-        active
-          ? 'bg-hype-accent/12 text-hype-accent-text border border-hype-accent/30'
-          : 'bg-hype-surface-2 text-hype-muted border border-hype-border',
+        active ? 'hype-link-btn border-hype-accent/30' : 'bg-hype-surface-2 text-hype-muted border border-hype-border',
         onRemove && 'pr-1',
         className,
       )}

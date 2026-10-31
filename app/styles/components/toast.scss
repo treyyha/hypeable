@@ -4,7 +4,7 @@
   @extend .z-toast;
 }
 
-.Toastify__toast {
+body .Toastify__toast-container .Toastify__toast {
   --at-apply: shadow-md;
 
   background-color: var(--hype-surface);
@@ -13,12 +13,14 @@
   border-radius: var(--hype-radius-md);
 }
 
-.Toastify__close-button {
-  color: var(--bolt-elements-item-contentDefault);
+body .Toastify__toast-container .Toastify__close-button {
+  appearance: none;
+  background-color: transparent;
+  color: var(--hype-muted);
   opacity: 1;
   transition: none;
 
   &:hover {
-    color: var(--bolt-elements-item-contentActive);
+    color: var(--hype-text);
   }
 }

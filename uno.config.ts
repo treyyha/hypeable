@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import { basename } from 'node:path';
 import { globSync } from 'fast-glob';
 import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss';
+import { varAlphaPostprocess } from './app/lib/ui/var-alpha';
 
 const iconPaths = globSync('./icons/*.svg');
 
@@ -104,7 +105,15 @@ export default defineConfig({
     'transition-theme': 'transition-[background-color,border-color,color] duration-150 bolt-ease-cubic-bezier',
     kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
     'max-w-chat': 'max-w-[var(--chat-max-width)]',
+    /*
+     * These names never existed on the theme (background is nested under
+     * depth.*). Without the alias they generated no CSS and the UA fill showed.
+     */
+    'bg-bolt-elements-background': 'bg-hype-surface',
+    'border-bolt-elements-border': 'border-hype-border',
+    'ring-offset-bolt-elements-background': 'ring-offset-hype-bg',
   },
+  postprocess: varAlphaPostprocess,
   rules: [
     /**
      * This shorthand doesn't exist in Tailwind and we overwrite it to avoid
@@ -134,6 +143,7 @@ export default defineConfig({
         muted: 'var(--hype-muted)',
         accent: 'var(--hype-accent)',
         'accent-text': 'var(--hype-accent-text)',
+        'accent-soft': 'var(--hype-accent-soft)',
         'on-accent': 'var(--hype-on-accent)',
         ok: 'var(--hype-ok)',
         warn: 'var(--hype-warn)',

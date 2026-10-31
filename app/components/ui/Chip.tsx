@@ -14,10 +14,10 @@ export type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const toneClass: Record<ChipTone, string> = {
   default: 'border-hype-border bg-hype-surface text-hype-muted hover:text-hype-text',
-  accent: 'border-hype-border bg-[var(--hype-accent-soft)] text-hype-accent-text',
-  ok: 'border-hype-border bg-[var(--hype-accent-soft)] text-hype-ok',
-  warn: 'border-hype-border text-hype-warn',
-  danger: 'border-hype-border text-hype-danger',
+  accent: 'border-hype-border bg-hype-accent-soft text-hype-accent-text',
+  ok: 'border-hype-border bg-hype-accent-soft text-hype-ok',
+  warn: 'border-hype-border bg-hype-warn/16 text-hype-warn',
+  danger: 'border-hype-border bg-hype-danger/16 text-hype-danger',
 };
 
 export function Chip({
