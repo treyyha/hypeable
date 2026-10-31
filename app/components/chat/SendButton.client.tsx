@@ -12,6 +12,7 @@ export const SendButton = ({ isStreaming, disabled, armed, onClick }: SendButton
   return (
     <button
       type="button"
+      data-testid="composer-send"
       aria-label={isStreaming ? 'Stop' : 'Send'}
       title={isStreaming ? 'Stop' : 'Send'}
       disabled={disabled}

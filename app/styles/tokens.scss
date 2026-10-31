@@ -843,6 +843,143 @@ button.hype-icon-btn,
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--hype-accent) 28%, transparent);
 }
 
+/*
+ * Footer items default to min-width: auto, so the model name and estimate
+ * refuse to shrink and shove the send button out of the card. Lock the row
+ * and let only the model cell collapse.
+ */
+.hype-composer-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.hype-composer-footer__plus,
+.hype-composer-footer__chip,
+.hype-composer-footer__cost,
+.hype-composer-footer__send {
+  flex: none;
+}
+
+.hype-composer-footer__model {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hype-composer-hint {
+  margin: 0.375rem 0.25rem 0;
+  color: var(--hype-muted);
+  font-size: var(--hype-text-xs);
+  font-weight: 400;
+  line-height: var(--hype-leading-body);
+  text-align: center;
+}
+
+/*
+ * tokens.scss loads after Uno, and `button { color: inherit }` beats
+ * `text-hype-muted`. Chip / muted-line colours live here so they win.
+ */
+.hype-chip {
+  appearance: none;
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  overflow: hidden;
+  border: 1px solid var(--hype-border);
+  border-radius: var(--hype-radius-full);
+  background-color: var(--hype-surface);
+  padding: 0.25rem 0.75rem;
+  color: var(--hype-muted);
+  font-size: var(--hype-text-xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: var(--hype-leading-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--hype-duration-fast) var(--hype-ease),
+    color var(--hype-duration-fast) var(--hype-ease),
+    border-color var(--hype-duration-fast) var(--hype-ease);
+
+  &:hover:not(:disabled) {
+    color: var(--hype-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hype-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+
+  &[data-tone='accent'],
+  &[data-selected='true'] {
+    background-color: var(--hype-accent-soft);
+    color: var(--hype-accent-text);
+
+    &:hover:not(:disabled) {
+      color: var(--hype-accent-text);
+    }
+  }
+
+  &[data-tone='ok'] {
+    background-color: var(--hype-accent-soft);
+    color: var(--hype-ok);
+  }
+
+  &[data-tone='warn'] {
+    background-color: color-mix(in srgb, var(--hype-warn) 16%, transparent);
+    color: var(--hype-warn);
+  }
+
+  &[data-tone='danger'] {
+    background-color: color-mix(in srgb, var(--hype-danger) 16%, transparent);
+    color: var(--hype-danger);
+  }
+}
+
+.hype-chip--block {
+  width: 100%;
+}
+
+.hype-muted-line {
+  appearance: none;
+  display: inline;
+  border: 0;
+  background-color: transparent;
+  padding: 0.125rem 0.25rem;
+  color: var(--hype-muted);
+  font-size: var(--hype-text-xs);
+  font-weight: 400;
+  line-height: var(--hype-leading-body);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--hype-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hype-ring);
+    outline-offset: 2px;
+    border-radius: var(--hype-radius-sm);
+  }
+}
+
 @keyframes hype-aurora-drift {
   from {
     transform: translate3d(-1.5%, -1%, 0);

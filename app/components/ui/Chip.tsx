@@ -1,5 +1,7 @@
 /**
  * Compact token-backed chip for filters, estimates, and suggestion pills.
+ * Colours live on `.hype-chip` in tokens.scss so they beat the global
+ * `button { color: inherit }` reset.
  */
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { classNames } from '~/utils/classNames';
@@ -10,14 +12,6 @@ export type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   selected?: boolean;
   tone?: ChipTone;
   leading?: ReactNode;
-};
-
-const toneClass: Record<ChipTone, string> = {
-  default: 'border-hype-border bg-hype-surface text-hype-muted hover:text-hype-text',
-  accent: 'border-hype-border bg-hype-accent-soft text-hype-accent-text',
-  ok: 'border-hype-border bg-hype-accent-soft text-hype-ok',
-  warn: 'border-hype-border bg-hype-warn/16 text-hype-warn',
-  danger: 'border-hype-border bg-hype-danger/16 text-hype-danger',
 };
 
 export function Chip({
@@ -32,12 +26,9 @@ export function Chip({
   return (
     <button
       type={type}
-      className={classNames(
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium tabular-nums transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
-        selected ? toneClass.accent : toneClass[tone],
-        className,
-      )}
+      data-tone={selected ? 'accent' : tone}
+      data-selected={selected ? 'true' : undefined}
+      className={classNames('hype-chip', className)}
       {...props}
     >
       {leading}

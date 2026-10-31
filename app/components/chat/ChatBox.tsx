@@ -5,6 +5,7 @@ import { AttachmentMenu } from './AttachmentMenu';
 import FilePreview from './FilePreview';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { SendButton } from './SendButton.client';
+import { COMPOSER_SHORTCUT_HINT, composerPlaceholder, planEstimateCopy } from './composer-copy';
 import { PlanFirstChip } from '~/components/plan/PlanFirstChip';
 import { Chip } from '~/components/ui/Chip';
 import type { ElementInfo } from '~/components/workbench/Inspector';
@@ -189,6 +190,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   }, [props.providerList, props.setModel, props.setProvider, props.onModelPickerOpen]);
 
   const canSend = props.input.length > 0 || props.uploadedFiles.length > 0;
+  const chatMode = props.chatMode ?? 'build';
 
   const onComposerIntent = () => {
     props.onComposerFocus?.();
@@ -197,236 +199,263 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'hype-composer relative z-[1] mx-auto w-full p-3',
-        props.chatStarted ? 'max-w-chat' : 'max-w-[520px]',
+        'relative z-[1] mx-auto w-full min-w-0',
+        props.chatStarted ? 'max-w-chat' : 'max-w-[720px]',
       )}
-      onPointerEnter={onComposerIntent}
     >
-      <FilePreview
-        files={props.uploadedFiles}
-        imageDataList={props.imageDataList}
-        onRemove={(index) => {
-          props.setUploadedFiles?.(props.uploadedFiles.filter((_, i) => i !== index));
-          props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
-        }}
-      />
-      <ClientOnly>
-        {() => (
-          <ScreenshotStateManager
-            setUploadedFiles={props.setUploadedFiles}
-            setImageDataList={props.setImageDataList}
-            uploadedFiles={props.uploadedFiles}
-            imageDataList={props.imageDataList}
-          />
-        )}
-      </ClientOnly>
-      {props.selectedElement && (
-        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
-          <div className="flex gap-2 items-center lowercase">
-            <code className="bg-hype-accent rounded-[var(--hype-radius-sm)] px-1.5 py-1 mr-0.5 text-hype-on-accent">
-              {props?.selectedElement?.tagName}
-            </code>
-            selected for inspection
-          </div>
-          <button
-            type="button"
-            className="hype-text-link pointer-auto"
-            onClick={() => props.setSelectedElement?.(null)}
-          >
-            Clear
-          </button>
-        </div>
-      )}
-      <div className="relative">
-        <textarea
-          id="composer"
-          ref={props.textareaRef}
-          onFocus={onComposerIntent}
-          className={classNames(
-            'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
-            'transition-all duration-200',
-          )}
-          onDragEnter={(e) => {
-            e.preventDefault();
-            e.currentTarget.style.border = '2px solid var(--hype-accent)';
+      <div
+        className="hype-composer w-full min-w-0 p-3"
+        data-testid="composer-card"
+        data-contain="card"
+        onPointerEnter={onComposerIntent}
+      >
+        <FilePreview
+          files={props.uploadedFiles}
+          imageDataList={props.imageDataList}
+          onRemove={(index) => {
+            props.setUploadedFiles?.(props.uploadedFiles.filter((_, i) => i !== index));
+            props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
           }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.currentTarget.style.border = '2px solid var(--hype-accent)';
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--hype-border)';
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--hype-border)';
-
-            const files = Array.from(e.dataTransfer.files);
-            files.forEach((file) => {
-              if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-
-                reader.onload = (e) => {
-                  const base64Image = e.target?.result as string;
-                  props.setUploadedFiles?.([...props.uploadedFiles, file]);
-                  props.setImageDataList?.([...props.imageDataList, base64Image]);
-                };
-                reader.readAsDataURL(file);
-              }
-            });
-          }}
-          onKeyDown={(event) => {
-            onComposerIntent();
-
-            if (event.key === 'Enter') {
-              if (event.shiftKey) {
-                return;
-              }
-
-              event.preventDefault();
-
-              if (props.isStreaming) {
-                props.handleStop?.();
-                return;
-              }
-
-              // ignore if using input method engine
-              if (event.nativeEvent.isComposing) {
-                return;
-              }
-
-              props.handleSendMessage?.(event);
-            }
-          }}
-          value={props.input}
-          onChange={(event) => {
-            props.handleInputChange?.(event);
-          }}
-          onPaste={props.handlePaste}
-          style={{
-            minHeight: props.TEXTAREA_MIN_HEIGHT,
-            maxHeight: props.TEXTAREA_MAX_HEIGHT,
-          }}
-          aria-label={props.chatMode === 'build' ? 'Describe your app' : 'Discuss with the model'}
-          placeholder={
-            props.chatMode === 'build'
-              ? 'Describe your app, e.g. a habit tracker with streaks and dark mode'
-              : 'What would you like to discuss?'
-          }
-          translate="no"
         />
-        <div className="flex items-center gap-1.5 pt-1">
-          <ClientOnly>
-            {() => (
-              <AttachmentMenu
-                onAttachFile={() => props.handleFileUpload()}
-                onOpenDesignDialog={() => {
-                  const designButton = document.querySelector('[title="Design Palette"]') as HTMLButtonElement;
-                  designButton?.click();
-                }}
-                onEnhancePrompt={() => {
-                  props.enhancePrompt?.();
-                }}
-                connectors={connectors}
-                onConnectorEnabledChange={setConnectorEnabled}
-                onOpenMcpTools={() => setIsMcpToolsOpen(true)}
-                mcpToolsInitialized={mcpToolsInitialized}
-                webSearchEnabled={mcpSettings.webSearchEnabled}
-                onWebSearchEnabledChange={setWebSearchEnabled}
-                enhancingPrompt={props.enhancingPrompt}
-                isEnhanceDisabled={props.input.length === 0 || props.enhancingPrompt}
-                isListening={props.isListening}
-                onToggleListening={() => {
-                  if (props.isListening) {
-                    props.stopListening();
-                  } else {
-                    props.startListening();
-                  }
-                }}
-                micDisabled={props.isStreaming}
-                chatMode={props.chatMode}
-                agentMode={props.agentMode}
-                setChatMode={props.setChatMode}
-                setAgentMode={props.setAgentMode}
-              />
-            )}
-          </ClientOnly>
-          <div className="hidden">
-            <Suspense fallback={null}>
-              <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-              <SupabaseConnection />
-            </Suspense>
+        <ClientOnly>
+          {() => (
+            <ScreenshotStateManager
+              setUploadedFiles={props.setUploadedFiles}
+              setImageDataList={props.setImageDataList}
+              uploadedFiles={props.uploadedFiles}
+              imageDataList={props.imageDataList}
+            />
+          )}
+        </ClientOnly>
+        {props.selectedElement && (
+          <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
+            <div className="flex gap-2 items-center lowercase">
+              <code className="bg-hype-accent rounded-[var(--hype-radius-sm)] px-1.5 py-1 mr-0.5 text-hype-on-accent">
+                {props?.selectedElement?.tagName}
+              </code>
+              selected for inspection
+            </div>
+            <button
+              type="button"
+              className="hype-text-link pointer-auto"
+              onClick={() => props.setSelectedElement?.(null)}
+            >
+              Clear
+            </button>
           </div>
-          {isMcpToolsOpen ? (
-            <Suspense fallback={null}>
-              <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
-            </Suspense>
-          ) : null}
-          <PlanFirstChip chatMode={props.chatMode} />
-          {!props.chatStarted ? (
-            <span className="hidden text-[11px] text-hype-muted sm:inline" data-testid="composer-shortcut-hint">
-              Enter to send · Shift+Enter for a new line
-            </span>
-          ) : null}
-          <div onPointerEnter={() => props.onModelPickerOpen?.()} onFocusCapture={() => props.onModelPickerOpen?.()}>
-            <ClientOnly>
-              {() => (
-                <Suspense fallback={null}>
-                  <ModelKeyPopover
-                    open={modelKeyOpen}
-                    onOpenChange={(open) => {
-                      setModelKeyOpen(open);
+        )}
+        <div className="relative">
+          <textarea
+            id="composer"
+            ref={props.textareaRef}
+            onFocus={onComposerIntent}
+            className={classNames(
+              'w-full resize-none bg-transparent px-3 pt-3 text-sm text-bolt-elements-textPrimary outline-none placeholder-bolt-elements-textTertiary',
+              'transition-all duration-200',
+            )}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.border = '2px solid var(--hype-accent)';
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.border = '2px solid var(--hype-accent)';
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.border = '1px solid var(--hype-border)';
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.border = '1px solid var(--hype-border)';
 
-                      if (open) {
-                        props.onModelPickerOpen?.();
+              const files = Array.from(e.dataTransfer.files);
+              files.forEach((file) => {
+                if (file.type.startsWith('image/')) {
+                  const reader = new FileReader();
+
+                  reader.onload = (e) => {
+                    const base64Image = e.target?.result as string;
+                    props.setUploadedFiles?.([...props.uploadedFiles, file]);
+                    props.setImageDataList?.([...props.imageDataList, base64Image]);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              });
+            }}
+            onKeyDown={(event) => {
+              onComposerIntent();
+
+              if (event.key === 'Enter') {
+                if (event.shiftKey) {
+                  return;
+                }
+
+                event.preventDefault();
+
+                if (props.isStreaming) {
+                  props.handleStop?.();
+                  return;
+                }
+
+                // ignore if using input method engine
+                if (event.nativeEvent.isComposing) {
+                  return;
+                }
+
+                props.handleSendMessage?.(event);
+              }
+            }}
+            value={props.input}
+            onChange={(event) => {
+              props.handleInputChange?.(event);
+            }}
+            onPaste={props.handlePaste}
+            style={{
+              minHeight: props.TEXTAREA_MIN_HEIGHT,
+              maxHeight: props.TEXTAREA_MAX_HEIGHT,
+            }}
+            aria-label={chatMode === 'discuss' ? 'Discuss with the model' : 'Describe your app'}
+            placeholder={composerPlaceholder(chatMode)}
+            translate="no"
+          />
+          <div className="hype-composer-footer pt-1">
+            <div className="hype-composer-footer__plus">
+              <ClientOnly>
+                {() => (
+                  <AttachmentMenu
+                    onAttachFile={() => props.handleFileUpload()}
+                    onOpenDesignDialog={() => {
+                      const designButton = document.querySelector('[title="Design Palette"]') as HTMLButtonElement;
+                      designButton?.click();
+                    }}
+                    onEnhancePrompt={() => {
+                      props.enhancePrompt?.();
+                    }}
+                    connectors={connectors}
+                    onConnectorEnabledChange={setConnectorEnabled}
+                    onOpenMcpTools={() => setIsMcpToolsOpen(true)}
+                    mcpToolsInitialized={mcpToolsInitialized}
+                    webSearchEnabled={mcpSettings.webSearchEnabled}
+                    onWebSearchEnabledChange={setWebSearchEnabled}
+                    enhancingPrompt={props.enhancingPrompt}
+                    isEnhanceDisabled={props.input.length === 0 || props.enhancingPrompt}
+                    isListening={props.isListening}
+                    onToggleListening={() => {
+                      if (props.isListening) {
+                        props.stopListening();
+                      } else {
+                        props.startListening();
                       }
                     }}
-                    provider={props.provider}
-                    providerList={props.providerList}
-                    model={props.model}
-                    modelList={props.modelList}
-                    apiKeys={props.apiKeys}
-                    isModelLoading={props.isModelLoading}
-                    setProvider={props.setProvider}
-                    setModel={props.setModel}
-                    onApiKeysChange={props.onApiKeysChange}
+                    micDisabled={props.isStreaming}
+                    chatMode={chatMode}
+                    agentMode={props.agentMode}
+                    setChatMode={props.setChatMode}
+                    setAgentMode={props.setAgentMode}
                   />
-                </Suspense>
-              )}
-            </ClientOnly>
-          </div>
-          <div className="ml-auto flex min-w-0 items-center gap-1.5">
-            {!props.chatStarted && props.model ? (
-              <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />
+                )}
+              </ClientOnly>
+            </div>
+            <div className="hidden">
+              <Suspense fallback={null}>
+                <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
+                <SupabaseConnection />
+              </Suspense>
+            </div>
+            {isMcpToolsOpen ? (
+              <Suspense fallback={null}>
+                <McpTools open={isMcpToolsOpen} onOpenChange={setIsMcpToolsOpen} />
+              </Suspense>
             ) : null}
-            <ClientOnly>
-              {() => (
-                <SendButton
-                  isStreaming={props.isStreaming}
-                  armed={canSend}
-                  disabled={(!canSend && !props.isStreaming) || !props.providerList || props.providerList.length === 0}
-                  onClick={(event) => {
-                    if (props.isStreaming) {
-                      props.handleStop?.();
-                      return;
-                    }
+            {chatMode === 'discuss' ? (
+              <Chip
+                selected
+                aria-pressed="true"
+                aria-label="Discuss mode. Click to switch to build."
+                title="Discuss mode. Click to switch to build."
+                className="hype-composer-footer__chip"
+                onClick={() => props.setChatMode?.('build')}
+              >
+                Discuss
+              </Chip>
+            ) : (
+              <span className="hype-composer-footer__chip">
+                <PlanFirstChip chatMode="build" />
+              </span>
+            )}
+            <div
+              className="hype-composer-footer__model"
+              onPointerEnter={() => props.onModelPickerOpen?.()}
+              onFocusCapture={() => props.onModelPickerOpen?.()}
+            >
+              <ClientOnly>
+                {() => (
+                  <Suspense fallback={null}>
+                    <ModelKeyPopover
+                      open={modelKeyOpen}
+                      onOpenChange={(open) => {
+                        setModelKeyOpen(open);
 
-                    if (canSend) {
-                      props.handleSendMessage?.(event);
+                        if (open) {
+                          props.onModelPickerOpen?.();
+                        }
+                      }}
+                      provider={props.provider}
+                      providerList={props.providerList}
+                      model={props.model}
+                      modelList={props.modelList}
+                      apiKeys={props.apiKeys}
+                      isModelLoading={props.isModelLoading}
+                      setProvider={props.setProvider}
+                      setModel={props.setModel}
+                      onApiKeysChange={props.onApiKeysChange}
+                    />
+                  </Suspense>
+                )}
+              </ClientOnly>
+            </div>
+            {!props.chatStarted && props.model ? (
+              <span className="hype-composer-footer__cost">
+                <PlanEstimateChip model={props.model} provider={props.provider?.name} input={props.input} />
+              </span>
+            ) : null}
+            <div className="hype-composer-footer__send">
+              <ClientOnly>
+                {() => (
+                  <SendButton
+                    isStreaming={props.isStreaming}
+                    armed={canSend}
+                    disabled={
+                      (!canSend && !props.isStreaming) || !props.providerList || props.providerList.length === 0
                     }
-                  }}
-                />
-              )}
-            </ClientOnly>
+                    onClick={(event) => {
+                      if (props.isStreaming) {
+                        props.handleStop?.();
+                        return;
+                      }
+
+                      if (canSend) {
+                        props.handleSendMessage?.(event);
+                      }
+                    }}
+                  />
+                )}
+              </ClientOnly>
+            </div>
+            {props.qrModalOpen ? (
+              <Suspense fallback={null}>
+                <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
+              </Suspense>
+            ) : null}
           </div>
-          {props.qrModalOpen ? (
-            <Suspense fallback={null}>
-              <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
-            </Suspense>
-          ) : null}
         </div>
       </div>
+      {!props.chatStarted ? (
+        <p className="hype-composer-hint" data-testid="composer-shortcut-hint">
+          {COMPOSER_SHORTCUT_HINT}
+        </p>
+      ) : null}
     </div>
   );
 };
@@ -439,14 +468,11 @@ function PlanEstimateChip({ model, provider, input }: { model: string; provider?
     completionHint: 'A structured plan with pages, data, features, and a cost range.',
   });
 
-  const amount = estimate.unknown ? 'set a price' : formatDollars(estimate.dollars, 2);
+  const copy = planEstimateCopy(estimate.unknown, formatDollars(estimate.dollars, 2));
 
   return (
-    <Chip tone="default" disabled className="whitespace-nowrap">
-      <span className="sm:hidden">{amount}</span>
-      <span className="hidden sm:inline">
-        {estimate.unknown ? 'set a price to estimate' : `about ${amount} to plan`}
-      </span>
+    <Chip tone="default" disabled title={copy.title}>
+      {copy.text}
     </Chip>
   );
 }

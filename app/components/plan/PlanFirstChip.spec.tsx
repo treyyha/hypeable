@@ -40,6 +40,11 @@ describe('PlanFirstChip', () => {
     expect(screen.getByRole('button', { name: 'Plan first is on' })).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('shows on first paint when chatMode is omitted', () => {
+    render(<PlanFirstChip />);
+    expect(screen.getByRole('button', { name: /Plan first/ })).toBeTruthy();
+  });
+
   it('is hidden in discuss mode and while a plan is pending', () => {
     const { rerender } = render(<PlanFirstChip chatMode="discuss" />);
     expect(screen.queryByRole('button', { name: /Plan first/ })).toBeNull();

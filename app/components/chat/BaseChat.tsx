@@ -140,7 +140,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       llmErrorAlert,
       clearLlmErrorAlert,
       progressAnnotations: incomingProgressAnnotations,
-      chatMode,
+      chatMode = 'build',
       setChatMode,
       agentMode,
       setAgentMode,
@@ -516,7 +516,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   className={classNames('z-prompt mx-auto my-auto mb-6 flex w-full flex-col gap-2', {
                     'sticky bottom-2': chatStarted,
                     'max-w-chat': chatStarted,
-                    'max-w-[520px]': !chatStarted,
+                    'max-w-[720px]': !chatStarted,
                   })}
                 >
                   <div className="flex flex-col gap-2">

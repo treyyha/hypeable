@@ -46,6 +46,8 @@ Ghost/secondary: `--hype-surface-2` fill, 1px `--hype-border`, token text, sligh
 
 Plan Card, loop panel, cap modal, cost popover, settings, and onboarding consume those tokens. Empty states are honest — no fake charts or placeholder spend.
 
+Home composer (empty chat): max-width 720px, centred. One footer row — attach, Plan first (or Discuss when that mode is on), model/key chip (`min-width: 0` + ellipsis), estimate chip, round lime send. Keyboard hint sits under the card, not in the row. Send stays inside the card at every width. Chip colours live on `.hype-chip` in tokens so they are not overridden by the unthemed `button` reset.
+
 ## Quality
 
 AA contrast on both themes, visible `:focus-visible` rings, keyboard navigation, usable at 375×812 / 768×1024 / 1440×900 (Chat | Preview | Code tabs below 1024px), reduced motion respected.

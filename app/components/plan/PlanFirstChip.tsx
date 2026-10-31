@@ -14,7 +14,8 @@ export function PlanFirstChip({ chatMode }: PlanFirstChipProps) {
   const settings = useStore(planSettingsStore);
   const planUi = useStore(planStore);
 
-  if (chatMode !== 'build' || planUi.pending) {
+  // Empty chat and SSR omit chatMode; treat that as build so the chip is on first paint.
+  if ((chatMode ?? 'build') !== 'build' || planUi.pending) {
     return null;
   }
 
