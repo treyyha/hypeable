@@ -29,7 +29,9 @@ export function modelChipCaption(input: { keyReady: boolean; providerName?: stri
   if (!input.keyReady) {
     return {
       visible: 'Add key',
-      title: `${full}. Add a key. Model and key`,
+
+      // Visible label must appear in the accessible name (WCAG 2.5.3).
+      title: `Add key. ${full}. Model and key`,
     };
   }
 
@@ -96,7 +98,8 @@ export function ModelKeyPopover({
           align="start"
           sideOffset={8}
           aria-label="Model and key"
-          className="z-[9999] w-[min(26rem,calc(100vw-1.5rem))] rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3 shadow-[var(--hype-shadow-lg)]"
+          data-contain="dialog"
+          className="z-[9999] w-[min(26rem,calc(100vw-1.5rem))] min-w-0 overflow-hidden rounded-[var(--hype-radius-lg)] border border-hype-border bg-hype-surface p-3 shadow-[var(--hype-shadow-lg)]"
         >
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-hype-muted">Model and key</p>
           <ModelSelector

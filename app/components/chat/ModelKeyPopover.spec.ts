@@ -6,7 +6,7 @@ describe('modelChipCaption', () => {
     expect(modelChipCaption({ keyReady: false, providerName: 'Anthropic', model: 'claude-3-5-sonnet-latest' })).toEqual(
       {
         visible: 'Add key',
-        title: 'Anthropic · claude-3-5-sonnet-latest. Add a key. Model and key',
+        title: 'Add key. Anthropic · claude-3-5-sonnet-latest. Model and key',
       },
     );
   });

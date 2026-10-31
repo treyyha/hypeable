@@ -450,7 +450,7 @@ export const ModelSelector = ({
   }
 
   return (
-    <div className="flex gap-2 flex-col sm:flex-row">
+    <div className="flex min-w-0 flex-col gap-2">
       {/* Provider Combobox */}
       <div className="relative flex w-full" onKeyDown={handleProviderKeyDown} ref={providerDropdownRef}>
         <div
@@ -654,7 +654,7 @@ export const ModelSelector = ({
       </div>
 
       {/* Model Combobox */}
-      <div className="relative flex w-full min-w-[70%]" onKeyDown={handleModelKeyDown} ref={modelDropdownRef}>
+      <div className="relative flex w-full min-w-0" onKeyDown={handleModelKeyDown} ref={modelDropdownRef}>
         <div
           className={classNames(
             'w-full p-2 rounded-lg border border-bolt-elements-borderColor',
