@@ -3,6 +3,7 @@ import { isLlmRoute, LLM_NO_STORE_HEADERS } from '~/lib/api/request-keys';
 import { canonicalPathname } from '~/lib/security/headers';
 import { assertSameOrigin } from '~/lib/security/origin';
 import { installSafeConsole, redactUnknown } from '~/lib/security/redact';
+import { discardUnreadBody } from '~/lib/security/unread-body';
 
 installSafeConsole();
 
@@ -285,6 +286,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
     // Check allowed methods
     if (options.allowedMethods && !options.allowedMethods.includes(request.method)) {
+      await discardUnreadBody(request);
+
       return new Response('Method not allowed', {
         status: 405,
         headers: createSecurityHeaders(),
@@ -299,6 +302,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
           const headers = new Headers(error.headers);
           Object.entries(createSecurityHeaders()).forEach(([key, value]) => headers.set(key, value));
 
+          await discardUnreadBody(request);
+
           return new Response(error.body, { status: error.status, statusText: error.statusText, headers });
         }
 
@@ -311,6 +316,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
       const rateLimitResult = checkRateLimit(request, endpoint, args.context);
 
       if (rateLimitResult.unavailable) {
+        await discardUnreadBody(request);
+
         return new Response('Rate limiting requires trusted client IP configuration', {
           status: 503,
           headers: createSecurityHeaders(),
@@ -318,6 +325,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
       }
 
       if (!rateLimitResult.allowed) {
+        await discardUnreadBody(request);
+
         return new Response(
           JSON.stringify({
             error: true,
@@ -331,6 +340,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
             headers: {
               ...createSecurityHeaders(),
               'Content-Type': 'application/json',
+              Connection: 'close',
               'Retry-After': Math.ceil((rateLimitResult.resetTime! - Date.now()) / 1000).toString(),
               'X-RateLimit-Reset': rateLimitResult.resetTime!.toString(),
             },
@@ -344,6 +354,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         const edgeAllowed = await checkCloudflareRateLimit(args.context, endpoint, clientIP);
 
         if (!edgeAllowed) {
+          await discardUnreadBody(request);
+
           return new Response(
             JSON.stringify({
               error: true,
@@ -357,6 +369,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
               headers: {
                 ...createSecurityHeaders(),
                 'Content-Type': 'application/json',
+                Connection: 'close',
                 'Retry-After': '60',
               },
             },

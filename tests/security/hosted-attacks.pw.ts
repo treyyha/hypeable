@@ -260,6 +260,26 @@ test.describe('hosted attacks', () => {
     expect(statuses, 'path variants must share one /api/chat rate-limit bucket').toContain(429);
   });
 
+  test('rate-limited uploads get a clean 429, never a dropped connection', async ({ request, baseURL }) => {
+    const origin = originOf(baseURL);
+    const statuses: Array<number | string> = [];
+
+    for (let i = 0; i < 120; i += 1) {
+      try {
+        const res = await request.post('/api/chat', {
+          headers: { Origin: origin, 'Content-Type': 'application/json', 'cf-connecting-ip': '198.51.100.78' },
+          data: JSON.stringify({ pad: 'x'.repeat(20_000) }),
+        });
+        statuses.push(res.status());
+      } catch (error) {
+        statuses.push(error instanceof Error ? error.message.split('\n')[0] : 'error');
+      }
+    }
+
+    expect(statuses).toContain(429);
+    expect(statuses.filter((status) => status !== 400 && status !== 429)).toEqual([]);
+  });
+
   test('oversized and malformed bodies are refused cheaply', async ({ request, baseURL }) => {
     const origin = originOf(baseURL);
     const big = 'x'.repeat(2 * 1024 * 1024);

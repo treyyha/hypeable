@@ -287,7 +287,14 @@ export function toApiErrorResponse(error: unknown, fallbackProvider = 'unknown')
         isRetryable: error.isRetryable,
         provider: error.provider ?? fallbackProvider,
       } satisfies ApiErrorBody,
-      { status: error.status, headers: { 'Content-Type': 'application/json', ...LLM_NO_STORE_HEADERS } },
+      {
+        status: error.status,
+        headers: {
+          'Content-Type': 'application/json',
+          ...LLM_NO_STORE_HEADERS,
+          ...(error.status === 413 ? { Connection: 'close' } : {}),
+        },
+      },
     );
   }
 

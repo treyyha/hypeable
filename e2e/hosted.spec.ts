@@ -33,8 +33,10 @@ test.describe('hosted mode', () => {
     expect(hosted404Hits, `opening the key dialog requested ${hosted404Hits.join(', ')}`).toEqual([]);
     await expect(page.getByTestId('run-locally-hint').first()).toBeVisible({ timeout: 20_000 });
 
+    const origin = new URL(page.url()).origin;
+
     const llmcall = await request.post('/api/llmcall', {
-      headers: { Origin: 'http://localhost:5173' },
+      headers: { Origin: origin },
       data: {
         message: 'hello',
         model: 'mock-model',
@@ -56,10 +58,13 @@ test.describe('hosted mode', () => {
     const gitUserinfo = await request.get('/api/git-proxy/evil.com@github.com/owner/repo.git/info/refs');
     expect(gitUserinfo.status()).toBe(403);
 
-    const gitOptions = await request.fetch('/api/git-proxy/github.com/owner/repo.git/info/refs?service=git-upload-pack', {
-      method: 'OPTIONS',
-      headers: { Origin: 'https://evil.example' },
-    });
+    const gitOptions = await request.fetch(
+      '/api/git-proxy/github.com/owner/repo.git/info/refs?service=git-upload-pack',
+      {
+        method: 'OPTIONS',
+        headers: { Origin: 'https://evil.example' },
+      },
+    );
     expect(gitOptions.status()).toBe(204);
     expect(gitOptions.headers()['access-control-allow-origin']).toBeFalsy();
 
@@ -95,6 +100,7 @@ test.describe('hosted mode', () => {
     const sitemap = await request.get('/sitemap.xml');
     expect(sitemap.status()).toBe(200);
     expect(await sitemap.text()).toContain('https://hypeable.dev/privacy');
+
     const privacy = await request.get('/privacy');
     expect(privacy.status()).toBe(200);
     expect(await privacy.text()).toContain('selectedProvider');
@@ -114,8 +120,8 @@ test.describe('hosted mode', () => {
     expect(await securityTxt.text()).toContain('https://github.com/treyyha/hypeable/security/advisories/new');
   });
 
-  test('connector and deploy APIs require the user token and stay on allowed hosts', async ({ request }) => {
-    const origin = 'http://localhost:5173';
+  test('connector and deploy APIs require the user token and stay on allowed hosts', async ({ request, baseURL }) => {
+    const origin = new URL(baseURL ?? 'http://localhost:5173').origin;
     const jsonHeaders = { Origin: origin, 'Content-Type': 'application/json' };
 
     const vercelNoToken = await request.post('/api/vercel-deploy', {

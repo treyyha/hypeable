@@ -1,4 +1,5 @@
 import { PayloadTooLargeError, RequestAbortedError, RequestTimeoutError, ValidationError } from './errors';
+import { discardUnreadBody } from '~/lib/security/unread-body';
 
 /**
  * Reads a request body under a byte budget, with a deadline and cancellation.
@@ -32,6 +33,11 @@ export async function readBodyText(
   const declaredLength = Number(request.headers.get('content-length'));
 
   if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
+    /*
+     * workerd keeps the upload on the same TCP connection. Answering 413
+     * without touching the body then RST the next request on that socket.
+     */
+    await discardUnreadBody(request);
     throw new PayloadTooLargeError(maxBytes);
   }
 
