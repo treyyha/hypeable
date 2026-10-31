@@ -107,6 +107,12 @@ Worker → **Deployments** → last good production deployment → **Rollback to
 
 The in-browser runtime is [WebContainer](https://webcontainers.io/) from StackBlitz. **Free for open source and non-commercial use.** The public site must not show ads or paid features without a StackBlitz commercial licence. After the first build, the runtime and preview frames load from StackBlitz-hosted domains. We have not audited what StackBlitz sees.
 
+## Workers Paid before any public launch
+
+**Use Workers Paid before inviting the public.** The Free plan is 100,000 Worker requests per day. One browser can issue about 70 requests per minute (chat, models, health, HTML navigations, and React Router `.data` loads), which is ~100,000 in a day. A handful of concurrent users, or a refresh loop, exhausts the quota and the site 429s for everyone else. Paid raises the daily cap and the isolate CPU budget. Static assets (`/assets/*`, favicons, `robots.txt`) do not count; every HTML document and every `/api/*` call does. See [LIMITS.md](LIMITS.md).
+
+Do not flip `workers_dev` on to “save” quota. That subdomain is off on purpose.
+
 ## Cost and limits (Cloudflare Free, as of 2026)
 
 | Item | Free plan |
