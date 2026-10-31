@@ -9,7 +9,6 @@ import {
   isFetchingApiKeys,
   updateSupabaseConnection,
   fetchProjectApiKeys,
-  initializeSupabaseConnection,
 } from '~/lib/stores/supabase';
 
 export function useSupabaseConnection({ enabled = true }: { enabled?: boolean } = {}) {
@@ -28,15 +27,6 @@ export function useSupabaseConnection({ enabled = true }: { enabled?: boolean } 
     const initConnection = async () => {
       console.log('useSupabaseConnection: Initializing connection...');
 
-      // First, try to initialize from server-side token
-      try {
-        await initializeSupabaseConnection();
-        console.log('useSupabaseConnection: Server-side initialization completed');
-      } catch {
-        console.log('useSupabaseConnection: Server-side initialization failed, trying localStorage');
-      }
-
-      // Then check localStorage for additional data
       const savedConnection = localStorage.getItem('supabase_connection');
       const savedCredentials = localStorage.getItem('supabaseCredentials');
 

@@ -18,16 +18,9 @@ import {
   updateSupabaseConnection,
   fetchSupabaseStats,
   fetchProjectApiKeys,
-  initializeSupabaseConnection,
   type SupabaseProject,
 } from '~/lib/stores/supabase';
 import { classNames } from '~/utils/classNames';
-
-interface ConnectionTestResult {
-  status: 'success' | 'error' | 'testing';
-  message: string;
-  timestamp?: number;
-}
 
 interface ProjectAction {
   name: string;
@@ -67,48 +60,8 @@ export default function SupabaseTab() {
 
   const [tokenInput, setTokenInput] = useState('');
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(false);
-  const [connectionTest, setConnectionTest] = useState<ConnectionTestResult | null>(null);
   const [isProjectActionLoading, setIsProjectActionLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-
-  // Connection testing function - uses server-side API to test environment token
-  const testConnection = async () => {
-    setConnectionTest({
-      status: 'testing',
-      message: 'Testing connection...',
-    });
-
-    try {
-      const response = await fetch('/api/supabase-user', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = (await response.json()) as any;
-        setConnectionTest({
-          status: 'success',
-          message: `Connected successfully using environment token. Found ${data.projects?.length || 0} projects`,
-          timestamp: Date.now(),
-        });
-      } else {
-        const errorData = (await response.json().catch(() => ({}))) as { error?: string };
-        setConnectionTest({
-          status: 'error',
-          message: `Connection failed: ${errorData.error || `${response.status} ${response.statusText}`}`,
-          timestamp: Date.now(),
-        });
-      }
-    } catch (error) {
-      setConnectionTest({
-        status: 'error',
-        message: `Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: Date.now(),
-      });
-    }
-  };
 
   // Project actions
   const projectActions: ProjectAction[] = [
@@ -208,26 +161,6 @@ export default function SupabaseTab() {
     },
   ];
 
-  // Initialize connection on component mount - check server-side token first
-  useEffect(() => {
-    const initializeConnection = async () => {
-      try {
-        // First try to initialize using server-side token
-        await initializeSupabaseConnection();
-
-        // If no connection was established, the user will need to manually enter a token
-        const currentState = supabaseConnection.get();
-
-        if (!currentState.user) {
-          console.log('No server-side Supabase token available, manual connection required');
-        }
-      } catch (error) {
-        console.error('Failed to initialize Supabase connection:', error);
-      }
-    };
-    initializeConnection();
-  }, []);
-
   useEffect(() => {
     const fetchProjects = async () => {
       if (connection.user && connection.token && !connection.stats) {
@@ -272,7 +205,6 @@ export default function SupabaseTab() {
       project: undefined,
       credentials: undefined,
     });
-    setConnectionTest(null);
     setSelectedProjectId('');
     toast.success('Disconnected from Supabase');
   };
@@ -649,29 +581,6 @@ export default function SupabaseTab() {
             Supabase Integration
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          {connection.user && (
-            <Button
-              onClick={testConnection}
-              disabled={connectionTest?.status === 'testing'}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 hover:bg-bolt-elements-item-backgroundActive/10 hover:text-bolt-elements-textPrimary dark:hover:bg-bolt-elements-item-backgroundActive/10 dark:hover:text-bolt-elements-textPrimary transition-colors"
-            >
-              {connectionTest?.status === 'testing' ? (
-                <>
-                  <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
-                  Testing...
-                </>
-              ) : (
-                <>
-                  <div className="i-ph:plug-charging w-4 h-4" />
-                  Test Connection
-                </>
-              )}
-            </Button>
-          )}
-        </div>
       </motion.div>
 
       <p className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
@@ -695,44 +604,6 @@ export default function SupabaseTab() {
         ]}
       />
 
-      {/* Connection Test Results */}
-      {connectionTest && (
-        <motion.div
-          className={classNames('p-4 rounded-lg border', {
-            'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700':
-              connectionTest.status === 'success',
-            'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700': connectionTest.status === 'error',
-            'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700': connectionTest.status === 'testing',
-          })}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="flex items-center gap-2">
-            {connectionTest.status === 'success' && (
-              <div className="i-ph:check-circle w-5 h-5 text-green-600 dark:text-green-400" />
-            )}
-            {connectionTest.status === 'error' && (
-              <div className="i-ph:warning-circle w-5 h-5 text-red-600 dark:text-red-400" />
-            )}
-            {connectionTest.status === 'testing' && (
-              <div className="i-ph:spinner-gap w-5 h-5 animate-spin text-blue-600 dark:text-blue-400" />
-            )}
-            <span
-              className={classNames('text-sm font-medium', {
-                'text-green-800 dark:text-green-200': connectionTest.status === 'success',
-                'text-red-800 dark:text-red-200': connectionTest.status === 'error',
-                'text-blue-800 dark:text-blue-200': connectionTest.status === 'testing',
-              })}
-            >
-              {connectionTest.message}
-            </span>
-          </div>
-          {connectionTest.timestamp && (
-            <p className="text-xs text-gray-500 mt-1">{new Date(connectionTest.timestamp).toLocaleString()}</p>
-          )}
-        </motion.div>
-      )}
-
       {/* Main Connection Component */}
       <motion.div
         className="bg-bolt-elements-background dark:bg-bolt-elements-background border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-lg"
@@ -743,17 +614,6 @@ export default function SupabaseTab() {
         <div className="p-6 space-y-6">
           {!connection.user ? (
             <div className="space-y-4">
-              <div className="text-xs text-bolt-elements-textSecondary bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 p-3 rounded-lg mb-4">
-                <p className="flex items-center gap-1 mb-1">
-                  <span className="i-ph:lightbulb w-3.5 h-3.5 text-bolt-elements-icon-success dark:text-bolt-elements-icon-success" />
-                  <span className="font-medium">Tip:</span> You can also set the{' '}
-                  <code className="px-1 py-0.5 bg-bolt-elements-background-depth-2 dark:bg-bolt-elements-background-depth-2 rounded">
-                    VITE_SUPABASE_ACCESS_TOKEN
-                  </code>{' '}
-                  environment variable to connect automatically.
-                </p>
-              </div>
-
               <div>
                 <label className="block text-sm text-bolt-elements-textSecondary mb-2">Access Token</label>
                 <input

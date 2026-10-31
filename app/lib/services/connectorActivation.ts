@@ -123,12 +123,10 @@ export async function activateConnector(connector: ConnectorActivationId, entere
     }
 
     case 'supabase': {
-      const token = apiKey || supabaseConnection.get().token || import.meta.env?.VITE_SUPABASE_ACCESS_TOKEN;
+      const token = apiKey || supabaseConnection.get().token;
 
       if (!token) {
-        await ensureServerCredential('/api/supabase-user');
-
-        return;
+        throw new Error('Enter a Supabase access token to enable this connector.');
       }
 
       const response = await fetch('/api/supabase', {

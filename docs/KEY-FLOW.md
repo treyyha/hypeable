@@ -46,7 +46,7 @@ Connector tokens (GitHub, GitLab, Vercel, Netlify, Supabase) are stored in the b
 |---|---|
 | GitHub / GitLab publish | Browser → `api.github.com` / GitLab API (CORS). Pre-deploy modal in the UI first. |
 | Vercel / Netlify publish | Browser → `/api/vercel-deploy` or `/api/netlify-deploy` (user token in the body) → provider. Server re-scans files. Site/project is created **in the user's account**. |
-| Supabase | Browser → `/api/supabase*` with the user's management token. Not a static-host publish. |
+| Supabase | Browser → `/api/supabase*` with the user's management token. Not a static-host publish. There is no keyless or environment-token activation and no `/api/supabase-user` route; the user must paste a token. |
 
 | Route | Client | Header attached |
 |---|---|---|
