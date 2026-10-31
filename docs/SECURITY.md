@@ -39,7 +39,7 @@ Enforcing CSP (`app/lib/security/headers.ts` `CSP_ENFORCING`) keeps `https:` on 
 
 Constants: `app/lib/security/headers.ts`.
 
-Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is same-origin only on hosted (the product uses the relative URL `corsProxy: '/api/git-proxy'`). Local debug routes (`/api/system/git-info`, `/api/system/diagnostics`) reflect a loopback `Origin` or send no CORS header — never `*`. Both return 404 on hosted.
+Hosted JSON does not send `Access-Control-Allow-Origin`. `/api/git-proxy/*` is same-origin only on hosted (the product uses the relative URL `corsProxy: '/api/git-proxy'`). It forwards only git headers, follows redirects only inside the allowlist, and drops `Authorization` / `X-Authorization` when a redirect changes origin. Local debug routes (`/api/system/git-info`, `/api/system/diagnostics`) reflect a loopback `Origin` or send no CORS header — never `*`. Both return 404 on hosted.
 
 ## Where each snippet is
 `templates/security/validate.ts`, `rate-limit.ts`, `session.ts`, `crypto.ts`, `require-auth.ts`, `vercel.json` (headers). Copy into `app/lib/security/` and adapt.

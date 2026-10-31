@@ -216,6 +216,8 @@ async function fetchGitProxy(
       return { response, finalUrl: current };
     }
 
+    const previous = current;
+
     if (allowed) {
       current = resolveAllowlistedRedirect(current, location, allowed).href;
     } else {
@@ -229,9 +231,17 @@ async function fetchGitProxy(
     }
 
     const keepMethod = response.status === 307 || response.status === 308;
+    const headers = new Headers(init.headers);
+
+    // Same rule as fetch(): a token for one host must not follow a redirect to another.
+    if (new URL(current).origin !== new URL(previous).origin) {
+      headers.delete('authorization');
+      headers.delete('x-authorization');
+    }
 
     init = {
       ...init,
+      headers,
       method: keepMethod ? init.method : 'GET',
       body: keepMethod ? init.body : undefined,
       duplex: keepMethod ? init.duplex : undefined,
