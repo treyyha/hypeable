@@ -69,10 +69,7 @@ export function ErrorState({
       <h3 className={classNames('font-medium text-bolt-elements-textPrimary mb-1', textSizeClasses[size])}>{title}</h3>
       <p className={classNames('text-bolt-elements-textSecondary mb-4', textSizeClasses[size])}>{message}</p>
       {onRetry && (
-        <button
-          onClick={onRetry}
-          className="px-4 py-2 bg-bolt-elements-item-contentAccent text-white rounded-lg hover:bg-bolt-elements-item-contentAccent/90 transition-colors"
-        >
+        <button onClick={onRetry} className="hype-btn hype-btn--primary h-auto rounded-lg px-4 py-2">
           {retryLabel}
         </button>
       )}
@@ -115,10 +112,7 @@ export function SuccessState({
       <h3 className={classNames('font-medium text-bolt-elements-textPrimary mb-1', textSizeClasses[size])}>{title}</h3>
       <p className={classNames('text-bolt-elements-textSecondary mb-4', textSizeClasses[size])}>{message}</p>
       {onAction && (
-        <button
-          onClick={onAction}
-          className="px-4 py-2 bg-bolt-elements-item-contentAccent text-white rounded-lg hover:bg-bolt-elements-item-contentAccent/90 transition-colors"
-        >
+        <button onClick={onAction} className="hype-btn hype-btn--primary h-auto rounded-lg px-4 py-2">
           {actionLabel}
         </button>
       )}
@@ -141,10 +135,7 @@ export function GitHubConnectionRequired({ onConnect, className = '' }: GitHubCo
         manage your GitHub integration.
       </p>
       {onConnect && (
-        <button
-          onClick={onConnect}
-          className="px-6 py-3 bg-bolt-elements-item-contentAccent text-white rounded-lg hover:bg-bolt-elements-item-contentAccent/90 transition-colors flex items-center gap-2"
-        >
+        <button onClick={onConnect} className="hype-btn hype-btn--primary h-auto rounded-lg px-6 py-3">
           <GitBranch className="w-4 h-4" />
           Connect GitHub
         </button>
@@ -190,10 +181,7 @@ export function InformationState({
       <h3 className={classNames('font-medium text-bolt-elements-textPrimary mb-1', textSizeClasses[size])}>{title}</h3>
       <p className={classNames('text-bolt-elements-textSecondary mb-4', textSizeClasses[size])}>{message}</p>
       {onAction && (
-        <button
-          onClick={onAction}
-          className="px-4 py-2 bg-bolt-elements-item-contentAccent text-white rounded-lg hover:bg-bolt-elements-item-contentAccent/90 transition-colors"
-        >
+        <button onClick={onAction} className="hype-btn hype-btn--primary h-auto rounded-lg px-4 py-2">
           {actionLabel}
         </button>
       )}

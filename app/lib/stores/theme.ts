@@ -55,3 +55,8 @@ export function setTheme(newTheme: Theme | string) {
 
   logStore.logSystem(`Theme changed to ${theme}`);
 }
+
+if (!import.meta.env.SSR) {
+  // Tests set theme after load; Layout writes themeStore back onto <html>.
+  (window as Window & { __hypeableSetTheme?: typeof setTheme }).__hypeableSetTheme = setTheme;
+}

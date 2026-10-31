@@ -28,7 +28,7 @@ export default function Privacy() {
         <code className="text-hype-text">sessionStorage</code>). On the public site, model requests and some publish
         calls are relayed through our Cloudflare Worker to the provider you chose, over HTTPS, for that request.
         Details:{' '}
-        <a className="text-hype-text underline underline-offset-2" href={`${APP_REPO_URL}/blob/main/docs/KEY-FLOW.md`}>
+        <a className="hype-text-link" href={`${APP_REPO_URL}/blob/main/docs/KEY-FLOW.md`}>
           KEY-FLOW.md
         </a>
         .

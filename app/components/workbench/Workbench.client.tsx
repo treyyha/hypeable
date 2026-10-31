@@ -455,14 +455,19 @@ export const Workbench = memo(
                     type="button"
                     aria-label={showChat ? 'Hide chat' : 'Show chat'}
                     title={showChat ? 'Hide chat' : 'Show chat'}
-                    className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary mr-1 hidden lg:inline-flex`}
+                    className="hype-icon-btn mr-1 hidden lg:inline-flex"
                     disabled={!canHideChat}
                     onClick={() => {
                       if (canHideChat) {
                         chatStore.setKey('showChat', !showChat);
                       }
                     }}
-                  />
+                  >
+                    <span
+                      className={showChat ? 'i-ph:sidebar-simple-fill text-lg' : 'i-ph:sidebar-simple text-lg'}
+                      aria-hidden="true"
+                    />
+                  </button>
                   <div className="hidden lg:block">
                     <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                   </div>
@@ -477,7 +482,7 @@ export const Workbench = memo(
                         <DropdownMenu.Root>
                           <DropdownMenu.Trigger
                             disabled={isSyncing || streaming}
-                            className="rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-accent-500 text-white hover:text-bolt-elements-item-contentAccent [&:not(:disabled,.disabled)]:hover:bg-bolt-elements-button-primary-backgroundHover outline-accent-500 flex gap-1.7"
+                            className="hype-btn hype-btn--primary rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs flex gap-1.7"
                           >
                             {isSyncing ? 'Syncing...' : 'Sync'}
                             <span className={classNames('i-ph:caret-down transition-transform')} />

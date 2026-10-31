@@ -1,6 +1,8 @@
 import { useStore } from '@nanostores/react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { Button } from '~/components/ui/Button';
+import { TextLink } from '~/components/ui/TextLink';
 import { PROVIDER_SPENDING_LIMITS } from '~/lib/cost/limits';
 import { costStore, setCostCaps, setCustomModelPrice } from '~/lib/stores/cost';
 import { classNames } from '~/utils/classNames';
@@ -94,9 +96,9 @@ export function CostSettings() {
         {PROVIDER_SPENDING_LIMITS.map((provider, index) => (
           <span key={provider.href}>
             {index > 0 ? ' · ' : ''}
-            <a href={provider.href} target="_blank" rel="noreferrer" className="text-accent-300 hover:underline">
+            <TextLink href={provider.href} external>
               {provider.name}
-            </a>
+            </TextLink>
           </span>
         ))}
       </p>
@@ -131,13 +133,9 @@ export function CostSettings() {
             value={outputPrice}
             onChange={(event) => setOutputPrice(event.target.value)}
           />
-          <button
-            type="button"
-            onClick={saveCustomPrice}
-            className="rounded-lg bg-accent-500 px-3 py-2 text-sm font-medium text-gray-950 hover:bg-accent-400"
-          >
+          <Button type="button" variant="primary" onClick={saveCustomPrice}>
             Save
-          </button>
+          </Button>
         </div>
         {Object.keys(snapshot.customPrices).length > 0 && (
           <ul className="mt-3 space-y-1">
@@ -148,7 +146,7 @@ export function CostSettings() {
                 </span>
                 <button
                   type="button"
-                  className="text-red-400 hover:underline"
+                  className="bg-transparent text-hype-danger hover:underline"
                   onClick={() => setCustomModelPrice(model, null)}
                 >
                   Remove

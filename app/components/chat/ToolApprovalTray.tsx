@@ -84,7 +84,7 @@ export function ToolApprovalTray({
                       type="button"
                       disabled={responding}
                       onClick={() => respond(tool, false)}
-                      className="rounded-md border border-bolt-elements-borderColor px-3 py-1.5 text-xs text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50"
+                      className="hype-btn hype-btn--ghost rounded-md px-3 py-1.5 text-xs disabled:opacity-50"
                     >
                       Reject
                     </button>
@@ -92,7 +92,7 @@ export function ToolApprovalTray({
                       type="button"
                       disabled={responding}
                       onClick={() => respond(tool, true)}
-                      className="rounded-md bg-accent-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-600 disabled:opacity-50"
+                      className="hype-btn hype-btn--primary rounded-md px-3 py-1.5 text-xs disabled:opacity-50"
                     >
                       {responding ? 'Sending…' : 'Accept'}
                     </button>

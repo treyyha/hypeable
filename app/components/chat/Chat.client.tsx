@@ -791,6 +791,14 @@ export const ChatImpl = memo(
     }, []);
 
     useEffect(() => {
+      if (!import.meta.env.DEV) {
+        return;
+      }
+
+      void import('~/lib/deploy/debug-deploy').then((mod) => mod.runDebugDeployOnce());
+    }, []);
+
+    useEffect(() => {
       processSampledMessages({
         messages,
         initialMessages,

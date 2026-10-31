@@ -9,7 +9,7 @@ export default function Terms() {
     <LegalPage crumb="terms" title="Terms">
       <p>
         Hypeable is released under the{' '}
-        <a className="text-hype-text underline underline-offset-2" href={`${APP_REPO_URL}/blob/main/LICENSE`}>
+        <a className="hype-text-link" href={`${APP_REPO_URL}/blob/main/LICENSE`}>
           MIT licence
         </a>
         . It is provided as-is, without warranty of any kind.
@@ -24,7 +24,7 @@ export default function Terms() {
         <em>your</em> token. Review the pre-deploy check before you ship.
       </p>
       <p>
-        <a className="text-hype-text underline underline-offset-2" href="/privacy">
+        <a className="hype-text-link" href="/privacy">
           Privacy
         </a>
       </p>

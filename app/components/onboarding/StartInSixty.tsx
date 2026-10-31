@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import { dismissFirstRun, shouldShowFirstRunCard } from '~/components/onboarding/first-run';
 import { Button } from '~/components/ui/Button';
+import { TextLink } from '~/components/ui/TextLink';
 import { startOpenRouterConnect } from '~/lib/openrouter/connect';
 import { OPENROUTER_CREDITS_URL, OPENROUTER_KEYS_URL } from '~/lib/openrouter/constants';
 import { requestProviderListLoad } from '~/lib/performance/prefetch-home';
@@ -92,14 +93,9 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
                 {index === 1 ? (
                   <>
                     Add a few dollars of credit on{' '}
-                    <a
-                      href={OPENROUTER_CREDITS_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-hype-accent-text underline underline-offset-2"
-                    >
+                    <TextLink href={OPENROUTER_CREDITS_URL} external>
                       openrouter.ai
-                    </a>
+                    </TextLink>
                   </>
                 ) : (
                   label
@@ -116,9 +112,8 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
         >
           Connect with OpenRouter
         </Button>
-        <button
-          type="button"
-          className="mt-2 appearance-none text-xs text-hype-accent-text underline underline-offset-2"
+        <TextLink
+          className="mt-2 block text-xs"
           data-testid="already-have-key"
           onPointerEnter={() => requestProviderListLoad()}
           onFocus={() => requestProviderListLoad()}
@@ -128,18 +123,13 @@ export function StartInSixty({ hasKeys = false }: { hasKeys?: boolean }) {
           }}
         >
           I already have a key
-        </button>
+        </TextLink>
         <p className="mt-3 text-xs text-hype-muted">{PRIVACY_OPENROUTER}</p>
         <p className="mt-1 text-xs text-hype-muted">
           You can set a credit limit on the key at{' '}
-          <a
-            href={OPENROUTER_KEYS_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="text-hype-accent-text underline underline-offset-2"
-          >
+          <TextLink href={OPENROUTER_KEYS_URL} external>
             openrouter.ai/settings/keys
-          </a>
+          </TextLink>
           .
         </p>
       </section>

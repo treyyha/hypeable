@@ -158,7 +158,10 @@ const CloudProvidersTab = () => {
               <h4 className="text-md font-medium text-bolt-elements-textPrimary">Cloud Providers</h4>
               <p className="text-sm text-bolt-elements-textSecondary">
                 {PRIVACY_KEY_HINT} Verify it in{' '}
-                <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
+                <a
+                  href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts"
+                  className="hype-text-link"
+                >
                   app/routes/api.chat.ts
                 </a>
                 .

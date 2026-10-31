@@ -330,7 +330,11 @@ export const Markdown = memo(
             );
           }
 
-          return <button {...props}>{children}</button>;
+          return (
+            <button type="button" className="hype-btn hype-btn--ghost" {...props}>
+              {children}
+            </button>
+          );
         },
       } satisfies Components;
     }, [isStreaming]);

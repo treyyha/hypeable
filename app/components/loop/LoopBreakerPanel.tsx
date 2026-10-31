@@ -3,9 +3,10 @@
  * Dark, lime accent, not scary — the point is to stop the bleed, not panic.
  */
 import { useState } from 'react';
+import { Button } from '~/components/ui/Button';
+import { TextLink } from '~/components/ui/TextLink';
 import { formatDollars } from '~/lib/cost/calc';
 import { stripStackTrace } from '~/lib/errors/user-facing';
-import { classNames } from '~/utils/classNames';
 
 const PREVIEW_LINES = 4;
 
@@ -54,13 +55,9 @@ export function LoopBreakerPanel({
             {shown}
           </pre>
           {truncated && (
-            <button
-              type="button"
-              className="mt-1 text-[11px] text-hype-accent-text hover:underline"
-              onClick={() => setExpanded((value) => !value)}
-            >
+            <TextLink className="mt-1 text-[11px]" onClick={() => setExpanded((value) => !value)}>
               {expanded ? 'Show less' : 'Show more'}
-            </button>
+            </TextLink>
           )}
           <div className="mt-4 flex flex-wrap gap-2">
             <PanelButton onClick={onReplan} primary>
@@ -90,19 +87,8 @@ function PanelButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={classNames(
-        'rounded-[var(--hype-radius-md)] px-2.5 py-1.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring',
-        primary
-          ? 'bg-hype-accent text-hype-on-accent hover:opacity-90'
-          : 'border border-hype-border bg-hype-surface-2 text-hype-text hover:border-hype-accent/50',
-        disabled ? 'cursor-not-allowed opacity-50' : '',
-      )}
-    >
+    <Button type="button" variant={primary ? 'primary' : 'ghost'} onClick={onClick} disabled={disabled}>
       {children}
-    </button>
+    </Button>
   );
 }

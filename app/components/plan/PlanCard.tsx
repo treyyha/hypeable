@@ -4,10 +4,10 @@
 import { useStore } from '@nanostores/react';
 import type { ReactNode } from 'react';
 import { CostAmount } from '~/components/cost/CostAmount';
+import { Button } from '~/components/ui/Button';
 import { asPlainText, estimatePlanCost, type HypeablePlan } from '~/lib/plan';
 import { costStore } from '~/lib/stores/cost';
 import { addPlanFeatureLine, setPlanExtraFeature, setPlanTickedIds } from '~/lib/stores/plan';
-import { classNames } from '~/utils/classNames';
 
 export type PlanCardProps = {
   plan: HypeablePlan | null;
@@ -122,12 +122,9 @@ export function PlanCard({
                 placeholder="Add a feature"
                 className="flex-1 rounded-[var(--hype-radius-sm)] border border-hype-border bg-hype-bg px-2 py-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
               />
-              <button
-                type="submit"
-                className="rounded-[var(--hype-radius-sm)] border border-hype-border px-2 py-1 text-xs text-hype-muted hover:border-hype-accent/50 hover:text-hype-text"
-              >
+              <Button type="submit" variant="ghost" size="sm" className="h-auto px-2 py-1">
                 Add
-              </button>
+              </Button>
             </form>
           </div>
 
@@ -204,13 +201,9 @@ function PlanEstimate({ estimate }: { estimate: ReturnType<typeof estimatePlanCo
 
 function PrimaryButton({ onClick, children }: { onClick: () => void; children: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-[var(--hype-radius-md)] bg-hype-accent px-3 py-1.5 text-sm font-medium text-hype-on-accent hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hype-ring"
-    >
+    <Button type="button" variant="primary" onClick={onClick}>
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -224,16 +217,8 @@ function GhostButton({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={classNames(
-        'rounded-[var(--hype-radius-md)] border border-hype-border bg-hype-surface-2 px-3 py-1.5 text-sm text-hype-text hover:border-hype-accent/50',
-        disabled ? 'cursor-not-allowed opacity-50' : '',
-      )}
-    >
+    <Button type="button" variant="ghost" onClick={onClick} disabled={disabled}>
       {children}
-    </button>
+    </Button>
   );
 }

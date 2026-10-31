@@ -159,32 +159,17 @@ export default function DeployChatAlert({ alert, clearAlert, postMessage }: Depl
               <div className={classNames('flex gap-2')}>
                 {type === 'error' && (
                   <button
+                    type="button"
                     onClick={() =>
                       postMessage(`*Fix this deployment error*\n\`\`\`\n${content || description}\n\`\`\`\n`)
                     }
-                    className={classNames(
-                      `px-2 py-1.5 rounded-md text-sm font-medium`,
-                      'bg-bolt-elements-button-primary-background',
-                      'hover:bg-bolt-elements-button-primary-backgroundHover',
-                      'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-danger-background',
-                      'text-bolt-elements-button-primary-text',
-                      'flex items-center gap-1.5',
-                    )}
+                    className="hype-btn hype-btn--primary flex items-center gap-1.5"
                   >
                     <div className="i-ph:chat-circle-duotone"></div>
                     Ask Hypeable
                   </button>
                 )}
-                <button
-                  onClick={clearAlert}
-                  className={classNames(
-                    `px-2 py-1.5 rounded-md text-sm font-medium`,
-                    'bg-bolt-elements-button-secondary-background',
-                    'hover:bg-bolt-elements-button-secondary-backgroundHover',
-                    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bolt-elements-button-secondary-background',
-                    'text-bolt-elements-button-secondary-text',
-                  )}
-                >
+                <button type="button" onClick={clearAlert} className="hype-btn hype-btn--ghost">
                   Dismiss
                 </button>
               </div>

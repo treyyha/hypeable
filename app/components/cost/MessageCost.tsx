@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { CostAmount } from './CostAmount';
+import { TextLink } from '~/components/ui/TextLink';
 import { cost, formatTokenCount } from '~/lib/cost/calc';
 import { extractTokenUsage } from '~/lib/cost/usage';
 import { costStore } from '~/lib/stores/cost';
@@ -71,11 +72,7 @@ export function MessageCost({
           ({formatTokenCount(prompt)} in / {formatTokenCount(completion)} out)
         </span>
       </span>
-      {unknown && (
-        <button type="button" onClick={openCostSettings} className="text-accent-300 hover:underline">
-          set it
-        </button>
-      )}
+      {unknown && <TextLink onClick={openCostSettings}>set it</TextLink>}
     </div>
   );
 }

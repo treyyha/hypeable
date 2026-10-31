@@ -77,11 +77,8 @@ export function AttachmentMenu({
           title="Composer options"
           aria-label="Composer options"
           className={classNames(
-            'flex items-center appearance-none text-bolt-elements-item-contentDefault bg-transparent',
-            'hover:text-bolt-elements-item-contentActive rounded-md p-1',
-            'hover:bg-bolt-elements-item-backgroundActive',
-            'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus focus:ring-offset-1',
-            'transition-all',
+            'hype-icon-btn',
+            'focus:outline-none focus:ring-2 focus:ring-hype-ring focus:ring-offset-1',
           )}
         >
           <div className="i-ph:plus text-xl"></div>

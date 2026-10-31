@@ -1,4 +1,5 @@
 import React from 'react';
+import { Chip } from '~/components/ui/Chip';
 
 const EXAMPLE_PROMPTS = [
   { text: 'Make a recipe finder' },
@@ -23,16 +24,15 @@ export function ExamplePrompts({ onFill, limit = 4 }: { onFill: (text: string) =
       <div className="flex flex-wrap justify-center gap-2 px-1 sm:flex-nowrap">
         {EXAMPLE_PROMPTS.slice(0, limit).map((examplePrompt) => {
           return (
-            <button
+            <Chip
               key={examplePrompt.text}
               type="button"
               onClick={() => {
                 onFill(examplePrompt.text);
               }}
-              className="appearance-none rounded-full border border-hype-border bg-hype-surface px-3 py-1 text-xs text-hype-muted transition-theme hover:text-hype-text"
             >
               {examplePrompt.text}
-            </button>
+            </Chip>
           );
         })}
       </div>

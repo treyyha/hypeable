@@ -229,7 +229,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             selected for inspection
           </div>
           <button
-            className="bg-transparent text-hype-accent-text pointer-auto"
+            type="button"
+            className="hype-text-link pointer-auto"
             onClick={() => props.setSelectedElement?.(null)}
           >
             Clear

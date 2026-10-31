@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { CapReachedModal } from './CapReachedModal';
 import { CostAmount } from './CostAmount';
+import { Button } from '~/components/ui/Button';
+import { TextLink } from '~/components/ui/TextLink';
 import { formatDollars, formatPricesCheckedAt, formatTokenCount, getPricesCatalog } from '~/lib/cost/calc';
 import { capLevel } from '~/lib/cost/caps';
 import { snapshotIsApproximate } from '~/lib/cost/persist';
@@ -73,6 +75,14 @@ export function CostMeter() {
   const [announcement, setAnnouncement] = useState('');
   const previousTotal = useRef(snapshot.sessionTotal);
   const liveMessage = useRef('');
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+
+    void import('~/lib/cost/debug-cap').then((mod) => mod.runDebugCapOnce());
+  }, []);
 
   useEffect(() => {
     if (previousTotal.current === snapshot.sessionTotal) {
@@ -182,13 +192,15 @@ export function CostMeter() {
                 </p>
                 <p className="mt-1 text-[11px] text-bolt-elements-textTertiary">{pricesChecked}</p>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={copyReceipt}
-                className="rounded-[var(--hype-radius-sm)] border border-hype-border px-2 py-1 text-[11px] text-hype-muted hover:border-hype-accent/50 hover:text-hype-accent-text"
+                className="h-auto px-2 py-1 text-[11px]"
               >
                 Copy receipt
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-3">
@@ -229,31 +241,25 @@ export function CostMeter() {
                 </ul>
               )}
               {unknownModels.length > 0 && (
-                <button
-                  type="button"
-                  onClick={openCostSettings}
-                  className="mt-2 text-left text-[11px] text-hype-accent-text hover:underline"
-                >
+                <TextLink onClick={openCostSettings} className="mt-2 block text-left text-[11px]">
                   Price unknown, set it in settings
-                </button>
+                </TextLink>
               )}
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-2 border-t border-bolt-elements-borderColor pt-3">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={startNewSession}
-                className="text-[11px] text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary"
+                className="h-auto px-2 py-1 text-[11px]"
               >
                 Start new session
-              </button>
-              <button
-                type="button"
-                onClick={openCostSettings}
-                className="text-[11px] text-hype-accent-text hover:underline"
-              >
+              </Button>
+              <TextLink onClick={openCostSettings} className="text-[11px]">
                 Caps &amp; prices
-              </button>
+              </TextLink>
             </div>
             <Popover.Arrow className="fill-bolt-elements-background-depth-2" />
           </Popover.Content>

@@ -182,7 +182,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
       </div>
       <p className="text-xs text-bolt-elements-textSecondary max-w-3xl">
         {PRIVACY_KEY_HINT} Verify it in{' '}
-        <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="underline">
+        <a href="https://github.com/treyyha/hypeable/blob/main/app/routes/api.chat.ts" className="hype-text-link">
           app/routes/api.chat.ts
         </a>
         .

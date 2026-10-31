@@ -3,6 +3,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/Button';
+import { TextLink } from '~/components/ui/TextLink';
 import { readStoredApiKeys } from '~/lib/api/api-key-storage';
 import { API_KEYS_UPDATED_EVENT } from '~/lib/api/apiKeys';
 import { disconnectOpenRouter, isOpenRouterOAuthConnected, startOpenRouterConnect } from '~/lib/openrouter/connect';
@@ -60,14 +61,9 @@ export function OpenRouterConnection({ compact = false }: { compact?: boolean })
       </Button>
       <p className="mt-2 text-xs text-hype-muted">
         Disconnect removes the key from this browser. Revoke it on{' '}
-        <a
-          href={OPENROUTER_KEYS_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="text-hype-accent-text underline underline-offset-2"
-        >
+        <TextLink href={OPENROUTER_KEYS_URL} external>
           openrouter.ai/settings/keys
-        </a>
+        </TextLink>
         .
       </p>
     </div>
